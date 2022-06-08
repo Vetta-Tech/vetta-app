@@ -3,15 +3,26 @@ import React, {Component} from 'react';
 
 import Appstyle from '../../constants/AppStyles';
 
-import {TopBar, Search} from '../../components';
+import {TopBar, Search, TopImage} from '../../components';
 
-export default class Home extends Component {
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  Pdp: undefined;
+};
+
+interface IPdpPageProps {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Pdp'>;
+}
+
+export default class Home extends Component<IPdpPageProps> {
   render() {
     return (
       <>
         <SafeAreaView style={Appstyle.container}>
-          <TopBar />
+          <TopBar navigation={this.props.navigation!} />
           <Search />
+          <TopImage />
         </SafeAreaView>
       </>
     );
