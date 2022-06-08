@@ -8,33 +8,7 @@ import {
   FlatList,
 } from 'react-native';
 import React from 'react';
-
-const categoryData = [
-  {
-    id: 1,
-  },
-  {
-    id: 2,
-  },
-  {
-    id: 30,
-  },
-  {
-    id: 40,
-  },
-  {
-    id: 5,
-  },
-  {
-    id: 3,
-  },
-  {
-    id: 4,
-  },
-  {
-    id: 9,
-  },
-];
+import {categoryData} from '../../../constants/dummydata';
 
 const renderItem = ({item}: any) => {
   return (
@@ -46,10 +20,20 @@ const renderItem = ({item}: any) => {
         resizeMode="cover">
         <View style={{padding: 15}}>
           <View>
-            <Text style={{fontSize: 30, color: 'black', fontWeight: 'bold'}}>
+            <Text
+              style={{
+                fontSize: 30,
+                color: 'black',
+                fontFamily: 'Montserrat-SemiBold',
+              }}>
               25% Discount
             </Text>
-            <Text>For a cozy yellow set</Text>
+            <Text
+              style={{
+                fontFamily: 'Montserrat-Medium',
+              }}>
+              For a cozy yellow set
+            </Text>
           </View>
           <TouchableOpacity
             style={{
@@ -66,6 +50,7 @@ const renderItem = ({item}: any) => {
                 color: 'white',
                 textAlign: 'center',
                 margin: 'auto',
+                fontFamily: 'Montserrat-SemiBold',
               }}>
               Learn more
             </Text>
@@ -83,8 +68,8 @@ const TopImage = () => {
         data={categoryData}
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={item => `${item.id}`}
         renderItem={renderItem}
+        keyExtractor={item => `${item.id}`}
         contentContainerStyle={{paddingVertical: 5}}
       />
     </View>

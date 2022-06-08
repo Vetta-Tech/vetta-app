@@ -7,7 +7,7 @@ import {Provider} from 'react-redux';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import {rootReducer, Home, Map} from './src';
+import {rootReducer, Home, Map, Search} from './src';
 
 const store = configureStore({reducer: rootReducer});
 
@@ -25,6 +25,7 @@ export default class App extends Component {
             }}>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="Map" component={Map} />
+            <Stack.Screen name="Search" component={Search} />
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>

@@ -5,18 +5,26 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 type ProppType = {
   navigation: any;
+  name: string;
+  address: string;
 };
 
-const TopBar = ({navigation}: ProppType) => {
+const TopBar = ({navigation, name, address}: ProppType) => {
   return (
     <View style={styles.top}>
       <View>
         <View style={styles.store}>
-          <Text style={styles.store_text}>VETTA store</Text>
+          <Text style={styles.store_text}>{name}</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.push('Map')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Map')}>
           <View style={styles.location}>
-            <Text>Rd 11 Uttara Dhaka</Text>
+            <Text
+              style={{
+                fontFamily: 'Montserrat-Light',
+                color: 'black',
+              }}>
+              {address}
+            </Text>
             <Icon name="arrow-down-outline" size={15} />
           </View>
         </TouchableOpacity>
@@ -36,13 +44,13 @@ const styles = StyleSheet.create({
   },
   store: {},
   store_text: {
-    fontSize: 20,
+    fontSize: 22,
     color: 'black',
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat-Bold',
   },
   location: {
-    flexDirection: 'row',
     alignItems: 'flex-end',
+    flexDirection: 'row',
   },
 });
 

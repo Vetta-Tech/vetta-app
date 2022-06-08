@@ -1,25 +1,42 @@
-import {Text, StyleSheet, View, TextInput} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import React, {Component} from 'react';
 
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 
-export default class Search extends Component {
+type ProPsType = {
+  navigation: any;
+};
+export default class Search extends Component<ProPsType> {
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.searchBar__unclicked}>
-          <EvilIcons
-            name="search"
-            size={30}
-            color="black"
-            style={{marginLeft: 1}}
-          />
-          <TextInput
-            style={styles.searchBar__unclicked}
-            placeholder="Search"
-            onChange={() => console.log('clicked')}
-          />
-        </View>
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate('Search')}>
+          <View style={styles.searchBar__unclicked}>
+            <EvilIcons
+              name="search"
+              size={30}
+              color="black"
+              style={{marginLeft: 1}}
+            />
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('Search')}>
+              <TextInput
+                editable={false}
+                pointerEvents="none"
+                style={styles.searchBar__unclicked}
+                placeholder="Search"
+                onChange={() => console.log('clicked')}
+              />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -33,7 +50,7 @@ const styles = StyleSheet.create({
     padding: 5,
     flexDirection: 'row',
     // width: '100%',
-    backgroundColor: '#d9dbda',
+    backgroundColor: '#f2f2f2',
     borderRadius: 15,
     alignItems: 'center',
   },

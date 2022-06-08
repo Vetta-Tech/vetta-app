@@ -1,9 +1,23 @@
-import {Text, StyleSheet, View, SafeAreaView, StatusBar} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  SafeAreaView,
+  StatusBar,
+  ScrollView,
+} from 'react-native';
 import React, {Component} from 'react';
 
 import Appstyle from '../../constants/AppStyles';
 
-import {TopBar, Search, TopImage} from '../../components';
+import {
+  TopBar,
+  Search,
+  TopImage,
+  Category,
+  RecentProduct,
+  PopularProducts,
+} from '../../components';
 
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
@@ -19,11 +33,18 @@ export default class Home extends Component<IPdpPageProps> {
   render() {
     return (
       <>
-        <SafeAreaView style={Appstyle.container}>
-          <TopBar navigation={this.props.navigation!} />
-          <Search />
+        <ScrollView style={[Appstyle.container, {flex: 1}]}>
+          <TopBar
+            name="VETTA store"
+            address="Rd.111 , Uttara"
+            navigation={this.props.navigation}
+          />
+          <Search navigation={this.props.navigation} />
           <TopImage />
-        </SafeAreaView>
+          <Category />
+          <RecentProduct />
+          <PopularProducts />
+        </ScrollView>
       </>
     );
   }

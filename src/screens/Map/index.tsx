@@ -12,6 +12,7 @@ import Geocoder from 'react-native-geocoding';
 import Geolocation from '@react-native-community/geolocation';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 const API_KEY = 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg';
 const BARIKOI_API = 'MzQ3MjpKM0JHWkI4WDc1';
@@ -22,6 +23,14 @@ var options = {
   apiKey: API_KEY, // for Mapquest, OpenCage, Google Premier
   formatter: 'json', // 'gpx', 'string', ...
 };
+
+type RootStackParamList = {
+  Pdp: undefined;
+};
+
+interface IPdpPageProps {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Pdp'>;
+}
 
 const mapStyle = [
   {
@@ -76,7 +85,7 @@ type ProxyType = {
   markup: any;
 };
 
-export default class App extends Component<ProxyType> {
+export default class App extends Component<ProxyType, IPdpPageProps> {
   constructor(props: any) {
     super(props);
     this.ref = React.createRef();
@@ -133,6 +142,7 @@ export default class App extends Component<ProxyType> {
     } catch (e) {
       console.log('cant able to store in localStorage');
     }
+    this.props.navigation.navigate('Home');
   };
 
   handleUserLocation = () => {
@@ -265,7 +275,7 @@ export default class App extends Component<ProxyType> {
               padding: 30,
               justifyContent: 'space-between',
             }}>
-            <TouchableOpacity onPress={() => console.log('click')}>
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <View
                 style={{
                   backgroundColor: 'white',
