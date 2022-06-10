@@ -31,7 +31,7 @@ export default class Search extends Component<ProPsType> {
                 editable={false}
                 pointerEvents="none"
                 style={styles.searchBar__unclicked}
-                placeholder="Search"
+                placeholder="Search the VETTA store"
                 onChange={() => console.log('clicked')}
               />
             </TouchableOpacity>

@@ -121,90 +121,100 @@ export default class Search extends Component<IPdpPageProps> {
 
   render() {
     return (
-      <ScrollView
-        style={[AppStyles.container, {backgroundColor: 'white', flex: 1}]}>
-        <TopBar
-          name="VETTA Store"
-          address="Rd.111 , Uttara"
-          navigation={this.props.navigation}
-        />
+      <>
+        <View
+          style={{
+            paddingTop: 20,
+            paddingLeft: 20,
+            paddingRight: 20,
+            backgroundColor: 'white',
+            padding: 5,
+          }}>
+          <TopBar
+            name="VETTA store"
+            address="Rd.111 , Uttara"
+            navigation={this.props.navigation}
+          />
 
-        <View style={{marginTop: 15}}>
-          <View style={styles.searchBar__unclicked}>
-            <EvilIcons
-              name="search"
-              size={30}
-              color="black"
-              style={{marginLeft: 1}}
-            />
+          <View style={{marginTop: 15}}>
+            <View style={styles.searchBar__unclicked}>
+              <EvilIcons
+                name="search"
+                size={30}
+                color="black"
+                style={{marginLeft: 1}}
+              />
 
-            <TextInput
-              style={styles.searchBar__unclicked}
-              placeholder="Search the VETTA store"
-              onChange={() => console.log('clicked')}
-            />
+              <TextInput
+                style={styles.searchBar__unclicked}
+                placeholder="Search the VETTA store"
+                onChange={() => console.log('clicked')}
+              />
+            </View>
           </View>
         </View>
-        <View style={{marginTop: 25}}>
-          <Text style={styles.headline}>Popular Searched</Text>
-          <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-            <PopularSearchCard name="T-Shirts" />
-            <PopularSearchCard name="Shorts" />
-            <PopularSearchCard name="Shirts" />
-            <PopularSearchCard name="Anime" />
-            <PopularSearchCard name="Buy 2 at 599" />
-            <PopularSearchCard name="Shoes" />
-            <PopularSearchCard name="Shoes" />
-            <PopularSearchCard name="Bags" />
-            <PopularSearchCard name="Marvel" />
-            <PopularSearchCard name="Sliders" />
+        <ScrollView style={[AppStyles.container, {backgroundColor: 'white'}]}>
+          <View style={{marginTop: 0}}>
+            <Text style={styles.headline}>Popular Searched</Text>
+            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+              <PopularSearchCard name="T-Shirts" />
+              <PopularSearchCard name="Shorts" />
+              <PopularSearchCard name="Shirts" />
+              <PopularSearchCard name="Anime" />
+              <PopularSearchCard name="Buy 2 at 599" />
+              <PopularSearchCard name="Shoes" />
+              <PopularSearchCard name="Shoes" />
+              <PopularSearchCard name="Bags" />
+              <PopularSearchCard name="Marvel" />
+              <PopularSearchCard name="Sliders" />
+            </View>
           </View>
-        </View>
-        <View style={{marginTop: 25}}>
-          <Text style={styles.headline}>Popular Curations</Text>
-          <ScrollView
-            horizontal
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{paddingVertical: 0}}>
-            <FlatList
-              scrollEnabled={false}
-              contentContainerStyle={{
-                alignSelf: 'flex-start',
-              }}
-              numColumns={categoryData.length / 2}
+          <View style={{marginTop: 25}}>
+            <Text style={styles.headline}>Popular Curations</Text>
+            <ScrollView
+              horizontal
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
-              data={categoryData}
-              renderItem={this.renderItem}
-            />
-          </ScrollView>
-        </View>
-        <View style={{marginTop: 25}}>
-          <Text style={styles.headline}>What's New</Text>
-          <View>
-            <FlatList
-              horizontal
-              data={categoryData}
-              showsHorizontalScrollIndicator={false}
-              renderItem={this.renderWhatSNew}
-              contentContainerStyle={{paddingVertical: 4}}
-            />
+              contentContainerStyle={{paddingVertical: 0}}>
+              <FlatList
+                scrollEnabled={false}
+                contentContainerStyle={{
+                  alignSelf: 'flex-start',
+                }}
+                numColumns={categoryData.length / 2}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                data={categoryData}
+                renderItem={this.renderItem}
+              />
+            </ScrollView>
           </View>
-        </View>
-        <View style={{marginTop: 25, marginBottom: 25}}>
-          <Text style={styles.headline}>Trending</Text>
-          <View>
-            <FlatList
-              horizontal
-              data={categoryData}
-              showsHorizontalScrollIndicator={false}
-              renderItem={this.renderTrending}
-              contentContainerStyle={{paddingVertical: 4}}
-            />
+          <View style={{marginTop: 25}}>
+            <Text style={styles.headline}>What's New</Text>
+            <View>
+              <FlatList
+                horizontal
+                data={categoryData}
+                showsHorizontalScrollIndicator={false}
+                renderItem={this.renderWhatSNew}
+                contentContainerStyle={{paddingVertical: 4}}
+              />
+            </View>
           </View>
-        </View>
-      </ScrollView>
+          <View style={{marginTop: 25, marginBottom: 25}}>
+            <Text style={styles.headline}>Trending</Text>
+            <View>
+              <FlatList
+                horizontal
+                data={categoryData}
+                showsHorizontalScrollIndicator={false}
+                renderItem={this.renderTrending}
+                contentContainerStyle={{paddingVertical: 4}}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </>
     );
   }
 }

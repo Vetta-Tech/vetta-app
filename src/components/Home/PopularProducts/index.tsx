@@ -62,7 +62,7 @@ const PopularProducts = () => {
   };
 
   return (
-    <View style={{paddingRight: 15, paddingTop: 10, marginBottom: 100}}>
+    <View style={{paddingTop: 10}}>
       <SectionHead name="Popular" />
       <View style={{}}>
         <FlatList
