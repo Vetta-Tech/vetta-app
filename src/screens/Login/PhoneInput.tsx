@@ -1,113 +1,104 @@
-import axios from 'axios';
 import React, {Component} from 'react';
-
 import {
-  SafeAreaView,
-  StyleSheet,
   View,
-  TouchableOpacity,
+  StyleSheet,
+  ToastAndroid,
+  Button,
   Text,
-  TextInput,
+  Image,
 } from 'react-native';
-
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import axios from 'axios';
 import {API_URL} from '@env';
 
-interface PhoneInputState {
-  phone_number: string;
-  pk: number;
-  successfullySendOtp: boolean;
-}
-
-export class PhoneInputComp extends Component<any, PhoneInputState> {
+class App extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      phone_number: '+8801784291144',
-      pk: 0,
-      successfullySendOtp: false,
+      userGoogleInfo: {},
+      loaded: false,
     };
   }
 
-  sendOtpAndRedirect = (props: any) => {
+  componentDidMount() {
+    GoogleSignin.configure({
+      webClientId:
+        '839900927386-giu1evpsfnet2e4a0ge92kl213f4mvd6.apps.googleusercontent.com',
+    });
+  }
+
+  signIn = async () => {
+    try {
+      console.log('asdsad');
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      this.setState({
+        userGoogleInfo: userInfo,
+        loaded: true,
+      });
+      console.log(this.state.userGoogleInfo);
+    } catch (error) {
+      if (error!.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('e 1');
+      } else if (error!.code === statusCodes.IN_PROGRESS) {
+        console.log('e 2');
+      } else if (error!.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('e 3');
+      } else {
+        console.log('err', error);
+      }
+    }
+  };
+
+  handleSignIn = (accesstoken: string) => {
+    console.log('response', accesstoken);
+
     axios
-      .post(`${API_URL}auth/generate/`, {phone_number: this.state.phone_number})
-      .then(res => {
-        if (res.status === 200) {
-          this.setState({
-            pk: res.data.pk,
-            successfullySendOtp: true,
-          });
-          this.props.navigation.push('VerifyOtp', {
-            pk: this.state.pk,
-            number: this.state.phone_number,
-          });
-        }
+      .post('http://192.168.0.204:8000/rest-auth/google/', {
+        access_token: accesstoken,
       })
-      .catch(err => console.log(err.response.data));
+      .then(res => {
+        console.log(res.data);
+      })
+      .catch(err => console.log('err', err));
   };
 
   render() {
     return (
-      <View style={styles.container}>
-        <SafeAreaView style={styles.wrapper}>
-          <TextInput
-            style={{borderWidth: 2, width: '100%'}}
-            value={this.state.phone_number}
-            onChangeText={text => this.setState({phone_number: text})}
-          />
-
-          <TouchableOpacity
-            onPress={this.sendOtpAndRedirect}
-            style={styles.button}>
-            <Text>Send OTP</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </View>
+      <Button
+        title={'Sign in with Google'}
+        onPress={() => {
+          GoogleSignin.configure({
+            webClientId:
+              '839900927386-giu1evpsfnet2e4a0ge92kl213f4mvd6.apps.googleusercontent.com',
+            offlineAccess: true,
+          });
+          GoogleSignin.hasPlayServices()
+            .then(hasPlayService => {
+              if (hasPlayService) {
+                GoogleSignin.signIn()
+                  .then(data => {
+                    // console.log('TEST', JSON.stringify(data));
+                    const user = GoogleSignin.getTokens().then(res =>
+                      this.handleSignIn(res.accessToken),
+                    );
+                  })
+                  .catch(er => console.log(er));
+              }
+            })
+            .catch(e => {
+              console.log('ERROR IS: ' + JSON.stringify(e));
+            });
+        }}
+      />
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  wrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    marginTop: 20,
-    height: 50,
-    width: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#7CDB8A',
-    shadowColor: 'rgba(0,0,0,0.4)',
-    shadowOffset: {
-      width: 1,
-      height: 5,
-    },
-    shadowOpacity: 0.34,
-    shadowRadius: 6.27,
-    elevation: 10,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 14,
-  },
-  redColor: {
-    backgroundColor: '#F57777',
-  },
-  message: {
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 20,
-    marginBottom: 20,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-});
+export default App;
 
-export default PhoneInputComp;
+// // '839900927386-mus78gu7pirp1p3snfdlj7llo5l4dgum.apps.googleusercontent.com',

@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">vetta</string>
+    <string name="app_name">Vetta</string>
+    <string name="facebook_app_id">390102736420240</string>
+    <string name="facebook_client_token">d2547ddefd1d6c155d8e50b4b53fb913</string>
+    <string name="server_client_id">916014120808-hf5qu9j8t0tdfeccu9nnqveuu8md92h3.apps.googleusercontent.com</string>
 </resources>
