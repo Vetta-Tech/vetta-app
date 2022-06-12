@@ -1,104 +1,174 @@
-import React, {Component} from 'react';
 import {
-  View,
-  StyleSheet,
-  ToastAndroid,
-  Button,
   Text,
+  StyleSheet,
+  View,
+  TextInput,
   Image,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
+import React, {Component} from 'react';
+
 import axios from 'axios';
+
+import {TopNav} from '../../components';
+import {bd} from '../../constants/images';
 import {API_URL} from '@env';
 
-class App extends Component<any, any> {
+export const OverlaySpinner = () => {
+  return (
+    <View style={styles.spinnerView}>
+      <ActivityIndicator size="large" color="#0000ff" />
+    </View>
+  );
+};
+
+export default class PhoneInput extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      userGoogleInfo: {},
-      loaded: false,
+      phone_number: '',
+      loading: false,
     };
   }
 
-  componentDidMount() {
-    GoogleSignin.configure({
-      webClientId:
-        '839900927386-giu1evpsfnet2e4a0ge92kl213f4mvd6.apps.googleusercontent.com',
+  handleSubmit = () => {
+    console.log('+880' + this.state.phone_number);
+    this.setState({
+      loading: true,
     });
-  }
-
-  signIn = async () => {
-    try {
-      console.log('asdsad');
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      this.setState({
-        userGoogleInfo: userInfo,
-        loaded: true,
-      });
-      console.log(this.state.userGoogleInfo);
-    } catch (error) {
-      if (error!.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('e 1');
-      } else if (error!.code === statusCodes.IN_PROGRESS) {
-        console.log('e 2');
-      } else if (error!.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log('e 3');
-      } else {
-        console.log('err', error);
-      }
-    }
-  };
-
-  handleSignIn = (accesstoken: string) => {
-    console.log('response', accesstoken);
-
     axios
-      .post('http://192.168.0.204:8000/rest-auth/google/', {
-        access_token: accesstoken,
+      .post(`http://192.168.0.204:8000/api/v1/auth/generate/`, {
+        phone_number: '+880' + this.state.phone_number,
       })
       .then(res => {
-        console.log(res.data);
+        if (res.status === 200) {
+          this.setState({
+            pk: res.data.pk,
+            successfullySendOtp: true,
+          });
+          this.props.navigation.push('VerifyOtp', {
+            pk: this.state.pk,
+            number: this.state.phone_number,
+          });
+        }
+        this.setState({
+          loading: false,
+        });
       })
-      .catch(err => console.log('err', err));
+      .catch(err => {
+        console.log(err.message);
+        this.setState({
+          loading: false,
+        });
+      });
   };
 
   render() {
+    console.log(this.state.loading);
     return (
-      <Button
-        title={'Sign in with Google'}
-        onPress={() => {
-          GoogleSignin.configure({
-            webClientId:
-              '839900927386-giu1evpsfnet2e4a0ge92kl213f4mvd6.apps.googleusercontent.com',
-            offlineAccess: true,
-          });
-          GoogleSignin.hasPlayServices()
-            .then(hasPlayService => {
-              if (hasPlayService) {
-                GoogleSignin.signIn()
-                  .then(data => {
-                    // console.log('TEST', JSON.stringify(data));
-                    const user = GoogleSignin.getTokens().then(res =>
-                      this.handleSignIn(res.accessToken),
-                    );
-                  })
-                  .catch(er => console.log(er));
-              }
-            })
-            .catch(e => {
-              console.log('ERROR IS: ' + JSON.stringify(e));
-            });
-        }}
-      />
+      <View
+        style={{
+          paddingTop: 20,
+          paddingLeft: 20,
+          paddingRight: 20,
+          backgroundColor: 'white',
+          padding: 5,
+          width: '100%',
+          height: '100%',
+        }}>
+        <TopNav icon="chevron-left" title="Sign In" />
+
+        <View style={styles.phoneTop}>
+          <Text style={styles.headingText}>Enter Your Phone Number</Text>
+        </View>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            width: '100%',
+            padding: 10,
+          }}>
+          <View style={styles.searchBar__unclicked}>
+            <Image
+              source={bd}
+              style={{
+                height: 30,
+                width: 30,
+                padding: 5,
+              }}
+            />
+
+            <Text
+              style={{
+                fontFamily: 'Montserrat-Bold',
+                fontSize: 12,
+                padding: 5,
+              }}>
+              +880
+            </Text>
+
+            <TextInput
+              maxLength={10}
+              autoFocus={true}
+              keyboardType="numeric"
+              style={styles.searchBar__unclicked}
+              onChangeText={text => this.setState({phone_number: text})}
+            />
+          </View>
+
+          <TouchableOpacity onPress={() => this.handleSubmit()}>
+            <View
+              style={{
+                backgroundColor: 'black',
+                width: 80,
+                padding: 15,
+                alignSelf: 'flex-end',
+                borderRadius: 12,
+              }}>
+              <Text
+                style={{
+                  color: 'white',
+                }}>
+                Submit
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        {this.state.loading && <OverlaySpinner />}
+      </View>
     );
   }
 }
 
-export default App;
-
-// // '839900927386-mus78gu7pirp1p3snfdlj7llo5l4dgum.apps.googleusercontent.com',
+const styles = StyleSheet.create({
+  phoneTop: {
+    marginTop: 30,
+  },
+  headingText: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 18,
+    marginBottom: 15,
+    color: 'black',
+  },
+  searchBar__unclicked: {
+    padding: 6,
+    flexDirection: 'row',
+    // width: '100%',
+    backgroundColor: '#f2f2f2',
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  spinnerView: {
+    position: 'absolute',
+    zIndex: 1,
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5FCFF88',
+  },
+});

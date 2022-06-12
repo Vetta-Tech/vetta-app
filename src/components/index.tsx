@@ -13,6 +13,7 @@ import TopImage from './Home/TopImageSlider';
 import MapInput from './Map/input';
 import PopularCurationsCard from './Search/PopularCurationsCard';
 import PopularSearchCard from './Search/PopularSearchCard';
+import TopNav from './TopNav';
 import SectionHead from './Typography/SectionHead';
 
 export {
@@ -32,4 +33,5 @@ export {
   SubCatCard,
   TopCart,
   CartBody,
+  TopNav,
 };

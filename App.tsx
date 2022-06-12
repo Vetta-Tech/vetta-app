@@ -8,7 +8,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import {rootReducer, Map, Search, BottomTab, VerifyOtp} from './src';
-import {PhoneInputComp} from './src/screens';
+import {PhoneInputComp, AuthSelect} from './src/screens';
 
 const store = configureStore({reducer: rootReducer});
 const Stack = createStackNavigator();
@@ -19,11 +19,12 @@ export default class App extends Component {
       <Provider store={store}>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName={'PhoneInputComp'}
+            initialRouteName={'AuthSelect'}
             screenOptions={{
               headerShown: false,
             }}>
             <Stack.Screen name="Home" component={BottomTab} />
+            <Stack.Screen name="AuthSelect" component={AuthSelect} />
             <Stack.Screen name="Map" component={Map} />
             <Stack.Screen name="Search" component={Search} />
             <Stack.Screen name="PhoneInputComp" component={PhoneInputComp} />
