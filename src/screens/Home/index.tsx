@@ -26,6 +26,7 @@ import {
 } from '../../components';
 
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   Pdp: undefined;
@@ -36,6 +37,11 @@ interface IPdpPageProps {
 }
 
 export default class Home extends Component<IPdpPageProps> {
+  async componentDidMount() {
+    const token = await AsyncStorage.getItem('token');
+    console.log(token);
+  }
+
   render() {
     return (
       <>

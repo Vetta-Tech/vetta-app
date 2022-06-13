@@ -1,3 +1,4 @@
+import AuthSelectModal from './Modal/AuthSelectModal';
 import CartBody from './Cart/CartBody';
 import TopCart from './Cart/TopCart';
 import Brands from './Home/Brands';
@@ -15,6 +16,9 @@ import PopularCurationsCard from './Search/PopularCurationsCard';
 import PopularSearchCard from './Search/PopularSearchCard';
 import TopNav from './TopNav';
 import SectionHead from './Typography/SectionHead';
+import LoginError from './ErrorMessage/LoginError';
+import TopNavDetails from './Details/TopNav';
+import NameSection from './Details/NameSection';
 
 export {
   TopBar,
@@ -34,4 +38,8 @@ export {
   TopCart,
   CartBody,
   TopNav,
+  AuthSelectModal,
+  LoginError,
+  TopNavDetails,
+  NameSection,
 };

@@ -9,11 +9,12 @@ import {
 } from 'react-native';
 import React, {Component} from 'react';
 
-import axios from 'axios';
+import {connect} from 'react-redux';
 
-import {TopNav} from '../../components';
+import {LoginError, TopNav} from '../../components';
 import {bd} from '../../constants/images';
-import {API_URL} from '@env';
+import {sendOtp} from '../../store/actions/auth';
+import {State} from '../../store/reducers';
 
 export const OverlaySpinner = () => {
   return (
@@ -23,49 +24,49 @@ export const OverlaySpinner = () => {
   );
 };
 
-export default class PhoneInput extends Component<any, any> {
+class PhoneInput extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
       phone_number: '',
-      loading: false,
+      disableSubmit: true,
     };
   }
 
-  handleSubmit = () => {
-    console.log('+880' + this.state.phone_number);
-    this.setState({
-      loading: true,
-    });
-    axios
-      .post(`http://192.168.0.204:8000/api/v1/auth/generate/`, {
-        phone_number: '+880' + this.state.phone_number,
-      })
-      .then(res => {
-        if (res.status === 200) {
-          this.setState({
-            pk: res.data.pk,
-            successfullySendOtp: true,
-          });
-          this.props.navigation.push('VerifyOtp', {
-            pk: this.state.pk,
-            number: this.state.phone_number,
-          });
-        }
-        this.setState({
-          loading: false,
-        });
-      })
-      .catch(err => {
-        console.log(err.message);
-        this.setState({
-          loading: false,
-        });
+  componentDidUpdate(prevProps: any) {
+    console.log('update status', this.props.status);
+    if (this.props.status === 200) {
+      this.props.navigation.navigate('VerifyOtp', {
+        pk: this.props.pk,
       });
+    }
+  }
+
+  handleSubmit = () => {
+    this.props.sentOtpRequest('+880' + this.state.phone_number);
+
+    if (this.props.status === 200) {
+      this.props.navigation.navigate('VerifyOtp', {
+        pk: this.state.pk,
+        number: this.state.phone_number,
+      });
+    }
+  };
+
+  handleChange = (text: any) => {
+    this.setState({phone_number: text});
+    if (this.state.phone_number.length >= 9) {
+      this.setState({
+        disableSubmit: false,
+      });
+    } else {
+      this.setState({
+        disableSubmit: true,
+      });
+    }
   };
 
   render() {
-    console.log(this.state.loading);
     return (
       <View
         style={{
@@ -77,7 +78,11 @@ export default class PhoneInput extends Component<any, any> {
           width: '100%',
           height: '100%',
         }}>
-        <TopNav icon="chevron-left" title="Sign In" />
+        <TopNav
+          navigation={this.props.navigation}
+          icon="chevron-left"
+          title="Sign In"
+        />
 
         <View style={styles.phoneTop}>
           <Text style={styles.headingText}>Enter Your Phone Number</Text>
@@ -114,33 +119,60 @@ export default class PhoneInput extends Component<any, any> {
               autoFocus={true}
               keyboardType="numeric"
               style={styles.searchBar__unclicked}
-              onChangeText={text => this.setState({phone_number: text})}
+              onChangeText={text => this.handleChange(text)}
             />
           </View>
 
-          <TouchableOpacity onPress={() => this.handleSubmit()}>
-            <View
-              style={{
-                backgroundColor: 'black',
-                width: 80,
-                padding: 15,
-                alignSelf: 'flex-end',
-                borderRadius: 12,
-              }}>
-              <Text
+          <View>
+            {this.props.error !== '' ? (
+              <LoginError msg="Something went wrong" />
+            ) : null}
+            <TouchableOpacity
+              disabled={this.state.disableSubmit}
+              onPress={() => this.handleSubmit()}>
+              <View
                 style={{
-                  color: 'white',
+                  backgroundColor: 'black',
+                  width: 80,
+                  padding: 15,
+                  alignSelf: 'flex-end',
+                  borderRadius: 12,
+                  marginTop: 15,
                 }}>
-                Submit
-              </Text>
-            </View>
-          </TouchableOpacity>
+                <Text
+                  style={{
+                    color: 'white',
+                  }}>
+                  Submit
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
-        {this.state.loading && <OverlaySpinner />}
+        {this.props.loading && <OverlaySpinner />}
       </View>
     );
   }
 }
+
+const mapStateToProps = (state: State) => {
+  console.log(state);
+  return {
+    isAuthenticated: state.auth.token !== null,
+    loading: state.auth.loading,
+    status: state.auth.status,
+    pk: state.auth.pk,
+    error: state.auth.error,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    sentOtpRequest: (phone_number: any) => dispatch(sendOtp({phone_number})),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PhoneInput);
 
 const styles = StyleSheet.create({
   phoneTop: {

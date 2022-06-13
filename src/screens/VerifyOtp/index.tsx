@@ -7,10 +7,15 @@ import {
 } from 'react-native';
 import React, {Component} from 'react';
 
+import {connect} from 'react-redux';
+
 import {API_URL} from '@env';
 import axios from 'axios';
-import {TopNav} from '../../components';
+import {LoginError, TopNav} from '../../components';
 import {OverlaySpinner} from '../Login/PhoneInput';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {validateOtp} from '../../store/actions/auth';
+import {State} from '../../store/reducers';
 
 interface VerifyOtPState {}
 
@@ -20,7 +25,18 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
     error: '',
     success: null,
     loading: false,
+    disableSubmit: true,
+    pk: '',
   };
+
+  componentDidUpdate(prevProps: any) {
+    console.log('update status in verify', this.props.validateStatus);
+    if (this.props.validateStatus === 200) {
+      this.props.navigation.navigate('Home', {
+        pk: this.props.pk,
+      });
+    }
+  }
 
   componentDidMount() {
     console.log(this.props.route.params.pk);
@@ -33,39 +49,25 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
   }
 
   handleSubmit = () => {
-    this.setState({
-      loading: true,
-    });
-    axios
-      .post(`${API_URL}auth/validate/`, {
-        otp: this.state.otp,
-        pk: this.props.route?.params?.pk,
-      })
-      .then(res => {
-        console.log(res.data);
-        if (res.status === 200) {
-          this.setState({
-            pk: res.data.pk,
-            successfullySendOtp: true,
-          });
-          this.props.navigation.push('Home');
-        }
-        this.setState({
-          success: true,
-          loading: false,
-        });
-      })
-      .catch(err => {
-        console.log(err.message);
-        this.setState({
-          success: false,
-          error: err.message,
-          loading: false,
-        });
+    this.props.validateOtpReq(this.state.otp, this.props.route?.params?.pk);
+  };
+
+  handleChange = (text: any) => {
+    this.setState({otp: text});
+
+    if (this.state.otp.length >= 3) {
+      this.setState({
+        disableSubmit: false,
       });
+    } else {
+      this.setState({
+        disableSubmit: true,
+      });
+    }
   };
 
   render() {
+    console.log(this.props.validateStatus);
     return (
       <View
         style={{
@@ -77,11 +79,16 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
           width: '100%',
           height: '100%',
         }}>
-        <TopNav icon="chevron-left" title="Verify" />
+        <TopNav
+          navigation={this.props.navigation}
+          icon="chevron-left"
+          title="Verify"
+        />
 
         <View style={styles.phoneTop}>
           <Text style={styles.headingText}>Enter Your 4-digit code</Text>
         </View>
+
         <View
           style={{
             flex: 1,
@@ -97,33 +104,61 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
               keyboardType="numeric"
               style={styles.searchBar__unclicked}
               placeholder="- - - -"
-              onChangeText={text => this.setState({otp: text})}
+              onChangeText={text => this.handleChange(text)}
             />
           </View>
+          <View>
+            {this.props.error !== '' ? (
+              <LoginError msg="Something went wrong" />
+            ) : null}
 
-          <TouchableOpacity onPress={() => this.handleSubmit()}>
-            <View
-              style={{
-                backgroundColor: 'black',
-                width: 80,
-                padding: 15,
-                alignSelf: 'flex-end',
-                borderRadius: 12,
-              }}>
-              <Text
+            <TouchableOpacity
+              disabled={this.state.disableSubmit}
+              onPress={() => this.handleSubmit()}>
+              <View
                 style={{
-                  color: 'white',
+                  backgroundColor: 'black',
+                  width: 80,
+                  padding: 15,
+                  alignSelf: 'flex-end',
+                  borderRadius: 12,
+                  marginTop: 20,
                 }}>
-                Submit
-              </Text>
-            </View>
-          </TouchableOpacity>
+                <Text
+                  style={{
+                    color: 'white',
+                  }}>
+                  Submit
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
-        {this.state.loading && <OverlaySpinner />}
+        {this.props.loading && <OverlaySpinner />}
       </View>
     );
   }
 }
+
+const mapStateToProps = (state: State) => {
+  console.log(state);
+  return {
+    isAuthenticated: state.auth.token !== null,
+    loading: state.auth.loading,
+    status: state.auth.status,
+    pk: state.auth.pk,
+    error: state.auth.error,
+    validateStatus: state.auth.validateStatus,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    validateOtpReq: (otp: any, pk: any) => dispatch(validateOtp({otp, pk})),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(VerifyOtp);
 
 const styles = StyleSheet.create({
   phoneTop: {
@@ -155,5 +190,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF88',
   },
 });
-
-export default VerifyOtp;

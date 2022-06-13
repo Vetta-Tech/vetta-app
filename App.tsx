@@ -9,28 +9,16 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import {rootReducer, Map, Search, BottomTab, VerifyOtp} from './src';
 import {PhoneInputComp, AuthSelect} from './src/screens';
+import Core from './src/Core';
 
-const store = configureStore({reducer: rootReducer});
+export const store = configureStore({reducer: rootReducer});
 const Stack = createStackNavigator();
 
 export default class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName={'AuthSelect'}
-            screenOptions={{
-              headerShown: false,
-            }}>
-            <Stack.Screen name="Home" component={BottomTab} />
-            <Stack.Screen name="AuthSelect" component={AuthSelect} />
-            <Stack.Screen name="Map" component={Map} />
-            <Stack.Screen name="Search" component={Search} />
-            <Stack.Screen name="PhoneInputComp" component={PhoneInputComp} />
-            <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <Core />
       </Provider>
     );
   }

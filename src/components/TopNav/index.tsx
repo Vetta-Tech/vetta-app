@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/EvilIcons';
 interface TopCartProps {
   icon: string;
   title: string;
+  navigation: any;
 }
 
 const TopNav = ({icon, title}: TopCartProps) => {

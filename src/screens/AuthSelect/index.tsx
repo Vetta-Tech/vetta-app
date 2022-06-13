@@ -7,18 +7,29 @@ import {
   Image,
   TouchableWithoutFeedback,
 } from 'react-native';
-import Modal from 'react-native-modal';
 import React, {Component} from 'react';
 
-import GestureRecognizer from 'react-native-swipe-gestures';
+import {auth_gb, logo} from '../../constants/images';
+import {AuthSelectModal} from '../../components';
+import {State} from '../../store/reducers';
+import {connect} from 'react-redux';
 
-import {auth_gb, google, logo} from '../../constants/images';
-import LottieView from 'lottie-react-native';
-
-export default class AuthSelect extends Component<any, any> {
+class AuthSelect extends Component<any, any> {
   state = {
     showModal: false,
   };
+
+  componentDidUpdate() {
+    if (this.props.isAuthenticated) {
+      this.props.navigation.replace('Home');
+    }
+  }
+
+  componentWillUnmount() {
+    this.setState({
+      showModal: false,
+    });
+  }
 
   handleShowModal = () => {
     this.setState({
@@ -97,135 +108,25 @@ export default class AuthSelect extends Component<any, any> {
             </View>
           </View>
 
-          <GestureRecognizer onSwipeDown={() => this.handleShowModal()}>
-            <Modal
-              statusBarTranslucent={true}
-              isVisible={this.state.showModal}
-              hasBackdrop={true}
-              backdropOpacity={0.5}
-              style={{flex: 1, margin: 0}}>
-              <View
-                style={{
-                  height: '40%',
-                  marginTop: 'auto',
-                  backgroundColor: 'white',
-                  borderTopStartRadius: 20,
-                  borderTopEndRadius: 20,
-                }}>
-                <View>
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.props.navigation.navigate('PhoneInputComp')
-                    }>
-                    <View
-                      style={[
-                        styles.btn,
-                        {
-                          backgroundColor: '#f2f2f2',
-                          margin: 15,
-                          marginBottom: 0,
-                        },
-                      ]}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                        }}>
-                        <LottieView
-                          source={require('./lottie/lf20_5gtk2div.json')}
-                          autoPlay
-                          style={{
-                            width: 35,
-                            height: 35,
-                          }}
-                          loop
-                        />
-                        <Text
-                          style={[
-                            styles.btnText,
-                            {color: 'black', fontSize: 16, paddingLeft: 10},
-                          ]}>
-                          Continue with Phone
-                        </Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <View
-                      style={[
-                        styles.btn,
-                        {backgroundColor: '#f2f2f2', margin: 15},
-                      ]}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                        }}>
-                        <LottieView
-                          source={require('./lottie/lf20_ory7dsug.json')}
-                          autoPlay
-                          style={{
-                            width: 35,
-                            height: 35,
-                          }}
-                          loop={true}
-                        />
-                        <Text
-                          style={[
-                            styles.btnText,
-                            {color: 'black', fontSize: 16, paddingLeft: 10},
-                          ]}>
-                          Continue with Google
-                        </Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <View
-                    style={{flex: 1, height: 1, backgroundColor: 'black'}}
-                  />
-                  <View>
-                    <Text
-                      style={{
-                        width: '100%',
-                        textAlign: 'center',
-                        color: 'black',
-                        padding: 10,
-                        fontFamily: 'Montserrat-Medium',
-                      }}>
-                      OR
-                    </Text>
-                  </View>
-                  <View
-                    style={{flex: 1, height: 1, backgroundColor: 'black'}}
-                  />
-                </View>
-                <TouchableOpacity
-                  onPress={() => this.props.navigation.navigate('Home')}>
-                  <View
-                    style={[
-                      styles.btn,
-                      {backgroundColor: '#f2f2f2', margin: 15},
-                    ]}>
-                    <Text style={[styles.btnText, {color: 'black'}]}>
-                      Continue as guest
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </Modal>
-          </GestureRecognizer>
+          <AuthSelectModal
+            navigation={this.props.navigation}
+            isVisible={this.state.showModal}
+            handleShowModal={this.handleShowModal}
+          />
         </ImageBackground>
       </View>
     );
   }
 }
+
+const mapStateToProps = (state: State) => {
+  return {
+    isAuthenticated: state.auth.token !== null,
+    loading: state.auth.loading,
+  };
+};
+
+export default connect(mapStateToProps, {})(AuthSelect);
 
 const styles = StyleSheet.create({
   textStyleContainer: {
