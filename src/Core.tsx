@@ -6,7 +6,14 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {authCheckState} from './store/actions';
 
 import BottomTab from './naviagtions/tabs';
-import {AuthSelect, Details, Map, PhoneInputComp, Splash} from './screens';
+import {
+  AuthSelect,
+  Details,
+  Map,
+  PhoneInputComp,
+  ProductList,
+  Splash,
+} from './screens';
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
 import {State} from './store/reducers';
@@ -29,11 +36,12 @@ class Core extends Component<CoreProps, any> {
     return (
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName={'Splash'}
+          initialRouteName={'Home'}
           screenOptions={{
             headerShown: false,
           }}>
           <Stack.Screen name="Splash" component={Splash} />
+          <Stack.Screen name="ProductList" component={ProductList} />
           <Stack.Screen name="Details" component={Details} />
           <Stack.Screen name="Home" component={BottomTab} />
           <Stack.Screen name="AuthSelect" component={AuthSelect} />

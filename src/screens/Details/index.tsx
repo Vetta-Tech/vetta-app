@@ -8,7 +8,7 @@ import {
   Pressable,
 } from 'react-native';
 import React, {Component} from 'react';
-import {NameSection, TopNavDetails} from '../../components';
+import {HoriLine, NameSection, TopNavDetails} from '../../components';
 import {detailsImg} from '../../constants/images';
 
 interface DetailsProps {
@@ -45,6 +45,8 @@ class Details extends Component<DetailsProps, DetailsState> {
         <View style={styles.detailsStyle}>
           <NameSection />
         </View>
+        <HoriLine />
+        <View></View>
       </View>
     );
   }

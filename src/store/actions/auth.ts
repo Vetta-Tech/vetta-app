@@ -53,10 +53,11 @@ export const sendOtp = ({phone_number}: any) => {
     dispatch(authStart());
 
     axios
-      .post(`http://192.168.0.204:8000/api/v1/auth/generate/`, {
+      .post(`${API_URL}auth/generate/`, {
         phone_number,
       })
       .then(res => {
+        console.log('asd');
         dispatch(otpSent(res));
       })
       .catch(err => {
@@ -69,7 +70,7 @@ export const validateOtp = ({otp, pk}: validateOtpProps) => {
   return (dispatch: AppDispatch) => {
     dispatch(authStart());
     axios
-      .post(`http://192.168.0.204:8000/api/v1/auth/validate/`, {
+      .post(`${API_URL}auth/validate/`, {
         otp,
         pk,
       })

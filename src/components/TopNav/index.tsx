@@ -7,18 +7,26 @@ interface TopCartProps {
   icon: string;
   title: string;
   navigation: any;
+  left: boolean;
+  leftIcon: string;
 }
 
-const TopNav = ({icon, title}: TopCartProps) => {
+const TopNav = ({icon, title, left, leftIcon, navigation}: TopCartProps) => {
   return (
     <View style={styles.container}>
-      <View>
-        <Icon name={icon} size={30} color="black" />
-      </View>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <View>
+          <Icon name={icon} size={30} color="black" />
+        </View>
+      </TouchableOpacity>
       <Text style={{textAlign: 'center', fontFamily: 'Montserrat-Medium'}}>
         {title}
       </Text>
-      <Text style={{textAlign: 'center'}}></Text>
+      {left === true ? (
+        <View>
+          <Icon name={leftIcon} size={30} color="black" />
+        </View>
+      ) : null}
     </View>
   );
 };

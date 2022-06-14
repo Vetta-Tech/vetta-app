@@ -82,6 +82,8 @@ class PhoneInput extends Component<any, any> {
           navigation={this.props.navigation}
           icon="chevron-left"
           title="Sign In"
+          left={false}
+          leftIcon="trash"
         />
 
         <View style={styles.phoneTop}>

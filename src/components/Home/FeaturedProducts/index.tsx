@@ -1,21 +1,20 @@
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {Component} from 'react';
 import SectionHead from '../../Typography/SectionHead';
-import {categoryData} from '../../../constants/dummydata';
 import ProductHorozontalCard from '../../ProductHorizontalCard';
 
-interface RecentProductProps {
-  recent_products: any;
+interface FeaturedProductsProps {
+  featured: any;
 }
 
-class RecentProduct extends Component<RecentProductProps> {
+class FeaturedPRoducts extends Component<FeaturedProductsProps, any> {
   render() {
     return (
       <View style={styles.container}>
-        <SectionHead name="Gift Guides" />
+        <SectionHead name="Featured" />
         <View>
           <FlatList
-            data={this.props.recent_products}
+            data={this.props.featured}
             horizontal
             showsHorizontalScrollIndicator={false}
             renderItem={({item}) => (
@@ -24,6 +23,7 @@ class RecentProduct extends Component<RecentProductProps> {
                 img_url={item.thumbnail}
                 price={item.price}
                 product_name={item.name}
+                slug={item.slug}
               />
             )}
           />
@@ -33,7 +33,7 @@ class RecentProduct extends Component<RecentProductProps> {
   }
 }
 
-export default RecentProduct;
+export default FeaturedPRoducts;
 
 const styles = StyleSheet.create({
   container: {

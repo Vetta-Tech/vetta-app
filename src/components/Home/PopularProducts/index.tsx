@@ -1,75 +1,26 @@
 import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import SectionHead from '../../Typography/SectionHead';
-import {categoryData} from '../../../constants/dummydata';
+import ProductHorozontalCard from '../../ProductHorizontalCard';
+import PopularCards from '../../PopularCards';
 
-const PopularProducts = () => {
-  const renderItem = () => {
-    return (
-      <View
-        style={{
-          paddingRight: 15,
-          paddingTop: 10,
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            paddingRight: 10,
-          }}>
-          <View
-            style={{
-              backgroundColor: '#f2f2f2',
-              padding: 5,
-              borderRadius: 15,
-            }}>
-            <Image
-              source={require('../../../../assets/apple.png')}
-              style={{
-                width: 60,
-                height: 60,
-              }}
-            />
-          </View>
-          <View
-            style={{
-              marginLeft: 15,
-              width: 130,
-            }}>
-            <Text
-              style={{
-                fontFamily: 'Montserrat-Medium',
-                fontSize: 10,
-              }}>
-              Brand name
-            </Text>
-            <Text
-              style={{
-                fontFamily: 'Montserrat-SemiBold',
-                color: 'black',
-              }}>
-              Product name
-            </Text>
-            <Text
-              style={{
-                fontFamily: 'Montserrat-Medium',
-              }}>
-              ₹999
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
-  };
-
+const PopularProducts = ({popular}: any) => {
   return (
     <View style={{paddingTop: 10}}>
       <SectionHead name="Popular" />
       <View style={{}}>
         <FlatList
-          data={categoryData}
+          data={popular}
           horizontal
           showsHorizontalScrollIndicator={false}
-          renderItem={renderItem}
+          renderItem={({item}) => (
+            <PopularCards
+              supplier_name={item.supplier_name}
+              img_url={item.thumbnail}
+              price={item.price}
+              product_name={item.name}
+            />
+          )}
         />
       </View>
     </View>

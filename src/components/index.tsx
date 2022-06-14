@@ -19,7 +19,11 @@ import SectionHead from './Typography/SectionHead';
 import LoginError from './ErrorMessage/LoginError';
 import TopNavDetails from './Details/TopNav';
 import NameSection from './Details/NameSection';
-
+import FeaturedPRoducts from './Home/FeaturedProducts';
+import PopularCards from './PopularCards';
+import HoriLine from './HorizontalLine';
+import SubcategoryList from './ProductList/SubcategoryList';
+import Product from './ProductList/Product';
 export {
   TopBar,
   Search,
@@ -42,4 +46,9 @@ export {
   LoginError,
   TopNavDetails,
   NameSection,
+  FeaturedPRoducts,
+  PopularCards,
+  HoriLine,
+  SubcategoryList,
+  Product,
 };

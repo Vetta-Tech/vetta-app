@@ -1,11 +1,12 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 
 type Props = {
   name: string;
+  navigation: any;
 };
 
-const SectionHead = ({name}: Props) => {
+const SectionHead = ({name, navigation}: Props) => {
   return (
     <View style={styles.heading_container}>
       <Text
@@ -16,13 +17,20 @@ const SectionHead = ({name}: Props) => {
         }}>
         {name}
       </Text>
-      <Text
-        style={{
-          fontFamily: 'Montserrat-Medium',
-          fontSize: 14,
-        }}>
-        View All
-      </Text>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('ProductList', {
+            cat: name,
+          })
+        }>
+        <Text
+          style={{
+            fontFamily: 'Montserrat-Medium',
+            fontSize: 14,
+          }}>
+          View All
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

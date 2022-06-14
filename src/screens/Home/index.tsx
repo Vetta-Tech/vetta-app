@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   StatusBar,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import React, {Component} from 'react';
 
@@ -23,10 +24,14 @@ import {
   Brands,
   Refer,
   SubCatCard,
+  FeaturedPRoducts,
 } from '../../components';
 
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {fetchHomeProducts} from '../../store/actions';
+import {connect} from 'react-redux';
+import {State} from '../../store/reducers';
 
 type RootStackParamList = {
   Pdp: undefined;
@@ -34,12 +39,28 @@ type RootStackParamList = {
 
 interface IPdpPageProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Pdp'>;
+  fetchHomeProducts: any;
+  featured: any;
+  recent_products: any;
+  popular: any;
+  electronics: any;
+  footwear: any;
+  baby_care: any;
+  loading: any;
+  error: any;
 }
 
-export default class Home extends Component<IPdpPageProps> {
+export const OverlaySpinner = () => {
+  return (
+    <View style={styles.spinnerView}>
+      <ActivityIndicator size="large" color="#0000ff" />
+    </View>
+  );
+};
+
+class Home extends Component<IPdpPageProps> {
   async componentDidMount() {
-    const token = await AsyncStorage.getItem('token');
-    console.log(token);
+    this.props.fetchHomeProducts();
   }
 
   render() {
@@ -64,19 +85,57 @@ export default class Home extends Component<IPdpPageProps> {
         <ScrollView style={[Appstyle.container]}>
           <TopImage />
           <Category />
-          <RecentProduct />
-          <PopularProducts />
+          <FeaturedPRoducts featured={this.props.featured} />
+          <PopularProducts popular={this.props.popular} />
           <Collections />
+          <RecentProduct recent_products={this.props.recent_products} />
+          <RecentProduct recent_products={this.props.recent_products} />
+          <Collections />
+          <SubCatCard
+            name="Electronics"
+            data={this.props.electronics}
+            navigation={this.props.navigation}
+          />
+          <SubCatCard
+            name="Clothing"
+            data={this.props.footwear}
+            navigation={this.props.navigation}
+          />
           <Brands />
-          <SubCatCard name="Electronics" img={subcat} />
-          <SubCatCard name="Footwear" img={shoescat} />
-          <SubCatCard name="Baby Care" img={babycat} />
 
           <Refer />
         </ScrollView>
+        {this.props.loading && <OverlaySpinner />}
       </>
     );
   }
 }
 
-const styles = StyleSheet.create({});
+const mapStateToProps = (state: State) => {
+  return {
+    featured: state.homeProducts.featured,
+    recent_products: state.homeProducts.recent_products,
+    popular: state.homeProducts.popular,
+    electronics: state.homeProducts.electronics,
+    footwear: state.homeProducts.footwear,
+    baby_care: state.homeProducts.baby_care,
+    loading: state.homeProducts.loading,
+    error: state.homeProducts.error,
+  };
+};
+
+export default connect(mapStateToProps, {fetchHomeProducts})(Home);
+
+const styles = StyleSheet.create({
+  spinnerView: {
+    position: 'absolute',
+    zIndex: 1,
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5FCFF88',
+  },
+});
