@@ -8,6 +8,7 @@ interface ProductHorozontalCardProps {
   product_name: string;
   price: string;
   slug: string;
+  navigation: any;
 }
 
 export class ProductHorozontalCard extends Component<
@@ -17,7 +18,12 @@ export class ProductHorozontalCard extends Component<
   render() {
     const {supplier_name, img_url, product_name, price, slug} = this.props;
     return (
-      <TouchableOpacity onPress={() => console.log('clicked1', slug)}>
+      <TouchableOpacity
+        onPress={() =>
+          this.props.navigation.navigate('Details', {
+            slug: slug,
+          })
+        }>
         <View style={{paddingRight: 15, paddingTop: 10}}>
           <View style={{backgroundColor: '#f2f2f2', borderRadius: 20}}>
             <Image

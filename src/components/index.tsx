@@ -24,6 +24,9 @@ import PopularCards from './PopularCards';
 import HoriLine from './HorizontalLine';
 import SubcategoryList from './ProductList/SubcategoryList';
 import Product from './ProductList/Product';
+import ReviewSummery from './Details/ReviewSummery';
+import Description from './Details/Description';
+
 export {
   TopBar,
   Search,
@@ -51,4 +54,6 @@ export {
   HoriLine,
   SubcategoryList,
   Product,
+  ReviewSummery,
+  Description,
 };

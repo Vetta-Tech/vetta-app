@@ -2,6 +2,9 @@ import {
   HOME_PRODUCTS_FETCH_FAILD,
   HOME_PRODUCTS_FETCH_START,
   HOME_PRODUCTS_FETCH_SUCCESS,
+  FETCH_PRODUCTS_DETAILS_START,
+  FETCH_PRODUCTS_DETAILS_SUCCESS,
+  FETCH_PRODUCTS_DETAILS_FAILD,
 } from '../types';
 
 export interface HomeProductsType {
@@ -11,6 +14,9 @@ export interface HomeProductsType {
   electronics: [];
   footwear: [];
   baby_care: [];
+  product: {};
+  images: {};
+  variants: [];
   loading: boolean;
   error: string;
 }
@@ -22,6 +28,9 @@ const initialState: HomeProductsType = {
   electronics: [],
   footwear: [],
   baby_care: [],
+  product: {},
+  images: {},
+  variants: [],
   loading: false,
   error: '',
 };
@@ -42,6 +51,25 @@ const reducers = (state = initialState, action: any) => {
         popular: action.payload.popular,
       };
     case HOME_PRODUCTS_FETCH_FAILD:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_PRODUCTS_DETAILS_START:
+      return {
+        ...state,
+        loading: true,
+      };
+    case FETCH_PRODUCTS_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        product: action.payload.products,
+        images: action.payload.images,
+        variants: action.payload.variants,
+      };
+    case FETCH_PRODUCTS_DETAILS_FAILD:
       return {
         ...state,
         loading: false,

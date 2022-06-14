@@ -85,7 +85,10 @@ class Home extends Component<IPdpPageProps> {
         <ScrollView style={[Appstyle.container]}>
           <TopImage />
           <Category />
-          <FeaturedPRoducts featured={this.props.featured} />
+          <FeaturedPRoducts
+            navigation={this.props.navigation}
+            featured={this.props.featured}
+          />
           <PopularProducts popular={this.props.popular} />
           <Collections />
           <RecentProduct recent_products={this.props.recent_products} />
@@ -113,14 +116,14 @@ class Home extends Component<IPdpPageProps> {
 
 const mapStateToProps = (state: State) => {
   return {
-    featured: state.homeProducts.featured,
-    recent_products: state.homeProducts.recent_products,
-    popular: state.homeProducts.popular,
-    electronics: state.homeProducts.electronics,
-    footwear: state.homeProducts.footwear,
-    baby_care: state.homeProducts.baby_care,
-    loading: state.homeProducts.loading,
-    error: state.homeProducts.error,
+    featured: state.products.featured,
+    recent_products: state.products.recent_products,
+    popular: state.products.popular,
+    electronics: state.products.electronics,
+    footwear: state.products.footwear,
+    baby_care: state.products.baby_care,
+    loading: state.products.loading,
+    error: state.products.error,
   };
 };
 

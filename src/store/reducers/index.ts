@@ -1,16 +1,16 @@
 import {combineReducers} from 'redux';
 import {store} from '../../../App';
 import auth, {AuthStateTypes} from './auth';
-import homeProducts, {HomeProductsType} from './products';
+import products, {HomeProductsType} from './products';
 
 export interface State {
   auth: AuthStateTypes;
-  homeProducts: HomeProductsType;
+  products: HomeProductsType;
 }
 
 export default combineReducers({
   auth: auth,
-  homeProducts: homeProducts,
+  products: products,
 });
 
 export type AppDispatch = typeof store.dispatch;

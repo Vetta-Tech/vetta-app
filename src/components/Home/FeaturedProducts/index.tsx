@@ -5,13 +5,14 @@ import ProductHorozontalCard from '../../ProductHorizontalCard';
 
 interface FeaturedProductsProps {
   featured: any;
+  navigation: any;
 }
 
 class FeaturedPRoducts extends Component<FeaturedProductsProps, any> {
   render() {
     return (
       <View style={styles.container}>
-        <SectionHead name="Featured" />
+        <SectionHead navigation={this.props.navigation} name="Featured" />
         <View>
           <FlatList
             data={this.props.featured}
@@ -24,6 +25,7 @@ class FeaturedPRoducts extends Component<FeaturedProductsProps, any> {
                 price={item.price}
                 product_name={item.name}
                 slug={item.slug}
+                navigation={this.props.navigation}
               />
             )}
           />

@@ -1,6 +1,6 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Image} from 'react-native';
+import {Image, Vibration} from 'react-native';
 
 import {Home, Search, Cart, Profile} from '../screens';
 
@@ -22,6 +22,11 @@ const BottomTab = () => {
         },
       }}>
       <Tab.Screen
+        listeners={{
+          tabPress: e => {
+            Vibration.vibrate(20);
+          },
+        }}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -40,6 +45,11 @@ const BottomTab = () => {
         component={Home}
       />
       <Tab.Screen
+        listeners={{
+          tabPress: e => {
+            Vibration.vibrate(20);
+          },
+        }}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -57,6 +67,11 @@ const BottomTab = () => {
         component={Search}
       />
       <Tab.Screen
+        listeners={{
+          tabPress: e => {
+            Vibration.vibrate(20);
+          },
+        }}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -74,6 +89,11 @@ const BottomTab = () => {
         component={Cart}
       />
       <Tab.Screen
+        listeners={{
+          tabPress: e => {
+            Vibration.vibrate(20);
+          },
+        }}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
