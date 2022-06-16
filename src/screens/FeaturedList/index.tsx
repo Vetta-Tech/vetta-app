@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   Vibration,
+  Dimensions,
 } from 'react-native';
 import axios from 'axios';
 import _ from 'lodash';
@@ -34,33 +35,32 @@ interface ProductListState {
   error: string;
   activeCat: string;
   category: string;
-  categories: {};
+  categories: [];
   limit: number;
   offset: number;
   hasMore: boolean;
-}
-
-function filterDuplicates<T>(
-  array: T[],
-  areEqual: (a: T, b: T) => boolean,
-): T[] {
-  return array.filter((item: T, pos: number) => {
-    return array.findIndex((other: T) => areEqual(item, other)) == pos;
-  });
+  cat_id: number;
+  index: number;
 }
 
 class ProductList extends Component<ProductListProps, ProductListState> {
-  state: ProductListState = {
-    categories: {},
-    products: [],
-    loading: false,
-    error: '',
-    activeCat: '',
-    category: '',
-    limit: 10,
-    offset: 0,
-    hasMore: false,
-  };
+  constructor(props: any) {
+    super(props);
+    this.flatListRef = null;
+    this.state = {
+      categories: [],
+      products: [],
+      loading: false,
+      error: '',
+      activeCat: '',
+      category: '',
+      limit: 10,
+      offset: 0,
+      hasMore: false,
+      cat_id: 0,
+      index: 3,
+    };
+  }
 
   componentDidMount() {
     this.fetchFeaturedProducts();
@@ -85,6 +85,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           const newProducts = res.data.featured;
           data.unshift({
             name: 'Featured',
+            id: 0,
           });
           this.setState({
             products: [...newProducts, ...this.state.products],
@@ -98,12 +99,49 @@ class ProductList extends Component<ProductListProps, ProductListState> {
   };
 
   onSwipeLeft(gestureState: any) {
-    console.log(gestureState);
-    console.log('You swiped left!');
+    const map = this.state.categories.find(x => x.id === this.state.cat_id + 1);
+    const length = this.state.categories.length;
+    console.log('length', length);
+
+    if (this.state.cat_id < length - 1) {
+      this.flatList.scrollToIndex({
+        animated: true,
+        index: this.state.cat_id + 1,
+      });
+      this.setState(
+        {
+          cat_id: this.state.cat_id + 1,
+          activeCat: map.name,
+        },
+        () => {
+          console.log('You swiped left!', this.state.cat_id);
+          this.fetchBasedOnSubCat(map.name);
+        },
+      );
+    } else {
+      console.log(length);
+    }
   }
 
   onSwipeRight(gestureState: any) {
-    console.log('You swiped Right!');
+    const map = this.state.categories.find(x => x.id === this.state.cat_id - 1);
+    if (this.state.cat_id > 0) {
+      this.flatList.scrollToIndex({
+        animated: true,
+        index: this.state.cat_id - 1,
+      });
+
+      this.setState(
+        {
+          cat_id: this.state.cat_id - 1,
+          activeCat: map.name,
+        },
+        () => {
+          console.log('You swiped left!', this.state.cat_id);
+          this.fetchBasedOnSubCat(map.name);
+        },
+      );
+    }
   }
 
   fetchBasedOnCat = (category_name: string) => {
@@ -127,7 +165,6 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           )
           .then(res => {
             const data = _.uniqBy(res.data.products, 'id');
-            console.log(data);
             this.setState({
               products: data,
               loading: false,
@@ -144,17 +181,33 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     );
   };
 
+  getItemLayout = (data, index) => ({
+    length: 50,
+    offset: 50 * index,
+    index,
+  });
+
   fetchBasedOnSubCat = (cat_name: string) => {
     Vibration.vibrate(20);
+    const cat_id = this.state.categories.find(x => x.name === cat_name);
     this.setState(
       {
         products: [],
         activeCat: cat_name,
         loading: true,
+        cat_id: cat_id.id,
       },
       () => {
         if (this.state.activeCat == 'Featured') {
-          this.fetchFeaturedProducts();
+          this.setState(
+            {
+              limit: 10,
+              offset: 0,
+            },
+            () => {
+              this.fetchFeaturedProducts();
+            },
+          );
         } else {
           this.fetchBasedOnCat(this.state.activeCat);
         }
@@ -163,7 +216,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
   };
 
   fetchInfiniteProducts = () => {
-    console.log('Fetching.............');
+    console.log('Fetching.............', this.state.activeCat);
     this.setState({
       loading: true,
     });
@@ -187,8 +240,6 @@ class ProductList extends Component<ProductListProps, ProductListState> {
             loading: false,
             offset: this.state.offset + this.state.limit,
           });
-
-          console.log('offset', this.state.offset, this.state.limit);
         })
         .catch(err => {
           this.setState({
@@ -199,7 +250,12 @@ class ProductList extends Component<ProductListProps, ProductListState> {
   };
 
   render() {
-    console.log('asd', this.state.categories);
+    console.log('activeCat', this.state.activeCat);
+    console.log('cat_id', this.state.cat_id);
+    const config = {
+      velocityThreshold: 0.6,
+      directionalOffsetThreshold: 80,
+    };
     return (
       <View
         style={{
@@ -222,6 +278,10 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           <FlatList
             data={this.state.categories}
             horizontal
+            ref={ref => {
+              this.flatList = ref;
+            }}
+            onScroll={() => console.log('heloooooooo')}
             showsHorizontalScrollIndicator={false}
             renderItem={({item}: any) => (
               <View style={{paddingRight: 8, paddingTop: 10}}>
@@ -251,9 +311,12 @@ class ProductList extends Component<ProductListProps, ProductListState> {
 
         <GestureRecognizer
           onSwipeLeft={state => this.onSwipeLeft(state)}
-          onSwipeRight={state => this.onSwipeRight(state)}>
+          onSwipeRight={state => this.onSwipeRight(state)}
+          config={config}>
           <FlatList
+            initialScrollIndex={0}
             showsVerticalScrollIndicator={false}
+            // onEndReachedThreshold={1}
             onEndReached={() => this.fetchInfiniteProducts()}
             data={this.state.products}
             renderItem={({item}) => <Product item={item} />}
@@ -277,17 +340,20 @@ const styles = StyleSheet.create({
   catListActive: {
     borderRadius: 13,
     backgroundColor: 'black',
+    justifyContent: 'center',
   },
 
   catListTXTActive: {
     color: 'white',
     padding: 10,
     fontFamily: 'Montserrat-SemiBold',
+    justifyContent: 'center',
   },
   catListTXT: {
     color: 'black',
     padding: 10,
     fontFamily: 'Montserrat-SemiBold',
+    justifyContent: 'center',
   },
 });
 // active={sub_cat ? sub_cat : cat}
