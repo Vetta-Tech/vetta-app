@@ -1,4 +1,13 @@
 import {authCheckState, sendOtp} from './auth';
-import {fetchHomeProducts, fetchProductDetails} from './products';
+import {
+  fetchHomeProducts,
+  fetchProductByBrand,
+  fetchProductDetails,
+} from './products';
 
-export {authCheckState, fetchHomeProducts, fetchProductDetails};
+export {
+  authCheckState,
+  fetchHomeProducts,
+  fetchProductDetails,
+  fetchProductByBrand,
+};

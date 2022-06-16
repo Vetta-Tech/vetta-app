@@ -2,12 +2,12 @@ import {FlatList, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
 import CatCard from './CatCard';
-import SectionHead from '../../Typography/SectionHead';
+import SectionHeadCategory from '../../Typography/SectionHeadCategories';
 
-const Category = () => {
+const Category = ({navigation}: any) => {
   return (
     <View style={styles.container}>
-      <SectionHead name="Top Categories" />
+      <SectionHeadCategory navigation={navigation} name="Top Categories" />
       <View style={styles.categoryList}>
         <CatCard name="Shirt" />
         <CatCard name="Pants" />

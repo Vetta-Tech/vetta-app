@@ -5,7 +5,7 @@ import {categoryData} from '../../../constants/dummydata';
 
 import Icon from 'react-native-vector-icons/EvilIcons';
 
-const Collections = () => {
+const Collections = (props: any) => {
   const renderItem = () => {
     return (
       <View style={{paddingRight: 10}}>
@@ -59,7 +59,7 @@ const Collections = () => {
 
   return (
     <View style={{paddingTop: 15}}>
-      <SectionHead name="Collections" />
+      <SectionHead navigation={props.navigation} name="Collections" />
       <View>
         <FlatList
           data={categoryData}

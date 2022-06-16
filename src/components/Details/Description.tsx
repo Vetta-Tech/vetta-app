@@ -11,7 +11,7 @@ export default class Description extends Component {
       <View
         style={{
           backgroundColor: '#ededed',
-          padding: 10,
+          padding: 7,
           borderRadius: 12,
         }}>
         <Pressable

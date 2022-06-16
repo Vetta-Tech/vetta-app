@@ -4,10 +4,10 @@ import SectionHead from '../../Typography/SectionHead';
 import ProductHorozontalCard from '../../ProductHorizontalCard';
 import PopularCards from '../../PopularCards';
 
-const PopularProducts = ({popular}: any) => {
+const PopularProducts = ({popular, navigation}: any) => {
   return (
     <View style={{paddingTop: 10}}>
-      <SectionHead name="Popular" />
+      <SectionHead navigation={navigation} name="Popular" />
       <View style={{}}>
         <FlatList
           data={popular}
@@ -19,6 +19,8 @@ const PopularProducts = ({popular}: any) => {
               img_url={item.thumbnail}
               price={item.price}
               product_name={item.name}
+              slug={item.slug}
+              navigation={navigation}
             />
           )}
         />

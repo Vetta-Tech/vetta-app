@@ -1,44 +1,57 @@
 import {
   StyleSheet,
   View,
-  ScrollView,
   FlatList,
   Text,
   TouchableOpacity,
   Vibration,
 } from 'react-native';
-import React, {Component} from 'react';
-import {API_URL} from '@env';
 import axios from 'axios';
+import _ from 'lodash';
+import React, {Component} from 'react';
+import GestureRecognizer from 'react-native-swipe-gestures';
+import {API_URL, API_URL_IMAGE} from '@env';
+
 import {Product, TopNav} from '../../components';
 import {OverlaySpinner} from '../Login/PhoneInput';
-import _ from 'lodash';
 
 interface ProductListProps {
   route: {
     params: {
       cat: string;
       sub_cat: string;
+      isFeatured: boolean;
     };
   };
   navigation: any;
+  fetchBasedOnSubCat: any;
+  isFeatured: boolean;
 }
 
 interface ProductListState {
   products: [];
-  sub_categories: [];
   loading: boolean;
   error: string;
   activeCat: string;
   category: string;
+  categories: {};
   limit: number;
   offset: number;
-  sub_cat: string;
+  hasMore: boolean;
+}
+
+function filterDuplicates<T>(
+  array: T[],
+  areEqual: (a: T, b: T) => boolean,
+): T[] {
+  return array.filter((item: T, pos: number) => {
+    return array.findIndex((other: T) => areEqual(item, other)) == pos;
+  });
 }
 
 class ProductList extends Component<ProductListProps, ProductListState> {
   state: ProductListState = {
-    sub_categories: [],
+    categories: {},
     products: [],
     loading: false,
     error: '',
@@ -46,72 +59,61 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     category: '',
     limit: 10,
     offset: 0,
-    sub_cat: '',
+    hasMore: false,
   };
 
   componentDidMount() {
-    this.fetchProducts();
+    this.fetchFeaturedProducts();
   }
 
-  fetchProducts = () => {
-    const {cat, sub_cat} = this.props.route.params;
-    if (sub_cat === undefined) {
-      this.setState({
-        activeCat: 'All Products',
-      });
-    } else {
-      this.setState({
-        category: cat,
-        sub_cat: sub_cat,
-      });
-    }
-    if (!cat) {
+  fetchFeaturedProducts = () => {
+    const {isFeatured} = this.props.route.params;
+
+    if (!isFeatured) {
       this.props.navigation.navigate('Home');
     } else {
       this.setState({
         loading: true,
-        category: cat,
+        activeCat: 'Featured',
       });
       axios
         .get(
-          `${API_URL}products/category/products?limit=${this.state.limit}&offset=${this.state.offset}`,
-          {
-            params: {
-              cat: cat,
-              sub_cat: sub_cat,
-            },
-          },
+          `${API_URL}products/featured-infinite?limit=${this.state.limit}&offset=${this.state.offset}`,
         )
         .then(res => {
-          const data = res.data.category_qs;
+          const data = res.data.cat_qs;
+          const newProducts = res.data.featured;
           data.unshift({
-            name: 'All Products',
-            category: {name: 'All Products'},
+            name: 'Featured',
           });
           this.setState({
+            products: [...newProducts, ...this.state.products],
+            categories: res.data.cat_qs,
             loading: false,
-            products: res.data.products,
-            sub_categories: data,
+            offset: this.state.offset + this.state.limit,
           });
         })
-        .catch(err => {
-          this.setState({
-            loading: false,
-            error: err,
-          });
-        });
+        .catch(err => console.log(err));
     }
   };
 
-  fetchBasedOnCat = (name: string, category_name: string) => {
-    console.log(name, category_name);
+  onSwipeLeft(gestureState: any) {
+    console.log(gestureState);
+    console.log('You swiped left!');
+  }
+
+  onSwipeRight(gestureState: any) {
+    console.log('You swiped Right!');
+  }
+
+  fetchBasedOnCat = (category_name: string) => {
     this.setState(
       {
         loading: true,
-        category: name,
+        activeCat: category_name,
         limit: 10,
         offset: 0,
-        sub_cat: category_name,
+        products: [],
       },
       () => {
         axios
@@ -119,8 +121,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
             `${API_URL}products/category/products?limit=${this.state.limit}&offset=${this.state.offset}`,
             {
               params: {
-                cat: this.state.category,
-                sub_cat: this.state.sub_cat,
+                cat: category_name,
               },
             },
           )
@@ -143,43 +144,38 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     );
   };
 
-  fetchBasedOnSubCat = (name: string, category_name: string) => {
-    console.log(name, category_name);
+  fetchBasedOnSubCat = (cat_name: string) => {
     Vibration.vibrate(20);
     this.setState(
       {
-        activeCat: name,
-        limit: 10,
-        offset: 0,
         products: [],
-        sub_cat: name,
+        activeCat: cat_name,
+        loading: true,
       },
       () => {
-        if (this.state.activeCat === 'All Products') {
-          this.fetchProducts();
+        if (this.state.activeCat == 'Featured') {
+          this.fetchFeaturedProducts();
         } else {
-          this.fetchBasedOnCat(this.state.category, this.state.sub_cat);
+          this.fetchBasedOnCat(this.state.activeCat);
         }
       },
     );
   };
 
   fetchInfiniteProducts = () => {
-    console.log('onEndReached={() => this.fetchInfiniteProducts()}');
+    console.log('Fetching.............');
     this.setState({
       loading: true,
     });
-
-    if (this.state.activeCat === 'All Products') {
-      this.fetchProducts();
+    if (this.state.activeCat === 'Featured') {
+      this.fetchFeaturedProducts();
     } else {
       axios
         .get(
           `${API_URL}products/category/products?limit=${this.state.limit}&offset=${this.state.offset}`,
           {
             params: {
-              cat: this.state.category,
-              sub_cat: this.state.sub_cat,
+              cat: this.state.activeCat,
             },
           },
         )
@@ -191,10 +187,10 @@ class ProductList extends Component<ProductListProps, ProductListState> {
             loading: false,
             offset: this.state.offset + this.state.limit,
           });
+
+          console.log('offset', this.state.offset, this.state.limit);
         })
         .catch(err => {
-          console.log(err);
-
           this.setState({
             loading: false,
           });
@@ -203,8 +199,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
   };
 
   render() {
-    const {cat, sub_cat} = this.props.route.params;
-    console.log(this.state.products);
+    console.log('asd', this.state.categories);
     return (
       <View
         style={{
@@ -219,24 +214,22 @@ class ProductList extends Component<ProductListProps, ProductListState> {
         <TopNav
           navigation={this.props.navigation}
           icon="chevron-left"
-          title={sub_cat ? sub_cat : cat}
+          title="Featured"
           left={true}
           leftIcon="trash"
         />
         <View>
           <FlatList
-            data={this.state.sub_categories}
+            data={this.state.categories}
             horizontal
             showsHorizontalScrollIndicator={false}
             renderItem={({item}: any) => (
               <View style={{paddingRight: 8, paddingTop: 10}}>
                 <TouchableOpacity
-                  onPress={() =>
-                    this.fetchBasedOnSubCat(item.name, this.state.category)
-                  }>
+                  onPress={() => this.fetchBasedOnSubCat(item.name)}>
                   <View
                     style={
-                      this.state.activeCat === item.name
+                      item.name === this.state.activeCat
                         ? styles.catListActive
                         : styles.catList
                     }>
@@ -256,13 +249,17 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           />
         </View>
 
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          onEndReached={() => this.fetchInfiniteProducts()}
-          data={this.state.products}
-          renderItem={({item}) => <Product item={item} />}
-          numColumns={2}
-        />
+        <GestureRecognizer
+          onSwipeLeft={state => this.onSwipeLeft(state)}
+          onSwipeRight={state => this.onSwipeRight(state)}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            onEndReached={() => this.fetchInfiniteProducts()}
+            data={this.state.products}
+            renderItem={({item}) => <Product item={item} />}
+            numColumns={2}
+          />
+        </GestureRecognizer>
 
         {this.state.loading && <OverlaySpinner />}
       </View>

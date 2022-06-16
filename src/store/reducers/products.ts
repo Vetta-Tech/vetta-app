@@ -5,6 +5,9 @@ import {
   FETCH_PRODUCTS_DETAILS_START,
   FETCH_PRODUCTS_DETAILS_SUCCESS,
   FETCH_PRODUCTS_DETAILS_FAILD,
+  FETCH_PRODUCTS_BRANDS_START,
+  FETCH_PRODUCTS_BRANDS_SUCCESS,
+  FETCH_PRODUCTS_BRANDS_FAILD,
 } from '../types';
 
 export interface HomeProductsType {
@@ -19,6 +22,7 @@ export interface HomeProductsType {
   variants: [];
   loading: boolean;
   error: string;
+  brandProducts: [];
 }
 
 const initialState: HomeProductsType = {
@@ -33,6 +37,7 @@ const initialState: HomeProductsType = {
   variants: [],
   loading: false,
   error: '',
+  brandProducts: [],
 };
 
 const reducers = (state = initialState, action: any) => {
@@ -70,6 +75,23 @@ const reducers = (state = initialState, action: any) => {
         variants: action.payload.variants,
       };
     case FETCH_PRODUCTS_DETAILS_FAILD:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_PRODUCTS_BRANDS_START:
+      return {
+        ...state,
+        loading: true,
+      };
+    case FETCH_PRODUCTS_BRANDS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        brandProducts: action.payload,
+      };
+    case FETCH_PRODUCTS_BRANDS_FAILD:
       return {
         ...state,
         loading: false,

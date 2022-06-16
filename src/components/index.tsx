@@ -26,6 +26,8 @@ import SubcategoryList from './ProductList/SubcategoryList';
 import Product from './ProductList/Product';
 import ReviewSummery from './Details/ReviewSummery';
 import Description from './Details/Description';
+import CategoryCard from './Category/Card';
+import SectionHeadCategory from './Typography/SectionHeadCategories';
 
 export {
   TopBar,
@@ -56,4 +58,6 @@ export {
   Product,
   ReviewSummery,
   Description,
+  CategoryCard,
+  SectionHeadCategory,
 };

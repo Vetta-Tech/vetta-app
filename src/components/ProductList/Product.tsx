@@ -10,54 +10,73 @@ import React, {Component} from 'react';
 
 import {API_URL_IMAGE} from '@env';
 
-export default class Product extends Component {
+interface ProductProps {
+  navigation: any;
+  item: {
+    thumbnail: string;
+    supplier_name: string;
+    name: string;
+    price: number;
+    slug: string;
+  };
+}
+
+export default class Product extends Component<ProductProps> {
   render() {
-    const {item} = this.props;
+    const {item, navigation} = this.props;
     return (
-      <View
-        style={{
-          paddingTop: 5,
-          paddingBottom: 5,
-          paddingLeft: 2,
-        }}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.push('Details', {
+            slug: item.slug,
+            brand: item.supplier_name,
+          })
+        }>
         <View
           style={{
-            backgroundColor: '#ededed',
-            borderRadius: 12,
+            paddingTop: 5,
+            paddingBottom: 5,
+            paddingLeft: 2,
           }}>
-          <Image
-            resizeMode="contain"
+          <View
             style={{
-              height: Dimensions.get('window').width / 2.3,
-              width: Dimensions.get('window').width / 2.3,
-            }}
-            source={{uri: `${API_URL_IMAGE}${item.thumbnail}`}}
-          />
+              backgroundColor: '#ededed',
+              borderRadius: 12,
+            }}>
+            <Image
+              resizeMode="contain"
+              style={{
+                height: Dimensions.get('window').width / 2.3,
+                width: Dimensions.get('window').width / 2.3,
+              }}
+              source={{uri: `${API_URL_IMAGE}${item.thumbnail}`}}
+            />
+          </View>
+          <View style={{padding: 5}}>
+            <Text
+              style={{
+                fontFamily: 'Montserrat-Medium',
+                fontSize: 10,
+              }}>
+              {item.supplier_name}
+            </Text>
+            <Text
+              numberOfLines={1}
+              style={{
+                fontFamily: 'Montserrat-SemiBold',
+                color: 'black',
+              }}>
+              {item.name}
+            </Text>
+            <Text
+              style={{
+                fontFamily: 'Montserrat-Medium',
+              }}>
+              ৳ {item.price}
+            </Text>
+          </View>
         </View>
-        <View style={{padding: 5}}>
-          <Text
-            style={{
-              fontFamily: 'Montserrat-Medium',
-              fontSize: 10,
-            }}>
-            {item.supplier_name}
-          </Text>
-          <Text
-            numberOfLines={1}
-            style={{
-              fontFamily: 'Montserrat-SemiBold',
-              color: 'black',
-            }}>
-            {item.name}
-          </Text>
-          <Text
-            style={{
-              fontFamily: 'Montserrat-Medium',
-            }}>
-            ৳ {item.price}
-          </Text>
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 }

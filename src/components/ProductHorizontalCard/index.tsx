@@ -1,6 +1,6 @@
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 import React, {Component} from 'react';
-import {API_URL, API_URL_IMAGE} from '@env';
+import {API_URL_IMAGE} from '@env';
 
 interface ProductHorozontalCardProps {
   supplier_name: string;
@@ -20,8 +20,9 @@ export class ProductHorozontalCard extends Component<
     return (
       <TouchableOpacity
         onPress={() =>
-          this.props.navigation.navigate('Details', {
+          this.props.navigation.push('Details', {
             slug: slug,
+            brand: supplier_name,
           })
         }>
         <View style={{paddingRight: 15, paddingTop: 10}}>

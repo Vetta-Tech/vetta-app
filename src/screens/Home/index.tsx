@@ -84,12 +84,19 @@ class Home extends Component<IPdpPageProps> {
 
         <ScrollView style={[Appstyle.container]}>
           <TopImage />
-          <Category />
+          <Category navigation={this.props.navigation} />
           <FeaturedPRoducts
             navigation={this.props.navigation}
             featured={this.props.featured}
+            name="Featured"
+            supplier_name=""
+            screen_name="FeaturedProducts"
+            isFeatured={true}
           />
-          <PopularProducts popular={this.props.popular} />
+          <PopularProducts
+            navigation={this.props.navigation}
+            popular={this.props.popular}
+          />
           <Collections />
           <RecentProduct recent_products={this.props.recent_products} />
           <RecentProduct recent_products={this.props.recent_products} />
