@@ -1,3 +1,4 @@
+import React, {Component} from 'react';
 import {
   StyleSheet,
   View,
@@ -7,12 +8,13 @@ import {
   TouchableOpacity,
   Vibration,
 } from 'react-native';
-import React, {Component} from 'react';
+import _ from 'lodash';
+import GestureRecognizer from 'react-native-swipe-gestures';
+
 import {API_URL} from '@env';
 import axios from 'axios';
 import {Product, TopNav} from '../../components';
 import {OverlaySpinner} from '../Login/PhoneInput';
-import _ from 'lodash';
 
 interface ProductListProps {
   route: {
@@ -34,20 +36,29 @@ interface ProductListState {
   limit: number;
   offset: number;
   sub_cat: string;
+  sub_cat_id: number;
+  index: number;
 }
 
 class ProductList extends Component<ProductListProps, ProductListState> {
-  state: ProductListState = {
-    sub_categories: [],
-    products: [],
-    loading: false,
-    error: '',
-    activeCat: '',
-    category: '',
-    limit: 10,
-    offset: 0,
-    sub_cat: '',
-  };
+  constructor(props) {
+    super(props);
+    this.flatListRef = null;
+
+    this.state = {
+      sub_categories: [],
+      products: [],
+      loading: false,
+      error: '',
+      activeCat: '',
+      category: '',
+      limit: 10,
+      offset: 0,
+      sub_cat: '',
+      sub_cat_id: 0,
+      index: 0,
+    };
+  }
 
   componentDidMount() {
     this.fetchProducts();
@@ -63,6 +74,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
       this.setState({
         category: cat,
         sub_cat: sub_cat,
+        activeCat: sub_cat,
       });
     }
     if (!cat) {
@@ -84,15 +96,33 @@ class ProductList extends Component<ProductListProps, ProductListState> {
         )
         .then(res => {
           const data = res.data.category_qs;
+
           data.unshift({
             name: 'All Products',
             category: {name: 'All Products'},
+            id: 0,
           });
-          this.setState({
-            loading: false,
-            products: res.data.products,
-            sub_categories: data,
-          });
+          this.setState(
+            {
+              loading: false,
+              products: res.data.products,
+              sub_categories: data,
+              offset: this.state.offset + this.state.limit,
+            },
+            () => {
+              if (sub_cat) {
+                var index = this.state.sub_categories.indexOf(
+                  this.state.sub_categories.filter(function (item) {
+                    return item.name == sub_cat;
+                  })[0],
+                );
+
+                this.setState({
+                  index,
+                });
+              }
+            },
+          );
         })
         .catch(err => {
           this.setState({
@@ -103,15 +133,116 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     }
   };
 
-  fetchBasedOnCat = (name: string, category_name: string) => {
-    console.log(name, category_name);
+  fetchSwipeProducts = () => {
+    this.setState({
+      activeCat: 'All Products',
+      loading: true,
+    });
+
+    axios
+      .get(
+        `${API_URL}products/category/products?limit=${this.state.limit}&offset=${this.state.offset}`,
+        {
+          params: {
+            cat: this.state.category,
+            sub_cat: this.state.activeCat,
+          },
+        },
+      )
+      .then(res => {
+        const data = res.data.category_qs;
+        const newProducts = res.data.products;
+        const uniquedata = _.uniqBy(this.state.products, 'id');
+        data.unshift({
+          name: 'All Products',
+          category: {name: 'All Products'},
+          id: 0,
+        });
+        this.setState({
+          loading: false,
+          products: [...uniquedata, ...newProducts],
+          sub_categories: data,
+          offset: this.state.offset + this.state.limit,
+        });
+      })
+      .catch(err => {
+        this.setState({
+          loading: false,
+          error: err,
+        });
+      });
+  };
+
+  onSwipeLeft() {
+    const {sub_categories} = this.state;
+    const length = sub_categories.length;
+
+    const sub_cat_data = sub_categories[this.state.index + 1];
+
+    if (this.state.index < length - 1) {
+      this.flatList.scrollToIndex({
+        animated: true,
+        index: this.state.index,
+      });
+      this.setState(
+        {
+          index: this.state.index + 1,
+          activeCat: sub_cat_data.name,
+        },
+        () => {
+          console.log('You swiped left!', this.state.index);
+          this.fetchBasedOnSubCat(
+            sub_cat_data.name,
+            sub_cat_data.category.name,
+          );
+        },
+      );
+    } else {
+      console.log(length);
+    }
+  }
+
+  onSwipeRight() {
+    const {sub_categories} = this.state;
+    const length = sub_categories.length;
+
+    const sub_cat_data = sub_categories[this.state.index - 1];
+
+    if (this.state.index > 0) {
+      this.flatList.scrollToIndex({
+        animated: true,
+        index: this.state.index - 1,
+      });
+      this.setState(
+        {
+          index: this.state.index - 1,
+          activeCat: sub_cat_data.name,
+        },
+        () => {
+          console.log('You swiped left!', sub_cat_data.category.name);
+          this.RightSwipeFetch(sub_cat_data.name, sub_cat_data.category.name);
+        },
+      );
+    } else {
+      console.log('length', length);
+    }
+  }
+
+  fetchBasedOnCat = (sub_cat: string, category_name: string) => {
+    var index = this.state.sub_categories.indexOf(
+      this.state.sub_categories.filter(function (item) {
+        return item.name == sub_cat;
+      })[0],
+    );
+
     this.setState(
       {
         loading: true,
-        category: name,
+        category: category_name,
         limit: 10,
         offset: 0,
-        sub_cat: category_name,
+        sub_cat: sub_cat,
+        index,
       },
       () => {
         axios
@@ -126,7 +257,6 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           )
           .then(res => {
             const data = _.uniqBy(res.data.products, 'id');
-            console.log(data);
             this.setState({
               products: data,
               loading: false,
@@ -143,8 +273,27 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     );
   };
 
+  RightSwipeFetch = (name: string, category_name: string) => {
+    Vibration.vibrate(20);
+    this.setState(
+      {
+        activeCat: name,
+        limit: 10,
+        offset: 0,
+        products: [],
+        sub_cat: name,
+      },
+      () => {
+        if (this.state.activeCat === 'All Products') {
+          this.fetchSwipeProducts();
+        } else {
+          this.fetchBasedOnCat(this.state.sub_cat, this.state.category);
+        }
+      },
+    );
+  };
+
   fetchBasedOnSubCat = (name: string, category_name: string) => {
-    console.log(name, category_name);
     Vibration.vibrate(20);
     this.setState(
       {
@@ -158,20 +307,19 @@ class ProductList extends Component<ProductListProps, ProductListState> {
         if (this.state.activeCat === 'All Products') {
           this.fetchProducts();
         } else {
-          this.fetchBasedOnCat(this.state.category, this.state.sub_cat);
+          this.fetchBasedOnCat(this.state.sub_cat, this.state.category);
         }
       },
     );
   };
 
   fetchInfiniteProducts = () => {
-    console.log('onEndReached={() => this.fetchInfiniteProducts()}');
     this.setState({
       loading: true,
     });
 
     if (this.state.activeCat === 'All Products') {
-      this.fetchProducts();
+      this.fetchSwipeProducts();
     } else {
       axios
         .get(
@@ -193,8 +341,6 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           });
         })
         .catch(err => {
-          console.log(err);
-
           this.setState({
             loading: false,
           });
@@ -204,7 +350,11 @@ class ProductList extends Component<ProductListProps, ProductListState> {
 
   render() {
     const {cat, sub_cat} = this.props.route.params;
-    console.log(this.state.products);
+    console.log('index', this.state.activeCat);
+    const config = {
+      velocityThreshold: 0.6,
+      directionalOffsetThreshold: 80,
+    };
     return (
       <View
         style={{
@@ -227,6 +377,10 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           <FlatList
             data={this.state.sub_categories}
             horizontal
+            ref={ref => {
+              this.flatList = ref;
+            }}
+            // initialScrollIndex={1}
             showsHorizontalScrollIndicator={false}
             renderItem={({item}: any) => (
               <View style={{paddingRight: 8, paddingTop: 10}}>
@@ -256,13 +410,18 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           />
         </View>
 
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          onEndReached={() => this.fetchInfiniteProducts()}
-          data={this.state.products}
-          renderItem={({item}) => <Product item={item} />}
-          numColumns={2}
-        />
+        <GestureRecognizer
+          onSwipeLeft={state => this.onSwipeLeft(state)}
+          onSwipeRight={state => this.onSwipeRight(state)}
+          config={config}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            onEndReached={() => this.fetchInfiniteProducts()}
+            data={this.state.products}
+            renderItem={({item}) => <Product item={item} />}
+            numColumns={2}
+          />
+        </GestureRecognizer>
 
         {this.state.loading && <OverlaySpinner />}
       </View>

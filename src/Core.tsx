@@ -16,6 +16,7 @@ import {
   ProductListBrands,
   Splash,
   FeaturedProducts,
+  PopularProducts,
 } from './screens';
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
@@ -46,6 +47,8 @@ class Core extends Component<CoreProps, any> {
           <Stack.Screen name="Splash" component={Splash} />
           <Stack.Screen name="ProductList" component={ProductList} />
           <Stack.Screen name="FeaturedProducts" component={FeaturedProducts} />
+          <Stack.Screen name="PopularProducts" component={PopularProducts} />
+
           <Stack.Screen name="Category" component={Category} />
           <Stack.Screen
             name="ProductListBrands"

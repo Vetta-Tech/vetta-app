@@ -3,11 +3,27 @@ import React from 'react';
 import SectionHead from '../../Typography/SectionHead';
 import ProductHorozontalCard from '../../ProductHorizontalCard';
 import PopularCards from '../../PopularCards';
+import SectionHeadDetails from '../../Typography/SectionHeadDetails';
 
-const PopularProducts = ({popular, navigation}: any) => {
+const PopularProducts = ({
+  navigation,
+  popular,
+  name,
+  supplier_name,
+  screen_name,
+  isFeatured,
+  isPopular,
+}: any) => {
   return (
     <View style={{paddingTop: 10}}>
-      <SectionHead navigation={navigation} name="Popular" />
+      <SectionHeadDetails
+        navigation={navigation}
+        name={name}
+        supplier_name={supplier_name}
+        screen_name={screen_name}
+        isFeatured={isFeatured}
+        isPopular={isPopular}
+      />
       <View style={{}}>
         <FlatList
           data={popular}

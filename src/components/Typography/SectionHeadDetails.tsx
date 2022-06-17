@@ -7,6 +7,7 @@ type Props = {
   supplier_name: string;
   screen_name: string;
   isFeatured?: boolean;
+  isPopular: boolean;
 };
 
 const SectionHeadDetails = ({
@@ -15,6 +16,7 @@ const SectionHeadDetails = ({
   supplier_name,
   screen_name,
   isFeatured,
+  isPopular,
 }: Props) => {
   console.log(isFeatured);
   return (
@@ -32,6 +34,7 @@ const SectionHeadDetails = ({
           navigation.navigate(`${screen_name}`, {
             supplier_name: supplier_name,
             isFeatured: isFeatured,
+            isPopular: isPopular,
           })
         }>
         <Text

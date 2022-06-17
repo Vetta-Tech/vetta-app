@@ -43,7 +43,7 @@ interface ProductListState {
   index: number;
 }
 
-class ProductList extends Component<ProductListProps, ProductListState> {
+class PopularProducts extends Component<ProductListProps, ProductListState> {
   constructor(props: any) {
     super(props);
     this.flatListRef = null;
@@ -67,14 +67,14 @@ class ProductList extends Component<ProductListProps, ProductListState> {
   }
 
   fetchFeaturedProducts = () => {
-    const {isFeatured} = this.props.route.params;
+    const {isPopular} = this.props.route.params;
 
-    if (!isFeatured) {
+    if (!isPopular) {
       this.props.navigation.navigate('Home');
     } else {
       this.setState({
         loading: true,
-        activeCat: 'Featured',
+        activeCat: 'Popular',
       });
       axios
         .get(
@@ -84,7 +84,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           const data = res.data.cat_qs;
           const newProducts = res.data.featured;
           data.unshift({
-            name: 'Featured',
+            name: 'Popular',
             id: 0,
           });
           this.setState({
@@ -98,11 +98,10 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     }
   };
 
-  onSwipeLeft() {
-    const map = this.state.categories.find(
-      (x: any) => x.id === this.state.cat_id + 1,
-    );
+  onSwipeLeft(gestureState: any) {
+    const map = this.state.categories.find(x => x.id === this.state.cat_id + 1);
     const length = this.state.categories.length;
+    console.log('length', length);
 
     if (this.state.cat_id < length - 1) {
       this.flatList.scrollToIndex({
@@ -124,7 +123,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     }
   }
 
-  onSwipeRight() {
+  onSwipeRight(gestureState: any) {
     const map = this.state.categories.find(x => x.id === this.state.cat_id - 1);
     if (this.state.cat_id > 0) {
       this.flatList.scrollToIndex({
@@ -199,7 +198,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
         cat_id: cat_id.id,
       },
       () => {
-        if (this.state.activeCat == 'Featured') {
+        if (this.state.activeCat == 'Popular') {
           this.setState(
             {
               limit: 10,
@@ -221,7 +220,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     this.setState({
       loading: true,
     });
-    if (this.state.activeCat === 'Featured') {
+    if (this.state.activeCat === 'Popular') {
       this.fetchFeaturedProducts();
     } else {
       axios
@@ -271,7 +270,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
         <TopNav
           navigation={this.props.navigation}
           icon="chevron-left"
-          title="Featured"
+          title="Popular"
           left={true}
           leftIcon="trash"
         />
@@ -333,7 +332,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
   }
 }
 
-export default ProductList;
+export default PopularProducts;
 
 const styles = StyleSheet.create({
   catList: {

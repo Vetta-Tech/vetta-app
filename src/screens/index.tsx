@@ -6,6 +6,7 @@ import FeaturedProducts from './FeaturedList';
 import Home from './Home';
 import PhoneInputComp from './Login/PhoneInput';
 import Map from './Map';
+import PopularProducts from './PopularProducts';
 import ProductList from './ProductList';
 import ProductListBrands from './ProductListBrands';
 import Profile from './Profile';
@@ -26,4 +27,5 @@ export {
   ProductListBrands,
   Category,
   FeaturedProducts,
+  PopularProducts,
 };

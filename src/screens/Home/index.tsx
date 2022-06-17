@@ -96,6 +96,11 @@ class Home extends Component<IPdpPageProps> {
           <PopularProducts
             navigation={this.props.navigation}
             popular={this.props.popular}
+            name="Popular"
+            supplier_name=""
+            screen_name="PopularProducts"
+            isFeatured={false}
+            isPopular={true}
           />
           <Collections />
           <RecentProduct recent_products={this.props.recent_products} />
