@@ -11,8 +11,6 @@ import React, {Component} from 'react';
 
 import Appstyle from '../../constants/AppStyles';
 
-import {subcat, babycat, shoescat} from '../../constants/images';
-
 import {
   TopBar,
   Search,
@@ -28,10 +26,10 @@ import {
 } from '../../components';
 
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {fetchHomeProducts} from '../../store/actions';
+import {fetchHomeProducts, fetchBrands} from '../../store/actions';
 import {connect} from 'react-redux';
 import {State} from '../../store/reducers';
+import {SupplierTypes} from '../../store/reducers/supplier';
 
 type RootStackParamList = {
   Pdp: undefined;
@@ -48,6 +46,8 @@ interface IPdpPageProps {
   baby_care: any;
   loading: any;
   error: any;
+  fetchBrands: any;
+  brands: any;
 }
 
 export const OverlaySpinner = () => {
@@ -61,6 +61,7 @@ export const OverlaySpinner = () => {
 class Home extends Component<IPdpPageProps> {
   async componentDidMount() {
     this.props.fetchHomeProducts();
+    this.props.fetchBrands();
   }
 
   render() {
@@ -116,7 +117,10 @@ class Home extends Component<IPdpPageProps> {
             data={this.props.footwear}
             navigation={this.props.navigation}
           />
-          <Brands />
+          <Brands
+            brands={this.props.brands}
+            navigation={this.props.navigation}
+          />
 
           <Refer />
         </ScrollView>
@@ -129,6 +133,7 @@ class Home extends Component<IPdpPageProps> {
 const mapStateToProps = (state: State) => {
   return {
     featured: state.products.featured,
+    brands: state.brands.brands,
     recent_products: state.products.recent_products,
     popular: state.products.popular,
     electronics: state.products.electronics,
@@ -139,7 +144,7 @@ const mapStateToProps = (state: State) => {
   };
 };
 
-export default connect(mapStateToProps, {fetchHomeProducts})(Home);
+export default connect(mapStateToProps, {fetchHomeProducts, fetchBrands})(Home);
 
 const styles = StyleSheet.create({
   spinnerView: {

@@ -4,10 +4,12 @@ import {
   fetchProductByBrand,
   fetchProductDetails,
 } from './products';
+import {fetchBrands} from './supplier';
 
 export {
   authCheckState,
   fetchHomeProducts,
   fetchProductDetails,
   fetchProductByBrand,
+  fetchBrands,
 };

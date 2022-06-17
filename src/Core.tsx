@@ -40,7 +40,7 @@ class Core extends Component<CoreProps, any> {
     return (
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName={'Splash'}
+          initialRouteName={'Home'}
           screenOptions={{
             headerShown: false,
           }}>

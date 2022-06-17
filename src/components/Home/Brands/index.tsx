@@ -2,14 +2,28 @@ import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import SectionHead from '../../Typography/SectionHead';
 import {categoryData} from '../../../constants/dummydata';
+import {BrandsTypes} from '../../../utils/types/brandsType';
+import {API_URL_IMAGE} from '@env';
 
-const Brands = () => {
-  const renderItem = () => {
+interface BrandsProps {
+  brands: BrandsTypes[];
+
+  navigation: any;
+}
+
+interface Item {
+  item: {
+    logo: string;
+  };
+}
+
+const Brands = ({brands, navigation}: BrandsProps) => {
+  const renderItem = ({item}: Item) => {
     return (
       <View style={{paddingRight: 15, paddingTop: 10}}>
         <View style={{backgroundColor: '#f2f2f2', borderRadius: 20}}>
           <Image
-            source={require('../../../../assets/pngegg.png')}
+            source={{uri: `${item.logo}`}}
             style={{
               width: 120,
               height: 120,
@@ -22,13 +36,13 @@ const Brands = () => {
 
   return (
     <View style={{paddingTop: 15}}>
-      <SectionHead name="Brands" />
+      <SectionHead navigation={navigation} name="Brands" />
       <View>
         <FlatList
-          data={categoryData}
+          data={brands}
           horizontal
           showsHorizontalScrollIndicator={false}
-          renderItem={renderItem}
+          renderItem={item => renderItem(item)}
           keyExtractor={item => `${item.id}`}
           contentContainerStyle={{paddingVertical: 5}}
         />

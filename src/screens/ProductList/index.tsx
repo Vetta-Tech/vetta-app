@@ -15,6 +15,7 @@ import {API_URL} from '@env';
 import axios from 'axios';
 import {Product, TopNav} from '../../components';
 import {OverlaySpinner} from '../Login/PhoneInput';
+import {ProductsInterface} from '../../utils/types/productTypes';
 
 interface ProductListProps {
   route: {
@@ -27,7 +28,7 @@ interface ProductListProps {
 }
 
 interface ProductListState {
-  products: [];
+  products: ProductsInterface[];
   sub_categories: [];
   loading: boolean;
   error: string;
@@ -40,11 +41,19 @@ interface ProductListState {
   index: number;
 }
 
-class ProductList extends Component<ProductListProps, ProductListState> {
-  constructor(props) {
-    super(props);
-    this.flatListRef = null;
+type subCatType = {
+  name: string;
+  category: {
+    name: string;
+  };
+};
 
+class ProductList extends Component<ProductListProps, ProductListState> {
+  private flatList: any;
+
+  constructor(props: any) {
+    super(props);
+    this.flatList = React.createRef();
     this.state = {
       sub_categories: [],
       products: [],
@@ -112,7 +121,9 @@ class ProductList extends Component<ProductListProps, ProductListState> {
             () => {
               if (sub_cat) {
                 var index = this.state.sub_categories.indexOf(
-                  this.state.sub_categories.filter(function (item) {
+                  this.state.sub_categories.filter(function (item: {
+                    name: string;
+                  }) {
                     return item.name == sub_cat;
                   })[0],
                 );
@@ -177,10 +188,10 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     const {sub_categories} = this.state;
     const length = sub_categories.length;
 
-    const sub_cat_data = sub_categories[this.state.index + 1];
+    const sub_cat_data: subCatType = sub_categories[this.state.index + 1];
 
     if (this.state.index < length - 1) {
-      this.flatList.scrollToIndex({
+      this.flatList!.scrollToIndex({
         animated: true,
         index: this.state.index,
       });
@@ -206,7 +217,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
     const {sub_categories} = this.state;
     const length = sub_categories.length;
 
-    const sub_cat_data = sub_categories[this.state.index - 1];
+    const sub_cat_data: subCatType = sub_categories[this.state.index - 1];
 
     if (this.state.index > 0) {
       this.flatList.scrollToIndex({
@@ -230,7 +241,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
 
   fetchBasedOnCat = (sub_cat: string, category_name: string) => {
     var index = this.state.sub_categories.indexOf(
-      this.state.sub_categories.filter(function (item) {
+      this.state.sub_categories.filter(function (item: {name: string}) {
         return item.name == sub_cat;
       })[0],
     );
@@ -258,7 +269,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
           .then(res => {
             const data = _.uniqBy(res.data.products, 'id');
             this.setState({
-              products: data,
+              products: res.data.products,
               loading: false,
               offset: this.state.offset + this.state.limit,
             });
@@ -386,7 +397,7 @@ class ProductList extends Component<ProductListProps, ProductListState> {
               <View style={{paddingRight: 8, paddingTop: 10}}>
                 <TouchableOpacity
                   onPress={() =>
-                    this.fetchBasedOnSubCat(item.name, this.state.category)
+                    this.RightSwipeFetch(item.name, this.state.category)
                   }>
                   <View
                     style={
@@ -411,14 +422,16 @@ class ProductList extends Component<ProductListProps, ProductListState> {
         </View>
 
         <GestureRecognizer
-          onSwipeLeft={state => this.onSwipeLeft(state)}
-          onSwipeRight={state => this.onSwipeRight(state)}
+          onSwipeLeft={state => this.onSwipeLeft()}
+          onSwipeRight={state => this.onSwipeRight()}
           config={config}>
           <FlatList
             showsVerticalScrollIndicator={false}
             onEndReached={() => this.fetchInfiniteProducts()}
             data={this.state.products}
-            renderItem={({item}) => <Product item={item} />}
+            renderItem={({item}) => (
+              <Product navigation={this.props.navigation} item={item} />
+            )}
             numColumns={2}
           />
         </GestureRecognizer>
