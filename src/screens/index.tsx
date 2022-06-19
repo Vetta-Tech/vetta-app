@@ -1,4 +1,5 @@
 import AuthSelect from './AuthSelect';
+import BrandDeatils from './BrandDetails';
 import Cart from './Cart';
 import Category from './Category';
 import Details from './Details';
@@ -28,4 +29,5 @@ export {
   Category,
   FeaturedProducts,
   PopularProducts,
+  BrandDeatils,
 };

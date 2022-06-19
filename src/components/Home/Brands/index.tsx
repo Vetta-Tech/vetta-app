@@ -1,4 +1,11 @@
-import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
 import SectionHead from '../../Typography/SectionHead';
 import {categoryData} from '../../../constants/dummydata';
@@ -22,13 +29,18 @@ const Brands = ({brands, navigation}: BrandsProps) => {
     return (
       <View style={{paddingRight: 15, paddingTop: 10}}>
         <View style={{backgroundColor: '#f2f2f2', borderRadius: 20}}>
-          <Image
-            source={{uri: `${item.logo}`}}
-            style={{
-              width: 120,
-              height: 120,
-            }}
-          />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('BrandDeatils');
+            }}>
+            <Image
+              source={{uri: `${item.logo}`}}
+              style={{
+                width: 120,
+                height: 120,
+              }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     );

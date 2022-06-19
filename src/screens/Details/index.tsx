@@ -162,6 +162,7 @@ class Details extends Component<DetailsProps, DetailsState> {
           <HoriLine />
           <View style={{padding: 5}}>
             <FeaturedPRoducts
+              isFeatured={false}
               supplier_name={this.props.route.params.brand}
               navigation={this.props.navigation}
               featured={brandProducts}

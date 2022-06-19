@@ -28,6 +28,7 @@ import ReviewSummery from './Details/ReviewSummery';
 import Description from './Details/Description';
 import CategoryCard from './Category/Card';
 import SectionHeadCategory from './Typography/SectionHeadCategories';
+import TopNavBrands from './BrandDetails/Nav';
 
 export {
   TopBar,
@@ -60,4 +61,5 @@ export {
   Description,
   CategoryCard,
   SectionHeadCategory,
+  TopNavBrands,
 };

@@ -4,7 +4,7 @@ import {
   fetchProductByBrand,
   fetchProductDetails,
 } from './products';
-import {fetchBrands} from './supplier';
+import {fetchBrands, fetchBrandsDetails, fetchBrndsProducts} from './supplier';
 
 export {
   authCheckState,
@@ -12,4 +12,6 @@ export {
   fetchProductDetails,
   fetchProductByBrand,
   fetchBrands,
+  fetchBrandsDetails,
+  fetchBrndsProducts,
 };
