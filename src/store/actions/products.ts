@@ -23,7 +23,7 @@ export const fetchHomeProducts = () => (dispatch: AppDispatch) => {
   });
 
   axios
-    .get(`${API_URL}products/home`)
+    .get(`http://192.168.0.204:8000/api/v1/products/home`)
     .then(res => {
       dispatch({
         type: HOME_PRODUCTS_FETCH_SUCCESS,

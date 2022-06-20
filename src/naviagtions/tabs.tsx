@@ -4,7 +4,7 @@ import {Image, Vibration} from 'react-native';
 
 import {Home, Search, Cart, Profile} from '../screens';
 
-import {home, explore, cat} from '../constants/images';
+import {home, explore, cat, user} from '../constants/images';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,7 +36,7 @@ const BottomTab = () => {
                 padding: 10,
                 width: 25,
                 height: 25,
-                tintColor: focused ? '#a2a8a3' : 'black',
+                tintColor: focused ? 'black' : '#a2a8a3',
               }}
             />
           ),
@@ -58,7 +58,7 @@ const BottomTab = () => {
               style={{
                 width: 25,
                 height: 25,
-                tintColor: focused ? '#a2a8a3' : 'black',
+                tintColor: focused ? 'black' : '#a2a8a3',
               }}
             />
           ),
@@ -80,7 +80,7 @@ const BottomTab = () => {
               style={{
                 width: 30,
                 height: 25,
-                tintColor: focused ? '#a2a8a3' : 'black',
+                tintColor: focused ? 'black' : '#a2a8a3',
               }}
             />
           ),
@@ -102,7 +102,7 @@ const BottomTab = () => {
               style={{
                 width: 25,
                 height: 25,
-                tintColor: focused ? '#a2a8a3' : 'black',
+                tintColor: focused ? 'black' : '#a2a8a3',
               }}
             />
           ),

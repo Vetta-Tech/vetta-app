@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store/reducers';
 
-const Splash = (props: any) => {
+const SplashScreen = (props: any) => {
   const [timePassed, setTimePassed] = React.useState(false);
 
   setTimeout(function () {
@@ -46,6 +46,6 @@ const mapStateToProps = (state: State) => {
   };
 };
 
-export default connect(mapStateToProps, {})(Splash);
+export default connect(mapStateToProps, {})(SplashScreen);
 
 const styles = StyleSheet.create({});

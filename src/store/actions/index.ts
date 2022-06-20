@@ -1,4 +1,5 @@
 import {authCheckState, sendOtp} from './auth';
+import {handleAddToCart} from './cart';
 import {
   fetchHomeProducts,
   fetchProductByBrand,
@@ -14,4 +15,5 @@ export {
   fetchBrands,
   fetchBrandsDetails,
   fetchBrndsProducts,
+  handleAddToCart,
 };

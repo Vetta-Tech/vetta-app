@@ -53,9 +53,7 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
   }
 
   fetchBrandsDetails = () => {
-    // const {supplier, slug} = this.props.route.params;
-    const supplier = 'Apple';
-    const slug = 'apple';
+    const {supplier, slug} = this.props.route.params;
     if (!slug) {
       this.props.navigation.navigate('Home');
     } else {
@@ -101,53 +99,6 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
     }
   };
 
-  fetchProductsBasedOnCategory = (category: string, supplier: string) => {
-    var index = this.state.data.indexOf(
-      this.state.data.filter(function (item: {name: string}) {
-        return item.name == category;
-      })[0],
-    );
-
-    axios
-      .get(
-        `${API_URL}supplier/brand-details?limit=${this.state.limit}&offset=${this.state.offset}`,
-        {
-          params: {
-            cat: category,
-            supplier: supplier,
-          },
-        },
-      )
-      .then(res => {
-        this.setState({
-          loading: false,
-          products: res.data.products,
-          index,
-        });
-      })
-      .catch(err => {
-        this.setState({
-          loading: false,
-          error: 'Something went wrnog',
-        });
-      });
-  };
-
-  fetchProductsInCondition = (category: string) => {
-    Vibration.vibrate(20);
-    this.setState(
-      {
-        activeCat: category,
-        limit: 10,
-        offset: 0,
-        products: [],
-      },
-      () => {
-        this.fetchProductsBasedOnCategory(category, this.state.supplier);
-      },
-    );
-  };
-
   onSwipeLeft = () => {
     const {data} = this.state;
 
@@ -189,6 +140,65 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
     }
   };
 
+  fetchProductsBasedOnCategory = (category: string, supplier: string) => {
+    var index = this.state.data.indexOf(
+      this.state.data.filter(function (item: {name: string}) {
+        return item.name == category;
+      })[0],
+    );
+
+    this.setState(
+      {
+        loading: true,
+        limit: 10,
+        offset: 0,
+        index,
+      },
+      () => {
+        axios
+          .get(
+            `${API_URL}supplier/brand-details?limit=${this.state.limit}&offset=${this.state.offset}`,
+            {
+              params: {
+                cat: category,
+                supplier: supplier,
+              },
+            },
+          )
+          .then(res => {
+            const data = _.uniqBy(res.data.products, 'id');
+            this.setState({
+              loading: false,
+              products: data,
+              index,
+              offset: this.state.offset + this.state.limit,
+            });
+          })
+          .catch(err => {
+            this.setState({
+              loading: false,
+              error: 'Something went wrnog',
+            });
+          });
+      },
+    );
+  };
+
+  fetchProductsInCondition = (category: string) => {
+    Vibration.vibrate(20);
+    this.setState(
+      {
+        activeCat: category,
+        limit: 10,
+        offset: 0,
+        products: [],
+      },
+      () => {
+        this.fetchProductsBasedOnCategory(category, this.state.supplier);
+      },
+    );
+  };
+
   fetchInfiniteProducts = () => {
     console.log('assssssssssss', this.state.limit, this.state.offset);
     this.setState({
@@ -227,7 +237,7 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
       directionalOffsetThreshold: 80,
     };
 
-    console.log(this.state.index);
+    const {brandData} = this.state;
 
     return (
       <View
@@ -239,130 +249,135 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
           padding: 5,
           flex: 1,
         }}>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}
-          onEndReached={() => this.fetchInfiniteProducts()}
-          data={this.state.products}
-          renderItem={({item}) => (
-            <Product navigation={this.props.navigation} item={item} />
-          )}
-          numColumns={2}
-          ListHeaderComponent={() => {
-            return (
-              <>
-                <View style={{position: 'relative'}}>
-                  <Image
-                    source={{
-                      uri: 'http://192.168.0.204:8000/images/brand/cover/apple_cover_letter_example_1.jpg',
-                    }}
-                    style={{
-                      width: '100%',
-                      height: 160,
-                      borderRadius: 12,
-                    }}
-                    resizeMode="cover"
-                  />
-                  <View
-                    style={{
-                      position: 'absolute',
-                      padding: 5,
-                      left: 0,
-                      right: 0,
-                    }}>
-                    <TopNavBrands />
-                  </View>
-
-                  <View
-                    style={{
-                      position: 'absolute',
-
-                      padding: 10,
-                      top: 100,
-                      width: '100%',
-                      flex: 1,
-                      justifyContent: 'space-between',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
+        <GestureRecognizer
+          onSwipeLeft={state => this.onSwipeLeft()}
+          onSwipeRight={state => this.onSwipeRight()}
+          config={config}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
+            onEndReached={() => this.fetchInfiniteProducts()}
+            data={this.state.products}
+            renderItem={({item}) => (
+              <Product navigation={this.props.navigation} item={item} />
+            )}
+            numColumns={2}
+            ListHeaderComponent={() => {
+              return (
+                <>
+                  <View style={{position: 'relative'}}>
+                    <Image
+                      source={{
+                        uri: `${brandData.cover_image}`,
+                      }}
+                      style={{
+                        width: '100%',
+                        height: 160,
+                        borderRadius: 12,
+                      }}
+                      resizeMode="cover"
+                    />
                     <View
                       style={{
-                        backgroundColor: '#f2f2f2',
-                        borderRadius: 60,
-                        padding: 10,
-                        width: '30%',
+                        position: 'absolute',
+                        padding: 5,
+                        left: 0,
+                        right: 0,
                       }}>
-                      <Image
-                        source={{
-                          uri: 'http://192.168.0.204:8000/images/brand/logo/png-apple-logo-9708.png',
-                        }}
+                      <TopNavBrands />
+                    </View>
+
+                    <View
+                      style={{
+                        position: 'absolute',
+                        padding: 10,
+                        top: 100,
+                        width: '100%',
+                        flex: 1,
+                        justifyContent: 'space-between',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <View
                         style={{
-                          height: 80,
-                          width: 80,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          padding: 15,
-                        }}
-                      />
+                          backgroundColor: '#f2f2f2',
+                          borderRadius: 60,
+                          padding: 10,
+                          width: '30%',
+                        }}>
+                        <Image
+                          source={{
+                            uri: `${brandData.logo}`,
+                          }}
+                          resizeMode="contain"
+                          style={{
+                            height: 80,
+                            width: 80,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            padding: 15,
+                          }}
+                        />
+                      </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={{
-                    marginTop: 50,
-                  }}>
-                  <Text
+                  <View
                     style={{
-                      fontFamily: 'Montserrat-Light',
-                      color: 'black',
-                      padding: 10,
+                      marginTop: 50,
                     }}>
-                    Lorem ipsum dolor sit amet consectetur adipicing elit.
-                    Recusandae corrupti, laborum perferendis facilis odio
-                    aliquam minima non molestiae? Voluptas consequatur non
-                    libero qui! Laborum voluptatem
-                  </Text>
-                </View>
+                    <Text
+                      style={{
+                        fontFamily: 'Montserrat-Light',
+                        color: 'black',
+                        padding: 10,
+                      }}>
+                      Lorem ipsum dolor sit amet consectetur adipicing elit.
+                      Recusandae corrupti, laborum perferendis facilis odio
+                      aliquam minima non molestiae? Voluptas consequatur non
+                      libero qui! Laborum voluptatem
+                    </Text>
+                  </View>
 
-                <View>
-                  <FlatList
-                    data={this.state.data}
-                    horizontal
-                    ref={ref => {
-                      this.flatList = ref;
-                    }}
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({item}: any) => (
-                      <View style={{paddingRight: 8, paddingTop: 10}}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            this.fetchProductsInCondition(item.name)
-                          }>
-                          <View
-                            style={
-                              item.name === this.state.activeCat
-                                ? styles.catListActive
-                                : styles.catList
+                  <View>
+                    <FlatList
+                      data={this.state.data}
+                      horizontal
+                      ref={ref => {
+                        this.flatList = ref;
+                      }}
+                      showsHorizontalScrollIndicator={false}
+                      renderItem={({item}: any) => (
+                        <View style={{paddingRight: 8, paddingTop: 10}}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              this.fetchProductsInCondition(item.name)
                             }>
-                            <Text
+                            <View
                               style={
                                 item.name === this.state.activeCat
-                                  ? styles.catListTXTActive
-                                  : styles.catListTXT
+                                  ? styles.catListActive
+                                  : styles.catList
                               }>
-                              {item.name}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                    contentContainerStyle={{paddingVertical: 15}}
-                  />
-                </View>
-              </>
-            );
-          }}
-        />
+                              <Text
+                                style={
+                                  item.name === this.state.activeCat
+                                    ? styles.catListTXTActive
+                                    : styles.catListTXT
+                                }>
+                                {item.name}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                      contentContainerStyle={{paddingVertical: 15}}
+                    />
+                  </View>
+                </>
+              );
+            }}
+          />
+        </GestureRecognizer>
       </View>
     );
   }

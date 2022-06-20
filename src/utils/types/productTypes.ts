@@ -25,16 +25,10 @@ export interface ImageInterface {
 
 export interface VariantSerializer {
   title: string;
-  product: ProductsInterface;
-  color: {
-    name: string;
-    code: string;
-  };
   size: {
     name: string;
     code: string;
   };
-  image_id: string;
   quantity: null;
   price: number;
 }

@@ -14,10 +14,11 @@ import {
   PhoneInputComp,
   ProductList,
   ProductListBrands,
-  Splash,
+  SplashScreen,
   FeaturedProducts,
   PopularProducts,
   BrandDeatils,
+  AllBrands,
 } from './screens';
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
@@ -41,12 +42,14 @@ class Core extends Component<CoreProps, any> {
     return (
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName={'Splash'}
+          initialRouteName={'SplashScreen'}
           screenOptions={{
             headerShown: false,
           }}>
-          <Stack.Screen name="Splash" component={Splash} />
+          <Stack.Screen name="SplashScreen" component={SplashScreen} />
           <Stack.Screen name="ProductList" component={ProductList} />
+          <Stack.Screen name="AllBrands" component={AllBrands} />
+
           <Stack.Screen name="FeaturedProducts" component={FeaturedProducts} />
           <Stack.Screen name="PopularProducts" component={PopularProducts} />
           <Stack.Screen name="BrandDeatils" component={BrandDeatils} />

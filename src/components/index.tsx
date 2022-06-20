@@ -29,6 +29,8 @@ import Description from './Details/Description';
 import CategoryCard from './Category/Card';
 import SectionHeadCategory from './Typography/SectionHeadCategories';
 import TopNavBrands from './BrandDetails/Nav';
+import SectionHeadBrands from './Typography/SectionHeadBrands';
+import BrandCard from './Brands/BrandCard';
 
 export {
   TopBar,
@@ -62,4 +64,6 @@ export {
   CategoryCard,
   SectionHeadCategory,
   TopNavBrands,
+  SectionHeadBrands,
+  BrandCard,
 };

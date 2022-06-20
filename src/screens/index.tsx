@@ -1,3 +1,4 @@
+import AllBrands from './AllBrands';
 import AuthSelect from './AuthSelect';
 import BrandDeatils from './BrandDetails';
 import Cart from './Cart';
@@ -12,7 +13,7 @@ import ProductList from './ProductList';
 import ProductListBrands from './ProductListBrands';
 import Profile from './Profile';
 import Search from './Search';
-import Splash from './Splash';
+import SplashScreen from './Splash';
 
 export {
   Home,
@@ -22,7 +23,7 @@ export {
   Profile,
   PhoneInputComp,
   AuthSelect,
-  Splash,
+  SplashScreen,
   Details,
   ProductList,
   ProductListBrands,
@@ -30,4 +31,5 @@ export {
   FeaturedProducts,
   PopularProducts,
   BrandDeatils,
+  AllBrands,
 };

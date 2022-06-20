@@ -15,7 +15,6 @@ interface FeaturedProductsProps {
 
 class FeaturedPRoducts extends Component<FeaturedProductsProps, any> {
   render() {
-    console.log('feature', this.props.isFeatured);
     return (
       <View style={styles.container}>
         <SectionHeadDetails

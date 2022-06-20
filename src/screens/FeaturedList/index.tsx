@@ -251,8 +251,6 @@ class ProductList extends Component<ProductListProps, ProductListState> {
   };
 
   render() {
-    console.log('activeCat', this.state.activeCat);
-    console.log('cat_id', this.state.cat_id);
     const config = {
       velocityThreshold: 0.6,
       directionalOffsetThreshold: 80,

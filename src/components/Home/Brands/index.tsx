@@ -7,10 +7,10 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import SectionHead from '../../Typography/SectionHead';
-import {categoryData} from '../../../constants/dummydata';
+
 import {BrandsTypes} from '../../../utils/types/brandsType';
 import {API_URL_IMAGE} from '@env';
+import SectionHeadBrands from '../../Typography/SectionHeadBrands';
 
 interface BrandsProps {
   brands: BrandsTypes[];
@@ -31,7 +31,10 @@ const Brands = ({brands, navigation}: BrandsProps) => {
         <View style={{backgroundColor: '#f2f2f2', borderRadius: 20}}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('BrandDeatils');
+              navigation.navigate('BrandDeatils', {
+                supplier: item.name,
+                slug: item.slug,
+              });
             }}>
             <Image
               source={{uri: `${item.logo}`}}
@@ -39,6 +42,7 @@ const Brands = ({brands, navigation}: BrandsProps) => {
                 width: 120,
                 height: 120,
               }}
+              resizeMode="contain"
             />
           </TouchableOpacity>
         </View>
@@ -48,7 +52,7 @@ const Brands = ({brands, navigation}: BrandsProps) => {
 
   return (
     <View style={{paddingTop: 15}}>
-      <SectionHead navigation={navigation} name="Brands" />
+      <SectionHeadBrands navigation={navigation} name="Brands" />
       <View>
         <FlatList
           data={brands}

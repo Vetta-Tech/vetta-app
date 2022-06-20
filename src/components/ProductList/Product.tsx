@@ -36,6 +36,7 @@ export default class Product extends Component<ProductProps> {
           style={{
             paddingTop: 5,
             paddingBottom: 5,
+            padding: 14,
             paddingLeft: 2,
           }}>
           <View
@@ -47,7 +48,7 @@ export default class Product extends Component<ProductProps> {
               resizeMode="contain"
               style={{
                 height: Dimensions.get('window').width / 2.3,
-                width: Dimensions.get('window').width / 2.3,
+                width: Dimensions.get('window').width / 2.4,
               }}
               source={{uri: `${API_URL_IMAGE}${item.thumbnail}`}}
             />
