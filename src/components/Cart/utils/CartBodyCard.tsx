@@ -1,65 +1,117 @@
+import {API_URL_IMAGE} from '@env';
 import * as React from 'react';
-import {Text, View, StyleSheet, Image} from 'react-native';
+import {Text, View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import Icon from 'react-native-vector-icons/EvilIcons';
 
 import {shoescat} from '../../../constants/images';
-
+import {CartData} from '../../../screens/Cart/index';
 interface CartBodyCardProps {
-  item: any;
+  name: string;
+  short_descrition: string;
+  price: number;
+  image: string;
+  quantity: number;
+  handleIncreaseQuantity: any;
+  variant: any;
+  id: number;
 }
 
-const CartBodyCard = ({item}: CartBodyCardProps) => {
-  return (
-    <View style={styles.container}>
-      <View style={styles.cartInside}>
-        <View style={{flexDirection: 'row'}}>
-          <View
-            style={{
-              backgroundColor: '#f2f2f2',
-              padding: 5,
-              borderRadius: 15,
-              // paddingRight: 10,
-            }}>
-            <Image
+interface CartBodyCardState {
+  loading: boolean;
+  error: string;
+  success: boolean;
+}
+
+class CartBodyCard extends React.Component<
+  CartBodyCardProps,
+  CartBodyCardState
+> {
+  state: CartBodyCardState = {
+    loading: false,
+    error: '',
+    success: false,
+  };
+
+  render() {
+    const {
+      name,
+      short_descrition,
+      price,
+      image,
+      quantity,
+      handleIncreaseQuantity,
+      id,
+      variant,
+    } = this.props;
+    return (
+      <View style={styles.container}>
+        <View style={styles.cartInside}>
+          <View style={{flexDirection: 'row'}}>
+            <View
               style={{
-                height: 90,
-                width: 90,
-              }}
-              source={shoescat}
-            />
+                backgroundColor: '#f2f2f2',
+                padding: 5,
+                borderRadius: 15,
+                // paddingRight: 10,
+              }}>
+              <Image
+                style={{
+                  height: 90,
+                  width: 90,
+                }}
+                source={{
+                  uri: `${API_URL_IMAGE}${image}`,
+                }}
+              />
+            </View>
+
+            <View
+              style={{
+                paddingLeft: 10,
+                // width: '50%',
+                justifyContent: 'space-between',
+                paddingTop: 7,
+                paddingBottom: 7,
+              }}>
+              <View>
+                <Text style={{fontFamily: 'Montserrat-SemiBold'}}>{name}</Text>
+                <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12}}>
+                  {short_descrition}
+                </Text>
+              </View>
+              <View>
+                <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 16}}>
+                  ৳{price}
+                </Text>
+              </View>
+            </View>
           </View>
 
           <View
             style={{
-              paddingLeft: 10,
-              width: '50%',
-              justifyContent: 'space-between',
-              paddingTop: 7,
-              paddingBottom: 7,
+              flexDirection: 'row',
+              alignItems: 'center',
             }}>
-            <View>
-              <Text style={{fontFamily: 'Montserrat-SemiBold'}}>
-                Minimalist Chair
-              </Text>
-              <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12}}>
-                Regal Do Lodo
-              </Text>
-            </View>
-            <View>
-              <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 16}}>
-                ₹999
-              </Text>
-            </View>
+            <TouchableOpacity>
+              <Icon name="minus" size={30} />
+            </TouchableOpacity>
+            <Text
+              style={{
+                fontFamily: 'Montserrat-Bold',
+                padding: 4,
+              }}>
+              {quantity}
+            </Text>
+            <TouchableOpacity
+              onPress={() => handleIncreaseQuantity(id, variant)}>
+              <Icon name="plus" size={30} />
+            </TouchableOpacity>
           </View>
-        </View>
-
-        <View>
-          <Text>Quantity</Text>
         </View>
       </View>
-    </View>
-  );
-};
-
+    );
+  }
+}
 export default CartBodyCard;
 
 const styles = StyleSheet.create({

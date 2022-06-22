@@ -6,7 +6,17 @@ interface CartSummaryProps {}
 const CartSummary = (props: CartSummaryProps) => {
   return (
     <View style={styles.container}>
-      <Text>CartSummary</Text>
+      <View
+        style={{
+          padding: 10,
+        }}>
+        <View>
+          <View>
+            <Text>Subtotal</Text>
+            <Text>৳12000</Text>
+          </View>
+        </View>
+      </View>
     </View>
   );
 };
@@ -14,5 +24,9 @@ const CartSummary = (props: CartSummaryProps) => {
 export default CartSummary;
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    borderRadius: 120,
+    backgroundColor: '#f2f2f2',
+    padding: 10,
+  },
 });

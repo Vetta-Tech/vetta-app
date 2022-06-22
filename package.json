@@ -43,6 +43,8 @@
     "react-native-snap-carousel": "^3.9.1",
     "react-native-splash-screen": "^3.3.0",
     "react-native-swipe-gestures": "^1.0.5",
+    "react-native-toast-message": "^2.1.5",
+    "react-native-toast-notifications": "^3.3.0",
     "react-native-vector-icons": "^9.1.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",

@@ -1,6 +1,8 @@
 import {Text, StyleSheet, View, Pressable, Vibration} from 'react-native';
 import React, {Component} from 'react';
 import {VariantSerializer} from '../../utils/types/productTypes';
+import {TouchableOpacity} from '@gorhom/bottom-sheet';
+import Icon from 'react-native-vector-icons/EvilIcons';
 
 interface NameSectionProps {
   brand_name: string;
@@ -12,6 +14,7 @@ interface NameSectionProps {
   activeVariant?: number | null;
   price: number;
   canAddToCart: boolean;
+  quantity: number;
 }
 export default class NameSection extends Component<NameSectionProps, any> {
   render() {
@@ -25,6 +28,7 @@ export default class NameSection extends Component<NameSectionProps, any> {
       slug,
       activeVariant,
       canAddToCart,
+      quantity,
     } = this.props;
     return (
       <View style={styles.nameContainer}>
@@ -67,8 +71,30 @@ export default class NameSection extends Component<NameSectionProps, any> {
               </View>
             </Pressable>
           ) : (
-            <View>
-              <Text>quantity</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity
+                onPress={() =>
+                  this.handleDecreaseQuantity(item.id, item.variant.id)
+                }>
+                <Icon name="minus" size={30} />
+              </TouchableOpacity>
+              <Text
+                style={{
+                  fontFamily: 'Montserrat-Bold',
+                  padding: 4,
+                }}>
+                {quantity}
+              </Text>
+              <TouchableOpacity
+                onPress={() =>
+                  this.handleIncreaseQuantity(item.id, item.variant.id)
+                }>
+                <Icon name="plus" size={30} />
+              </TouchableOpacity>
             </View>
           )}
         </View>

@@ -12,10 +12,13 @@ import {
   TouchableOpacity,
   FlatList,
   Vibration,
+  Pressable,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/EvilIcons';
 
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import Toast from 'react-native-toast-message';
 
 import {
   Description,
@@ -35,6 +38,8 @@ import {
   VariantSerializer,
 } from '../../utils/types/productTypes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {toastConfig} from '../../components/CsutomToast';
+import {CartData} from '../Cart';
 
 interface DetailsProps {
   navigation: any;
@@ -66,6 +71,19 @@ interface DetailsState {
   price: number;
   loading: boolean;
   canAddToCart: boolean;
+  addToCartSuccess: boolean;
+  addToCartError: string;
+  increaseQuantitySuccess: boolean;
+  decreaseQuantitySuccess: boolean;
+  cartData: any;
+  final_cart: {
+    id: number;
+    total: number;
+    sub_total: number;
+    total_saved: number;
+  };
+  error: string;
+  cart_id: number;
 }
 
 const windowHeight = Dimensions.get('window').height;
@@ -87,6 +105,19 @@ class Details extends Component<DetailsProps, DetailsState> {
       price: 0,
       loading: false,
       canAddToCart: true,
+      addToCartSuccess: false,
+      addToCartError: '',
+      increaseQuantitySuccess: false,
+      decreaseQuantitySuccess: false,
+      cartData: {},
+      final_cart: {
+        id: 0,
+        total: 0,
+        sub_total: 0,
+        total_saved: 0,
+      },
+      error: '',
+      cart_id: 0,
     };
   }
 
@@ -106,44 +137,46 @@ class Details extends Component<DetailsProps, DetailsState> {
     this.setState({
       loading: true,
     });
-    axios.get(`${API_URL}products/details/${slug}`).then(res => {
-      this.setState(
-        {
-          productDetails: res.data.products,
-          images: res.data.images,
-          variants: res.data.variants,
-          loading: false,
-        },
-        () => {
-          if (this.state.variants.length > 0) {
-            for (let i = 0; i < this.state.variants.length; i++) {
-              if (this.state.variants[i].quantity > 0) {
-                this.setState(
-                  {
-                    product_name_variant: `${this.state.variants[i].title}`,
-                    activeVariant: this.state.variants[i].id,
-                    price: this.state.variants[i].price,
-                  },
-                  () => {
-                    this.checkCanAddToCart();
-                  },
-                );
-                break;
+    axios
+      .get(`http://192.168.0.204:8000/api/v1/products/details/${slug}`)
+      .then(res => {
+        this.setState(
+          {
+            productDetails: res.data.products,
+            images: res.data.images,
+            variants: res.data.variants,
+            loading: false,
+          },
+          () => {
+            if (this.state.variants.length > 0) {
+              for (let i = 0; i < this.state.variants.length; i++) {
+                if (this.state.variants[i].quantity > 0) {
+                  this.setState(
+                    {
+                      product_name_variant: `${this.state.variants[i].title}`,
+                      activeVariant: this.state.variants[i].id,
+                      price: this.state.variants[i].price,
+                    },
+                    () => {
+                      this.checkCanAddToCart();
+                    },
+                  );
+                  break;
+                }
               }
+            } else {
+              this.setState(
+                {
+                  price: this.state.productDetails.price,
+                },
+                () => {
+                  this.checkCanAddToCart();
+                },
+              );
             }
-          } else {
-            this.setState(
-              {
-                price: this.state.productDetails.price,
-              },
-              () => {
-                this.checkCanAddToCart();
-              },
-            );
-          }
-        },
-      );
-    });
+          },
+        );
+      });
   };
 
   checkCanAddToCart = async () => {
@@ -165,22 +198,21 @@ class Details extends Component<DetailsProps, DetailsState> {
       )
       .then(res => {
         if (res.data.msg === 'True') {
-          console.log('msggggggggggggggg', res.data.msg);
+          console.log('quantity');
           this.setState({
             loading: false,
             canAddToCart: true,
           });
         } else if (res.data.msg === 'False') {
-          console.log('msggggggggggggggg2', res.data.msg);
-
           this.setState({
             loading: false,
             canAddToCart: false,
+            cartData: res.data.cart_qs,
+            addToCartSuccess: false,
           });
         }
       })
       .catch(err => {
-        console.log(err);
         this.setState({
           loading: false,
           canAddToCart: false,
@@ -229,6 +261,9 @@ class Details extends Component<DetailsProps, DetailsState> {
         activeVariant: id,
         product_name_variant: title,
         price: price,
+        addToCartSuccess: false,
+        increaseQuantitySuccess: false,
+        decreaseQuantitySuccess: false,
       },
       () => {
         this.bottomSheetRef.close();
@@ -269,9 +304,65 @@ class Details extends Component<DetailsProps, DetailsState> {
     axios
       .post(`${API_URL}cart/add-to-cart`, data, config)
       .then(res => {
+        if (res.data.success === 'OK') {
+          this.setState(
+            {
+              loading: false,
+              addToCartSuccess: true,
+              cart_id: res.data.item.id,
+            },
+            () => {
+              this.checkCanAddToCart();
+            },
+          );
+        } else {
+          this.setState({
+            loading: false,
+          });
+        }
+      })
+      .catch(err => {
+        this.setState({
+          loading: false,
+          addToCartError: err.response.data.msg,
+        });
+      });
+  };
+
+  increaseQuantity = (id: number, variant_id: number) => {
+    if (this.state.activeVariant > 0) {
+      const data = {
+        id,
+        variant_id,
+      };
+      this.handleIncreaseQuantity(data);
+    } else {
+      const data = {
+        id,
+      };
+      this.handleIncreaseQuantity(data);
+    }
+  };
+
+  handleIncreaseQuantity = async (data: {}) => {
+    this.setState({
+      loading: true,
+    });
+    const token = await AsyncStorage.getItem('token');
+    const config = {
+      headers: {
+        Authorization: 'Token '.concat(token!),
+        'Content-Type': 'application/json',
+      },
+    };
+
+    axios
+      .post(`${API_URL}cart/plus-quantity`, data, config)
+      .then(res => {
         this.setState(
           {
             loading: false,
+            increaseQuantitySuccess: true,
           },
           () => {
             this.checkCanAddToCart();
@@ -281,14 +372,85 @@ class Details extends Component<DetailsProps, DetailsState> {
       .catch(err => {
         this.setState({
           loading: false,
+          error: 'Something went wrong',
+        });
+      });
+  };
+
+  decreaseQuantity = (id: number, variant_id: number) => {
+    if (this.state.activeVariant > 0) {
+      const data = {
+        id,
+        variant_id,
+      };
+      this.handleDecreaseQuantity(data);
+    } else {
+      const data = {
+        id,
+      };
+      this.handleIncreaseQuantity(data);
+    }
+  };
+
+  handleDecreaseQuantity = async (data: {}) => {
+    this.setState({
+      loading: true,
+    });
+    const token = await AsyncStorage.getItem('token');
+    const config = {
+      headers: {
+        Authorization: 'Token '.concat(token!),
+        'Content-Type': 'application/json',
+      },
+    };
+
+    axios
+      .post(`${API_URL}cart/minus-quantity`, data, config)
+      .then(res => {
+        this.setState(
+          {
+            loading: false,
+            decreaseQuantitySuccess: true,
+          },
+          () => {
+            this.checkCanAddToCart();
+          },
+        );
+      })
+      .catch(err => {
+        console.log('err', err.data.msg);
+        this.setState({
+          loading: false,
         });
       });
   };
 
   render() {
-    const {productDetails, variants} = this.state;
+    const {productDetails, variants, cartData} = this.state;
+    console.log('idddddddddddd', this.state.cartData);
+    // console.log('cart data', Object.values(cartData.quantity));
     return (
       <View style={styles.container}>
+        {this.state.addToCartSuccess &&
+          Toast.show({
+            type: 'customSuccess',
+            text1: 'Added To Cart Successfully',
+
+            position: 'bottom',
+          })}
+        {this.state.increaseQuantitySuccess &&
+          Toast.show({
+            type: 'customSuccess',
+            text1: 'Cart updated Successfully',
+            position: 'bottom',
+          })}
+        {this.state.decreaseQuantitySuccess &&
+          Toast.show({
+            type: 'customSuccess',
+            text1: 'Cart updated Successfully',
+            position: 'bottom',
+          })}
+
         <RBSheet
           ref={ref => {
             this.bottomSheetRef = ref;
@@ -423,17 +585,86 @@ class Details extends Component<DetailsProps, DetailsState> {
             </View>
           </View>
           <View style={styles.detailsStyle}>
-            <NameSection
-              brand_name={productDetails.supplier_name}
-              product_name={productDetails.name}
-              variants={variants}
-              slug={productDetails.slug}
-              onSubmitCart={this.onSubmitCart}
-              product_name_variant={this.state.product_name_variant}
-              activeVariant={this.state.activeVariant}
-              price={this.state.price}
-              canAddToCart={this.state.canAddToCart}
-            />
+            <View style={styles.nameContainer}>
+              <View style={{padding: 5}}>
+                <Text
+                  style={{
+                    fontFamily: 'Montserrat-Medium',
+                    fontSize: 12,
+                  }}>
+                  {productDetails.supplier_name}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: 'Montserrat-SemiBold',
+                    color: 'black',
+                    fontSize: 16,
+                  }}>
+                  {variants.length !== 0
+                    ? `${productDetails.name} ${this.state.product_name_variant}`
+                    : `${productDetails.name}`}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: 'Montserrat-Medium',
+                  }}>
+                  ₹{this.state.price}
+                </Text>
+              </View>
+              <View>
+                {this.state.canAddToCart ? (
+                  <Pressable
+                    onPress={() =>
+                      this.onSubmitCart(
+                        productDetails.slug,
+                        this.state.activeVariant,
+                      )
+                    }>
+                    <View style={styles.addToCartBtn}>
+                      <Text
+                        style={{
+                          fontFamily: 'Montserrat-SemiBold',
+                          color: 'white',
+                        }}>
+                        Add to cart
+                      </Text>
+                    </View>
+                  </Pressable>
+                ) : (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.decreaseQuantity(
+                          this.state.cartData.id,
+                          this.state.activeVariant,
+                        )
+                      }>
+                      <Icon name="minus" size={30} />
+                    </TouchableOpacity>
+                    <Text
+                      style={{
+                        fontFamily: 'Montserrat-Bold',
+                        padding: 4,
+                      }}>
+                      {this.state.cartData.quantity}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.increaseQuantity(
+                          this.state.cartData.id,
+                          this.state.activeVariant,
+                        )
+                      }>
+                      <Icon name="plus" size={30} />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            </View>
           </View>
           <HoriLine />
           <View style={styles.detailsStyle}>
@@ -464,6 +695,7 @@ class Details extends Component<DetailsProps, DetailsState> {
             />
           </View>
         </ScrollView>
+        <Toast config={toastConfig} ref={(ref: any) => Toast.setRef(ref)} />
 
         {this.state.loading && <OverlaySpinner />}
       </View>
@@ -531,5 +763,15 @@ const styles = StyleSheet.create({
     color: 'black',
     textTransform: 'capitalize',
     fontSize: 16,
+  },
+
+  nameContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  addToCartBtn: {
+    padding: 14,
+    backgroundColor: 'black',
+    borderRadius: 12,
   },
 });
