@@ -57,7 +57,6 @@ export const sendOtp = ({phone_number}: any) => {
         phone_number,
       })
       .then(res => {
-        console.log('asd');
         dispatch(otpSent(res));
       })
       .catch(err => {

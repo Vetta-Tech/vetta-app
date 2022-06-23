@@ -20,6 +20,7 @@ import {
   BrandDeatils,
   AllBrands,
   Checkout,
+  MapSearch,
 } from './screens';
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
@@ -66,6 +67,8 @@ class Core extends Component<CoreProps, any> {
           <Stack.Screen name="Home" component={BottomTab} />
           <Stack.Screen name="AuthSelect" component={AuthSelect} />
           <Stack.Screen name="Map" component={Map} />
+          <Stack.Screen name="MapSearch" component={MapSearch} />
+
           <Stack.Screen name="Search" component={Search} />
           <Stack.Screen name="PhoneInputComp" component={PhoneInputComp} />
           <Stack.Screen name="VerifyOtp" component={VerifyOtp} />

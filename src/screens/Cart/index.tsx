@@ -106,6 +106,8 @@ class Cart extends React.Component<CartProps, CartState> {
       },
     };
 
+    // console.log(API_URL);
+
     axios
       .get(`${API_URL}cart/cart-list`, config)
       .then(res => {
@@ -540,7 +542,7 @@ class Cart extends React.Component<CartProps, CartState> {
             </View>
           </View>
         </View>
-        <Toast config={toastConfig} ref={(ref: any) => Toast.setRef(ref)} />
+        <Toast config={toastConfig} ref={ref => Toast.setRef(ref)} />
         {this.state.loading && <OverlaySpinner />}
       </>
     );

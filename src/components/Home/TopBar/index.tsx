@@ -7,16 +7,17 @@ type ProppType = {
   navigation: any;
   name: string;
   address: string;
+  onClick: any;
 };
 
-const TopBar = ({navigation, name, address}: ProppType) => {
+const TopBar = ({navigation, name, address, onClick}: ProppType) => {
   return (
     <View style={styles.top}>
       <View>
         <View style={styles.store}>
           <Text style={styles.store_text}>{name}</Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Map')}>
+        <TouchableOpacity onPress={() => onClick()}>
           <View style={styles.location}>
             <Text
               style={{
