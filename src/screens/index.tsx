@@ -11,6 +11,7 @@ import Home from './Home';
 import PhoneInputComp from './Login/PhoneInput';
 import Map from './Map';
 import MapSearch from './Map/MapSearch';
+import PaymentDone from './Payment';
 import PopularProducts from './PopularProducts';
 import ProductList from './ProductList';
 import ProductListBrands from './ProductListBrands';
@@ -38,4 +39,5 @@ export {
   Checkout,
   MapSearch,
   PaymentMethodSelect,
+  PaymentDone,
 };

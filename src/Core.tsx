@@ -22,11 +22,13 @@ import {
   Checkout,
   MapSearch,
   Cart,
+  PaymentDone,
 } from './screens';
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
 import {State} from './store/reducers';
 import {API_URL_IMAGE} from '@env';
+import linking from './linking';
 
 const Stack = createStackNavigator();
 
@@ -45,7 +47,7 @@ class Core extends Component<CoreProps, any> {
     console.log('token is core', this.props.token);
 
     return (
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <Stack.Navigator
           initialRouteName={'SplashScreen'}
           screenOptions={{
@@ -62,6 +64,7 @@ class Core extends Component<CoreProps, any> {
           <Stack.Screen name="Category" component={Category} />
           <Stack.Screen name="Checkout" component={Checkout} />
           <Stack.Screen name="Cart" component={Cart} />
+          <Stack.Screen name="Payment" component={PaymentDone} />
 
           <Stack.Screen
             name="ProductListBrands"

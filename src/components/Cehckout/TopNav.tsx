@@ -2,7 +2,11 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/EvilIcons';
 
-const TopNavCheckout = () => {
+interface IProps {
+  name: string;
+}
+
+const TopNavCheckout = ({name}: IProps) => {
   return (
     <View
       style={{
@@ -28,7 +32,7 @@ const TopNavCheckout = () => {
               fontFamily: 'Montserrat-SemiBold',
               color: 'black',
             }}>
-            Checkout
+            {name}
           </Text>
         </View>
         <Text></Text>

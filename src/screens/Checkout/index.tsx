@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
+import {CommonActions} from '@react-navigation/native';
 
 import React, {Component} from 'react';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -33,10 +34,12 @@ import PaymentMethodSelect from './PaymentMethodSelect';
 class Checkout extends Component<any, IState> {
   private bottomSheetRef: any;
   private maxLength: number;
+  private webViewRef: any;
 
   constructor(props: any) {
     super(props);
     this.bottomSheetRef = React.createRef();
+    this.webViewRef = React.createRef();
     this.maxLength = 250;
 
     this.state = {
@@ -102,8 +105,15 @@ class Checkout extends Component<any, IState> {
         });
       })
       .catch(err => {
-        console.log(err.response);
+        console.log('errrr', err.response);
+        if (err) {
+          this.props.navigation.goBack();
+        }
       });
+  };
+
+  goback = () => {
+    this.webViewRef.current.goBack();
   };
 
   checkPhoneValidOrNot = async () => {
@@ -266,10 +276,30 @@ class Checkout extends Component<any, IState> {
     }
   };
 
+  _onLoad(state: any) {
+    console.log('state_urllllllll', state);
+    if (state.url === 'https://www.youtube.com/') {
+      this.props.navigation.replace('Payment');
+    }
+    if (state.url === 'http://192.168.0.204:8000/api/v1/orders/test') {
+      this.props.navigation.replace('Cart');
+    }
+    if (state.url === 'https://github.com/') {
+      this.props.navigation.replace('Cart');
+    }
+  }
+
   render() {
-    console.log('is_phone_verified', this.state.GatewayPageURL);
     if (this.state.GatewayPageURL) {
-      return <WebView source={{uri: this.state.GatewayPageURL}} />;
+      return (
+        <WebView
+          ref={this.webViewRef}
+          javaScriptEnabled={true}
+          source={{uri: this.state.GatewayPageURL}}
+          onError={err => this.props.navigation.navigate('Cart')}
+          onNavigationStateChange={state => this._onLoad(state)}
+        />
+      );
     }
     return (
       <ScrollView
@@ -397,7 +427,7 @@ class Checkout extends Component<any, IState> {
 
             // height: '100%',
           }}>
-          <TopNavCheckout />
+          <TopNavCheckout name="Checkout" />
           <View
             style={{
               paddingTop: 15,
