@@ -1,28 +1,17 @@
-import MapView, {
-  AnimatedRegion,
-  Marker,
-  MarkerAnimated,
-} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Platform,
-  Text,
-  Image,
-} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, Text, Image} from 'react-native';
 import React, {Component} from 'react';
 
-import Icon from 'react-native-vector-icons/EvilIcons';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import Lottie from 'lottie-react-native';
 import Geocoder from 'react-native-geocoding';
 import Geolocation from '@react-native-community/geolocation';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {mapStyle} from './mapStyle';
+import ErrorModal from './utils/ErrorModal';
 import {OverlaySpinner} from '../Home';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from '../../api/axios';
+import {API_URL} from '@env';
 
 const API_KEY = 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg';
 const BARIKOI_API = 'MzQ3MjpKM0JHWkI4WDc1';
@@ -33,6 +22,7 @@ interface IProps {
     params: {
       lat: any;
       lng: any;
+      navigatePage: string;
     };
   };
 }
@@ -41,11 +31,16 @@ interface IState {
   lattitude: number;
   longitude: number;
   latitudeDelta: number;
+  isAuthenticated: boolean;
   longitudeDelta: number;
   address: string;
   sub_district: string;
   loading: boolean;
   isLoad: boolean;
+  showErrorModal: boolean;
+  create_address: boolean;
+  userAddress: any;
+  navigatePage: string;
 }
 
 export default class Map extends Component<IProps, IState> {
@@ -61,23 +56,76 @@ export default class Map extends Component<IProps, IState> {
       longitude: 0,
       latitudeDelta: 0.012,
       longitudeDelta: 0.012,
+      isAuthenticated: false,
       address: '',
       sub_district: '',
-      loading: false,
+      loading: true,
       isLoad: false,
+      showErrorModal: false,
+      create_address: false,
+      userAddress: {},
+      navigatePage: '',
     };
   }
 
-  componentDidMount() {
-    this.setState({isLoad: true});
+  async componentDidMount() {
+    const {navigatePage, lat, lng} = this.props.route.params;
+    console.log('navigatePage', navigatePage);
+    if (navigatePage) {
+      this.setState({
+        navigatePage: navigatePage,
+      });
+    }
     Geocoder.init(API_KEY);
-    console.log('route', this.props.route.params);
-
-    this.setState({isLoad: false});
+    const token = await AsyncStorage.getItem('token');
+    if (token !== null) {
+      this.setState(
+        {
+          isAuthenticated: true,
+        },
+        () => {
+          this.checkUserCanCreateOrEdit();
+        },
+      );
+    }
   }
 
+  checkUserCanCreateOrEdit = async () => {
+    this.setState({
+      loading: true,
+    });
+
+    const token = await AsyncStorage.getItem('token');
+    const config = {
+      headers: {
+        Authorization: 'Token '.concat(token!),
+        'Content-Type': 'application/json',
+      },
+    };
+
+    axios
+      .get(`address/user-address`, config)
+      .then(res => {
+        if (res.data.user_have_address) {
+          this.setState({
+            loading: false,
+            create_address: false,
+            userAddress: res.data.user_address,
+          });
+        }
+        if (res.data.user_have_address === false) {
+          this.setState({
+            loading: false,
+            create_address: true,
+          });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   UNSAFE_componentWillMount() {
-    console.log('route12', this.props.route.params);
     const {params} = this.props.route;
 
     if (params) {
@@ -96,6 +144,7 @@ export default class Map extends Component<IProps, IState> {
   handleUserLocation = () => {
     Geolocation.getCurrentPosition(
       pos => {
+        console.log(pos);
         this.setState(
           {
             lattitude: pos.coords.latitude,
@@ -108,8 +157,7 @@ export default class Map extends Component<IProps, IState> {
       },
       error => {
         this.setState({
-          lattitude: 23.8099334,
-          longitude: 90.3685891,
+          showErrorModal: true,
         });
       },
     );
@@ -128,29 +176,185 @@ export default class Map extends Component<IProps, IState> {
       useNativeDriver: true,
     });
     this.fetchReverseAddress();
+    console.log('ssss');
+  };
+  onDragEnd = (e: any) => {
+    this.setState(
+      {
+        lattitude: e.nativeEvent.coordinate.latitude,
+        longitude: e.nativeEvent.coordinate.longitude,
+      },
+      () => {
+        this.fetchReverseAddress();
+      },
+    );
+    let point = {
+      lat: e.nativeEvent.coordinate.latitude,
+      lng: e.nativeEvent.coordinate.longitude,
+    };
   };
 
-  fetchReverseAddress = () => {
-    this.setState({loading: true});
-    fetch(
-      `https://barikoi.xyz/v1/api/search/reverse/${BARIKOI_API}/geocode?longitude=${this.state.longitude}&latitude=${this.state.lattitude}&district=true&post_code=true&country=true&sub_district=true&union=true&pauroshova=true&location_type=true&division=true&address=true&area=true`,
-    )
-      .then(response => response.json())
-      .catch(error =>
-        this.setState({
-          loading: false,
-        }),
+  fetchReverseAddress = (coords?: any) => {
+    this.setState({
+      loading: true,
+    }),
+      fetch(
+        `https://barikoi.xyz/v1/api/search/reverse/${BARIKOI_API}/geocode?longitude=${this.state.longitude}&latitude=${this.state.lattitude}&district=true&post_code=true&country=true&sub_district=true&union=true&pauroshova=true&location_type=true&division=true&address=true&area=true`,
       )
-      .then(response =>
-        this.setState({
-          address: response.place.address,
-          sub_district: `${response.place.district} ${response.place.postCode}`,
-          loading: false,
+        .then(response => response.json())
+        .catch(error =>
+          this.setState({
+            loading: false,
+          }),
+        )
+        .then(response =>
+          this.setState({
+            address: response.place.address,
+            sub_district: `${response.place.district} ${response.place.postCode}`,
+            loading: false,
+          }),
+        );
+  };
+
+  saveUserCoorsToStorage = async (lat: number, lng: number) => {
+    try {
+      await AsyncStorage.setItem(
+        'USER_COORDINATES',
+        JSON.stringify({
+          lat,
+          lng,
         }),
       );
+
+      this.setState({
+        navigatePage: '',
+      });
+      console.log('address saved to local storage ');
+    } catch (e) {
+      console.log('cant able to store in localStorage');
+    }
+    this.props.navigation.push(`${this.props.route.params.navigatePage}`);
+  };
+
+  createUserLocation = async () => {
+    console.log('creating');
+
+    const token = await AsyncStorage.getItem('token');
+    const config = {
+      headers: {
+        Authorization: 'Token '.concat(token!),
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const data = {
+      lattitude: this.state.lattitude,
+      longtitude: this.state.longitude,
+      address: this.state.address,
+    };
+
+    axios
+      .post(`address/create-address`, data, config)
+      .then(res =>
+        this.setState(
+          {
+            loading: false,
+            navigatePage: '',
+          },
+          () => {
+            this.props.navigation.push(
+              `${this.props.route.params.navigatePage}`,
+            );
+          },
+        ),
+      )
+      .catch(err => {
+        this.setState(
+          {
+            loading: false,
+            navigatePage: '',
+          },
+          () => {
+            this.props.navigation.push(
+              `${this.props.route.params.navigatePage}`,
+            );
+          },
+        );
+      });
+  };
+
+  updateUserLocation = async () => {
+    console.log('updating');
+    const token = await AsyncStorage.getItem('token');
+
+    const config = {
+      headers: {
+        Authorization: 'Token '.concat(token!),
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const data = {
+      lattitude: this.state.lattitude,
+      longtitude: this.state.longitude,
+      address: this.state.address,
+    };
+
+    console.log('urllllllllll', API_URL);
+
+    axios
+      .put(`address/edit/${this.state.userAddress.id}`, data, config)
+      .then(res => {
+        console.log('ressssssssssssss', res.data);
+        this.setState(
+          {
+            loading: false,
+            navigatePage: '',
+          },
+          () => {
+            this.props.navigation.push(
+              `${this.props.route.params.navigatePage}`,
+            );
+          },
+        );
+      })
+      .catch(err => {
+        console.log('errrrrrrrrrrrrrrrrrr', err);
+
+        this.setState(
+          {
+            loading: false,
+            navigatePage: '',
+          },
+          () => {
+            this.props.navigation.push(
+              `${this.props.route.params.navigatePage}`,
+            );
+          },
+        );
+      });
+  };
+
+  confirmLocation = () => {
+    if (this.state.isAuthenticated === true) {
+      if (this.state.create_address) {
+        this.createUserLocation();
+      } else {
+        this.updateUserLocation();
+      }
+    } else {
+      this.saveUserCoorsToStorage(this.state.lattitude, this.state.longitude);
+    }
+  };
+
+  closeErrorModal = () => {
+    this.setState({
+      showErrorModal: false,
+    });
   };
 
   render() {
+    console.log('this.state.isAuthenticated', this.state.isAuthenticated);
     return (
       <>
         <View style={styles.container}>
@@ -160,7 +364,7 @@ export default class Map extends Component<IProps, IState> {
             }}
             style={{
               ...StyleSheet.absoluteFillObject,
-              height: '85%',
+              height: '82%',
             }}
             onPress={e =>
               this.setState(
@@ -197,7 +401,17 @@ export default class Map extends Component<IProps, IState> {
                 latitude: this.state.lattitude,
                 longitude: this.state.longitude,
               }}
-            />
+              draggable={true}
+              onDragEnd={e => this.onDragEnd(e)}>
+              <Image
+                source={require('../../../assets/icon/location.png')}
+                style={{
+                  height: 40,
+                  width: 40,
+                }}
+                resizeMode="contain"
+              />
+            </Marker>
           </MapView>
           <View
             style={{
@@ -212,8 +426,7 @@ export default class Map extends Component<IProps, IState> {
                   backgroundColor: 'white',
                   padding: 5,
                   borderRadius: 10,
-                  //   height: 55,
-                  //   borderWidth: 1,
+
                   justifyContent: 'center',
                 }}>
                 <Image
@@ -226,6 +439,7 @@ export default class Map extends Component<IProps, IState> {
               </View>
             </TouchableOpacity>
           </View>
+
           <View
             style={{
               position: 'absolute',
@@ -262,82 +476,102 @@ export default class Map extends Component<IProps, IState> {
             </TouchableOpacity>
           </View>
         </View>
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            width: '100%',
-            height: '18%',
-            backgroundColor: 'white',
-            padding: 10,
-            flex: 1,
-          }}>
+        <ErrorModal
+          closeErrorModal={this.closeErrorModal}
+          isVisisble={this.state.showErrorModal}
+        />
+        {this.state.loading === false ? (
           <View
             style={{
+              position: 'absolute',
+              bottom: 0,
+              width: '100%',
+              height: '18%',
+              backgroundColor: 'white',
+              padding: 10,
               flex: 1,
             }}>
-            <View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
-                <Image
-                  source={require('../../../assets/icon/location.png')}
-                  style={{
-                    width: 40,
-                    height: 40,
-                  }}
-                />
+            <View
+              style={{
+                flex: 1,
+              }}>
+              <View>
                 <View
                   style={{
-                    marginLeft: 10,
-                    width: '95%',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                   }}>
-                  <Text
+                  <Image
+                    source={require('../../../assets/icon/location.png')}
                     style={{
-                      fontFamily: 'Montserrat-Bold',
-                      textTransform: 'capitalize',
-                      color: 'black',
-                      fontSize: 16,
-                    }}>
-                    {this.state.sub_district}
-                  </Text>
-                  <Text
-                    style={{
-                      fontFamily: 'Montserrat-Medium',
-                      textTransform: 'capitalize',
-                      fontSize: 14,
-                      width: '80%',
+                      width: 40,
+                      height: 40,
                     }}
-                    numberOfLines={1}>
-                    {this.state.address}
-                  </Text>
-                </View>
-              </View>
-              <TouchableOpacity>
-                <View
-                  style={{
-                    width: '100%',
-                    backgroundColor: 'black',
-                    marginTop: 10,
-                    padding: 18,
-                    borderRadius: 12,
-                  }}>
-                  <Text
+                  />
+                  <View
                     style={{
-                      textAlign: 'center',
-                      color: 'white',
-                      fontFamily: 'Montserrat-SemiBold',
-                      fontSize: 16,
+                      marginLeft: 10,
+                      width: '95%',
                     }}>
-                    Confirm Location
-                  </Text>
+                    <Text
+                      style={{
+                        fontFamily: 'Montserrat-Bold',
+                        textTransform: 'capitalize',
+                        color: 'black',
+                        fontSize: 16,
+                      }}>
+                      {this.state.sub_district}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: 'Montserrat-Medium',
+                        textTransform: 'capitalize',
+                        fontSize: 14,
+                        width: '80%',
+                      }}
+                      numberOfLines={1}>
+                      {this.state.address}
+                    </Text>
+                  </View>
                 </View>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.confirmLocation();
+                  }}>
+                  <View
+                    style={{
+                      width: '100%',
+                      backgroundColor: 'black',
+                      marginTop: 10,
+                      padding: 18,
+                      borderRadius: 12,
+                    }}>
+                    <Text
+                      style={{
+                        textAlign: 'center',
+                        color: 'white',
+                        fontFamily: 'Montserrat-SemiBold',
+                        fontSize: 16,
+                      }}>
+                      Confirm Location
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        ) : (
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              height: '18%',
+
+              width: '100%',
+            }}>
+            <OverlaySpinner />
+          </View>
+        )}
       </>
     );
   }

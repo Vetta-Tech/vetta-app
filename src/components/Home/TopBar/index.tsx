@@ -11,6 +11,7 @@ type ProppType = {
 };
 
 const TopBar = ({navigation, name, address, onClick}: ProppType) => {
+  console.log(address);
   return (
     <View style={styles.top}>
       <View>
@@ -23,10 +24,12 @@ const TopBar = ({navigation, name, address, onClick}: ProppType) => {
               style={{
                 fontFamily: 'Montserrat-Light',
                 color: 'black',
-              }}>
+                maxWidth: '80%',
+              }}
+              numberOfLines={1}>
               {address}
             </Text>
-            <Icon name="arrow-down-outline" size={15} />
+            <Icon style={{width: '10%'}} name="arrow-down-outline" size={15} />
           </View>
         </TouchableOpacity>
       </View>
@@ -50,8 +53,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
   },
   location: {
-    alignItems: 'flex-end',
     flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

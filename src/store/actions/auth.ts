@@ -51,7 +51,7 @@ export const logout = async () => {
 export const sendOtp = ({phone_number}: any) => {
   return (dispatch: AppDispatch) => {
     dispatch(authStart());
-
+    console.log(API_URL);
     axios
       .post(`${API_URL}auth/generate/`, {
         phone_number,

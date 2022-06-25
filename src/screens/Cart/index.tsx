@@ -20,6 +20,8 @@ import Icon from 'react-native-vector-icons/EvilIcons';
 import PriceCard from './utils/PriceCard';
 import {OverlaySpinner} from '../Login/PhoneInput';
 import {toastConfig} from '../../components/CsutomToast';
+import MapBottomSheet from '../../components/MapBottomSheet';
+import Geolocation from '@react-native-community/geolocation';
 
 export interface CartData {
   expires: string;
@@ -32,7 +34,11 @@ export interface CartData {
   };
 }
 
-interface CartProps {}
+interface CartProps {
+  navigation: {
+    navigate: any;
+  };
+}
 
 interface CartState {
   loading: boolean;
@@ -49,6 +55,8 @@ interface CartState {
   increaseQuantitySuccess: boolean;
   decreaseQuantitySuccess: boolean;
   coupon_add_error: string;
+  userAddress: string;
+  userHaveAddress: boolean;
 }
 
 interface ItemTypes {
@@ -87,10 +95,13 @@ class Cart extends React.Component<CartProps, CartState> {
     decreaseQuantitySuccess: false,
     coupon_code: '',
     coupon_add_error: '',
+    userAddress: '',
+    userHaveAddress: false,
   };
 
   componentDidMount() {
     this.fetchUserCart();
+    this.fectUserAddress();
   }
 
   fetchUserCart = async () => {
@@ -124,6 +135,10 @@ class Cart extends React.Component<CartProps, CartState> {
           error: 'Something went wrong',
         });
       });
+  };
+
+  openBottomSheet = () => {
+    this.bottomSheetRef.open();
   };
 
   handleCouponAdded = async () => {
@@ -173,6 +188,29 @@ class Cart extends React.Component<CartProps, CartState> {
           couponAddedSuccess: false,
           error: err.response.data.msg,
         });
+      });
+  };
+
+  fectUserAddress = () => {
+    axios
+      .get(`address/user-address`)
+      .then(res => {
+        if (res.data.user_have_address) {
+          this.setState({
+            loading: false,
+            userAddress: res.data.user_address.address,
+            userHaveAddress: res.data.user_have_address,
+          });
+        }
+        if (res.data.user_have_address === false) {
+          this.setState({
+            loading: false,
+            userHaveAddress: res.data.user_have_address,
+          });
+        }
+      })
+      .catch(err => {
+        console.log(err);
       });
   };
 
@@ -249,8 +287,38 @@ class Cart extends React.Component<CartProps, CartState> {
       });
   };
 
+  handleUserLocation = () => {
+    Geolocation.getCurrentPosition(
+      pos => {
+        this.props.navigation.navigate(
+          'Map',
+          {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            navigatePage: 'Cart',
+          },
+          () => {
+            this.bottomSheetRef.close();
+          },
+        );
+      },
+      error => {
+        this.setState(
+          {
+            error: error.message,
+          },
+          () => {
+            this.bottomSheetRef.close();
+            this.setState({
+              showErrorModal: true,
+            });
+          },
+        );
+      },
+    );
+  };
+
   render() {
-    console.log('total_saved', this.state.final_cart.total_saved);
     return (
       <>
         {this.state.couponAddedSuccess &&
@@ -284,8 +352,20 @@ class Cart extends React.Component<CartProps, CartState> {
             })
           : null}
 
+        <MapBottomSheet
+          myRef={ref => (this.bottomSheetRef = ref)}
+          adressRef={ref => (this.adressRef = ref)}
+          onPressClear={() => this.adressRef.clear()}
+          handleUserLocation={() => this.handleUserLocation()}
+          navigation={this.props.navigation}
+          navigatePage="Cart"
+        />
+
+        <TopCart
+          onclick={this.openBottomSheet}
+          address={this.state.userAddress}
+        />
         <View style={styles.container}>
-          <TopCart />
           <View
             style={{
               flex: 1,
@@ -491,8 +571,26 @@ class Cart extends React.Component<CartProps, CartState> {
                     ৳{this.state.final_cart.total}
                   </Text>
                 </View>
+                {!this.state.userHaveAddress && (
+                  <Text
+                    style={{
+                      fontFamily: 'Montserrat-Medium',
+                      fontSize: 12,
+                      textAlign: 'center',
+                      paddingTop: 5,
+                      color: 'red',
+                    }}>
+                    Please Update Your Address
+                  </Text>
+                )}
+
                 <TouchableOpacity
-                  onPress={() => this.props.navigation.navigate('Checkout')}>
+                  disabled={!this.state.userHaveAddress}
+                  onPress={() =>
+                    this.props.navigation.navigate('Checkout', {
+                      userAddress: this.state.userAddress,
+                    })
+                  }>
                   <View
                     style={{
                       backgroundColor: 'black',
@@ -553,7 +651,6 @@ export default Cart;
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    paddingTop: 25,
     backgroundColor: 'white',
     flex: 1,
   },

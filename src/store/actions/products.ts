@@ -15,7 +15,6 @@ import {
 } from '../types';
 
 console.log(`${API_URL}products/home`);
-console.log(`${API_URL_IMAGE}products/home`);
 
 export const fetchHomeProducts = () => (dispatch: AppDispatch) => {
   dispatch({

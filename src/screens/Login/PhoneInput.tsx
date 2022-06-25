@@ -15,6 +15,7 @@ import {LoginError, TopNav} from '../../components';
 import {bd} from '../../constants/images';
 import {sendOtp} from '../../store/actions/auth';
 import {State} from '../../store/reducers';
+import {API_URL} from '@env';
 
 export const OverlaySpinner = () => {
   return (
@@ -34,7 +35,7 @@ class PhoneInput extends Component<any, any> {
   }
 
   componentDidUpdate(prevProps: any) {
-    console.log('update status', this.props.status);
+    console.log('update status', API_URL);
     if (this.props.status === 200) {
       this.props.navigation.navigate('VerifyOtp', {
         pk: this.props.pk,
@@ -67,6 +68,8 @@ class PhoneInput extends Component<any, any> {
   };
 
   render() {
+    console.log('update status', API_URL);
+
     return (
       <View
         style={{

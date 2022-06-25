@@ -29,4 +29,14 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#F5FCFF88',
   },
+  intructionTopText: {
+    fontFamily: 'Montserrat-Medium',
+    marginTop: 5,
+    fontSize: 10,
+  },
+  intructionTopTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 });

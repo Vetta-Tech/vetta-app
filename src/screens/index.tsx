@@ -4,6 +4,7 @@ import BrandDeatils from './BrandDetails';
 import Cart from './Cart';
 import Category from './Category';
 import Checkout from './Checkout';
+import PaymentMethodSelect from './Checkout/PaymentMethodSelect';
 import Details from './Details';
 import FeaturedProducts from './FeaturedList';
 import Home from './Home';
@@ -36,4 +37,5 @@ export {
   AllBrands,
   Checkout,
   MapSearch,
+  PaymentMethodSelect,
 };

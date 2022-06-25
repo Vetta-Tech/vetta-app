@@ -15,6 +15,8 @@ const logo = require('../../assets/logo.png');
 const google = require('../../assets/google-logo-9808.png');
 const bd = require('../../assets/bangladesh.png');
 const detailsImg = require('../../assets/details/details-img.png');
+const cash = require('../../assets/icon/cash-on-delivery.png');
+const radio = require('../../assets/icon/radio-on-button.png');
 
 export {
   topbarimage,
@@ -31,4 +33,6 @@ export {
   google,
   bd,
   detailsImg,
+  cash,
+  radio,
 };

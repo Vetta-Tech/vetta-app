@@ -1,30 +1,55 @@
 import * as React from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
+import axios from '../../api/axios';
 
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Material from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/EvilIcons';
+import Material from 'react-native-vector-icons/MaterialIcons';
 
-interface TopCartProps {}
+interface TopCartProps {
+  address: string;
+  onclick: any;
+}
 
 const TopCart = (props: TopCartProps) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.cartop}>
-        <TouchableOpacity>
-          <AntDesign name="arrowleft" size={30} color="black" />
-        </TouchableOpacity>
-        <Text
+    <View
+      style={{
+        paddingTop: 15,
+        backgroundColor: 'white',
+        paddingLeft: 10,
+        paddingRight: 10,
+      }}>
+      <TouchableOpacity onPress={() => props.onclick()}>
+        <View
           style={{
-            fontSize: 18,
-            fontFamily: 'Montserrat-Bold',
-            letterSpacing: 2,
-            color: 'black',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}>
-          Cart
-        </Text>
-        <TouchableOpacity>
-          <Material name="trash-can-outline" size={30} color="black" />
-        </TouchableOpacity>
+          <Text
+            numberOfLines={1}
+            style={{
+              width: '50%',
+              fontFamily: 'Montserrat-Medium',
+              fontSize: 12,
+              color: 'black',
+            }}>
+            {props.address ? props.address : 'Enter Address'}
+          </Text>
+
+          <Material name="arrow-drop-down" size={15} />
+        </View>
+      </TouchableOpacity>
+      <View style={styles.container}>
+        <View style={styles.cartop}>
+          <TouchableOpacity>
+            <Icon name="chevron-left" size={30} color="black" />
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Icon name="trash" size={30} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -38,6 +63,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 15,
   },
 });

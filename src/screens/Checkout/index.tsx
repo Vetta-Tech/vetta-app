@@ -6,23 +6,38 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  ScrollView,
 } from 'react-native';
+import {WebView} from 'react-native-webview';
+
 import React, {Component} from 'react';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {IState} from './types';
 import axios from 'axios';
 import {API_URL} from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../../api/axios';
 import {styles} from './styles';
 import {bd} from '../../constants/images';
 import {OverlaySpinner} from '../Login/PhoneInput';
-import {LoginError} from '../../components';
+import {
+  Address,
+  DeliveryTime,
+  LoginError,
+  PriceCard,
+  SubmitButton,
+  TopNavCheckout,
+} from '../../components';
+import PaymentMethodSelect from './PaymentMethodSelect';
 
 class Checkout extends Component<any, IState> {
   private bottomSheetRef: any;
+  private maxLength: number;
+
   constructor(props: any) {
     super(props);
     this.bottomSheetRef = React.createRef();
+    this.maxLength = 250;
 
     this.state = {
       loading: false,
@@ -33,12 +48,63 @@ class Checkout extends Component<any, IState> {
       sentOtpSuccess: false,
       pk: 0,
       otp: '',
+
+      userAddress: '',
+      showPlacholderTopText: false,
+      textLength: 0,
+      specialInstruction: '',
+      payment_method: 'cash',
+      order_create_success: false,
+      order_create_error: '',
+      GatewayPageURL: '',
     };
   }
 
   componentDidMount() {
     this.checkPhoneValidOrNot();
+    this.createNewOrder();
+    if (this.props.route.params.userAddress) {
+      this.setState({
+        userAddress: this.props.route.params.userAddress,
+      });
+    }
   }
+
+  createNewOrder = () => {
+    this.setState({
+      loading: true,
+    });
+
+    axiosInstance
+      .post('orders/create-order')
+      .then(res => {
+        this.setState({
+          order_create_success: true,
+          loading: false,
+        });
+      })
+      .catch(err => {
+        this.setState({
+          order_create_success: false,
+          loading: false,
+          order_create_error: err.response.msg,
+        });
+      });
+  };
+
+  handleSSLPayment = () => {
+    axiosInstance
+      .post('orders/ssl-payment')
+      .then(res => {
+        this.setState({
+          loading: false,
+          GatewayPageURL: res.data.GatewayPageURL,
+        });
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+  };
 
   checkPhoneValidOrNot = async () => {
     this.setState({
@@ -91,6 +157,13 @@ class Checkout extends Component<any, IState> {
         disableSubmit: true,
       });
     }
+  };
+
+  handleChangeSpecialIntructionText = (text: string) => {
+    this.setState({
+      specialInstruction: text,
+      textLength: this.maxLength - text.length,
+    });
   };
 
   handleChangeOtp = (text: any) => {
@@ -194,9 +267,16 @@ class Checkout extends Component<any, IState> {
   };
 
   render() {
-    console.log('is_phone_verified', this.state.pk);
+    console.log('is_phone_verified', this.state.GatewayPageURL);
+    if (this.state.GatewayPageURL) {
+      return <WebView source={{uri: this.state.GatewayPageURL}} />;
+    }
     return (
-      <View>
+      <ScrollView
+        style={{
+          backgroundColor: 'white',
+          flex: 1,
+        }}>
         <RBSheet
           ref={ref => {
             this.bottomSheetRef = ref;
@@ -310,7 +390,180 @@ class Checkout extends Component<any, IState> {
             {this.props.loading && <OverlaySpinner />}
           </View>
         </RBSheet>
-      </View>
+
+        <View
+          style={{
+            padding: 5,
+
+            // height: '100%',
+          }}>
+          <TopNavCheckout />
+          <View
+            style={{
+              paddingTop: 15,
+              padding: 10,
+            }}>
+            <Address address={this.state.userAddress} />
+            <View
+              style={{
+                marginTop: 15,
+                borderRadius: 12,
+                backgroundColor: '#f2f2f2',
+              }}>
+              {this.state.showPlacholderTopText ? (
+                <View style={styles.intructionTopTextContainer}>
+                  <Text style={[styles.intructionTopText, {marginLeft: 15}]}>
+                    Special Instruction
+                  </Text>
+                  <View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                      }}>
+                      <Text style={[styles.intructionTopText]}>
+                        {this.state.textLength}/
+                      </Text>
+                      <Text
+                        style={[styles.intructionTopText, {marginRight: 15}]}>
+                        {this.maxLength}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ) : null}
+
+              <TextInput
+                onChangeText={(text: any) =>
+                  this.handleChangeSpecialIntructionText(text)
+                }
+                maxLength={this.maxLength}
+                multiline={true}
+                numberOfLines={5}
+                onPressIn={() => console.log('asasd')}
+                onFocus={() => {
+                  this.setState({
+                    showPlacholderTopText: true,
+                  });
+                }}
+                placeholderTextColor={'black'}
+                underlineColorAndroid="transparent"
+                style={{
+                  height: 100,
+                  textAlignVertical: 'top',
+                  borderRadius: 12,
+                  fontSize: 12,
+                  padding: 15,
+                  fontFamily: 'Montserrat-Bold',
+                }}
+                placeholder={`${
+                  this.state.showPlacholderTopText ? '' : 'Special Instruction'
+                }`}
+              />
+            </View>
+
+            <View>
+              <DeliveryTime />
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+              }}>
+              <Text
+                style={{
+                  fontFamily: 'Montserrat-Bold',
+                  fontSize: 16,
+                  color: 'black',
+                }}>
+                Payment Method
+              </Text>
+              <View
+                style={{
+                  marginTop: 5,
+                  // padding: 4,
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({
+                      payment_method: 'cash',
+                    });
+                  }}>
+                  <PaymentMethodSelect
+                    title="Cash On Delivery"
+                    logoSrc="https://cosmetica-prod.s3.ap-south-1.amazonaws.com/media/products/cash-on-delivery+(1).png"
+                    active={this.state.payment_method === 'cash' ? true : false}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({
+                      payment_method: 'bkash',
+                    });
+                  }}>
+                  <PaymentMethodSelect
+                    title="Pay With Bkash"
+                    logoSrc="https://cosmetica-prod.s3.ap-south-1.amazonaws.com/media/products/2022/bkash.png"
+                    active={
+                      this.state.payment_method === 'bkash' ? true : false
+                    }
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({
+                      payment_method: 'card',
+                    });
+                  }}>
+                  <PaymentMethodSelect
+                    title="Pay With Card"
+                    logoSrc="https://cosmetica-prod.s3.ap-south-1.amazonaws.com/media/products/2022/card.png"
+                    active={this.state.payment_method === 'card' ? true : false}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View
+          style={{
+            backgroundColor: '#f2f2f2',
+            marginTop: 15,
+            padding: 15,
+          }}>
+          <PriceCard title="Sub Total" amount={250} />
+          <PriceCard title="Delivery Fee" amount={50} />
+          <PriceCard title="Total" amount={300} active={true} />
+
+          <View>
+            {this.state.payment_method === 'cash' && (
+              <TouchableOpacity>
+                <SubmitButton
+                  icon="https://cosmetica-prod.s3.ap-south-1.amazonaws.com/media/products/cash-on-delivery+(1).png"
+                  title="Confirm Order"
+                  amount={300}
+                />
+              </TouchableOpacity>
+            )}
+            {this.state.payment_method === 'bkash' && (
+              <TouchableOpacity>
+                <SubmitButton
+                  title="Pay and confirm order"
+                  icon="https://cosmetica-prod.s3.ap-south-1.amazonaws.com/media/products/2022/bkash.png"
+                  amount={300}
+                />
+              </TouchableOpacity>
+            )}
+            {this.state.payment_method === 'card' && (
+              <TouchableOpacity onPress={() => this.handleSSLPayment()}>
+                <SubmitButton
+                  title="Pay and confirm order"
+                  icon="https://cosmetica-prod.s3.ap-south-1.amazonaws.com/media/products/2022/card.png"
+                  amount={300}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </ScrollView>
     );
   }
 }

@@ -34,6 +34,11 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import Icon from 'react-native-vector-icons/EvilIcons';
 import Geolocation from '@react-native-community/geolocation';
+import {API_URL} from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import Geocoder from 'react-native-geocoding';
+import MapBottomSheet from '../../components/MapBottomSheet';
 
 interface IPdpPageProps {
   navigation: {
@@ -56,6 +61,9 @@ interface IState {
   showAddresSheet: boolean;
   error: string;
   showErrorModal: boolean;
+  userAddress: string;
+  isAuthenticated: boolean;
+  compLoading: boolean;
 }
 
 export const OverlaySpinner = () => {
@@ -67,7 +75,7 @@ export const OverlaySpinner = () => {
 };
 
 const API_KEY = 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg';
-
+const BARIKOI_API = 'MzQ3MjpKM0JHWkI4WDc1';
 class Home extends Component<IPdpPageProps, IState> {
   private bottomSheetRef: any;
   private adressRef: any;
@@ -80,16 +88,148 @@ class Home extends Component<IPdpPageProps, IState> {
       showAddresSheet: false,
       error: '',
       showErrorModal: false,
+      userAddress: '',
+      isAuthenticated: false,
+      compLoading: false,
     };
   }
 
-  async componentDidMount() {
-    Geocoder.init(API_KEY);
+  async UNSAFE_componentWillMount() {
+    this.fetchUserAddress();
+    const token = await AsyncStorage.getItem('token');
+    console.log('dassss', null);
+    if (token !== null) {
+      this.setState(
+        {
+          isAuthenticated: true,
+        },
+        () => console.log('isAuth', this.state.isAuthenticated),
+      );
+    }
+    console.log('d');
+  }
 
+  componentDidMount() {
     this.props.fetchHomeProducts();
     this.props.fetchBrands();
-    this.bottomSheetRef.open();
+    Geocoder.init(API_KEY);
+
+    this.saveLocalAddressToDb();
   }
+
+  saveLocalAddressToDb = async () => {
+    const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
+    const coords = JSON.parse(userCoord);
+    if (coords !== null || undefined || '') {
+      const token = await AsyncStorage.getItem('token');
+      const config = {
+        headers: {
+          Authorization: 'Token '.concat(token!),
+          'Content-Type': 'application/json',
+        },
+      };
+
+      console.log(config);
+
+      const data = {
+        lat: coords.lat,
+        lng: coords.lng,
+      };
+
+      axios
+        .post(`${API_URL}address/save-local-address`, data, config)
+        .then(res => {
+          console.log(res.data);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
+      this.setState({
+        compLoading: true,
+      });
+      const token = await AsyncStorage.getItem('token');
+      const config = {
+        headers: {
+          Authorization: 'Token '.concat(token!),
+          'Content-Type': 'application/json',
+        },
+      };
+      axios
+        .get(`${API_URL}address/user-address`, config)
+        .then(res => {
+          this.setState({
+            compLoading: false,
+            userAddress: res.data.user_address.address,
+          });
+        })
+        .catch(err => {
+          this.setState({
+            compLoading: false,
+          });
+        });
+    }
+  };
+
+  fetchUserAddress = async () => {
+    this.setState({
+      compLoading: true,
+    });
+    if (this.state.isAuthenticated) {
+      const token = await AsyncStorage.getItem('token');
+      const config = {
+        headers: {
+          Authorization: 'Token '.concat(token!),
+          'Content-Type': 'application/json',
+        },
+      };
+
+      axios
+        .get(`${API_KEY}address/user-address`, config)
+        .then(res => {
+          this.setState({
+            userAddress: res.data.user_address.address,
+            compLoading: false,
+          });
+        })
+        .catch(err => {
+          console.log(err);
+          this.setState({
+            compLoading: false,
+          });
+        });
+    } else {
+      this.fetchReverseAddress();
+    }
+  };
+
+  fetchReverseAddress = async () => {
+    this.setState({
+      compLoading: true,
+    });
+
+    const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
+    const coords = JSON.parse(userCoord);
+
+    if (coords !== null || undefined || '') {
+      fetch(
+        `https://barikoi.xyz/v1/api/search/reverse/${BARIKOI_API}/geocode?longitude=${coords.lng}&latitude=${coords.lat}&district=true&post_code=true&country=true&sub_district=true&union=true&pauroshova=true&location_type=true&division=true&address=true&area=true`,
+      )
+        .then(response => response.json())
+        .catch(error => console.log(error))
+        .then(response => {
+          this.setState({
+            userAddress: response.place.address,
+            compLoading: false,
+          });
+        });
+    } else {
+      this.setState({
+        userAddress: 'Enter User Location',
+        compLoading: false,
+      });
+    }
+  };
 
   showAddressInfo = () => {
     this.bottomSheetRef.open();
@@ -98,10 +238,17 @@ class Home extends Component<IPdpPageProps, IState> {
   handleUserLocation = () => {
     Geolocation.getCurrentPosition(
       pos => {
-        this.props.navigation.navigate('Map', {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        });
+        this.props.navigation.navigate(
+          'Map',
+          {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            navigatePage: 'Home',
+          },
+          () => {
+            this.bottomSheetRef.close();
+          },
+        );
       },
       error => {
         this.setState(
@@ -120,9 +267,10 @@ class Home extends Component<IPdpPageProps, IState> {
   };
 
   render() {
-    console.log(this.state.error);
+    console.log('address', this.state.userAddress);
     return (
       <>
+        {this.state.compLoading ? <OverlaySpinner /> : null}
         <Modal
           onBackdropPress={() =>
             this.setState({
@@ -176,200 +324,22 @@ class Home extends Component<IPdpPageProps, IState> {
             padding: 5,
           }}>
           <TopBar
-            name="VETTA store"
-            address="Rd.111 , Uttara"
+            name="Vetta Store"
+            address={this.state.userAddress}
             onClick={this.showAddressInfo}
             navigation={this.props.navigation}
           />
           <Search navigation={this.props.navigation} />
         </View>
 
-        <RBSheet
-          ref={ref => {
-            this.bottomSheetRef = ref;
-          }}
-          closeOnDragDown={true}
-          dragFromTopOnly={true}
-          height={Dimensions.get('window').height - 100}
-          openDuration={250}
-          customStyles={{
-            container: {
-              borderTopStartRadius: 12,
-              borderTopEndRadius: 12,
-            },
-          }}>
-          <View
-            style={{
-              padding: 15,
-            }}>
-            <Text
-              style={{
-                fontFamily: 'Montserrat-Bold',
-                color: 'black',
-                marginBottom: 10,
-                fontSize: 18,
-              }}>
-              Select Address
-            </Text>
-
-            <GooglePlacesAutocomplete
-              ref={ref => {
-                this.adressRef = ref;
-              }}
-              styles={{
-                container: {
-                  flex: 0,
-                  borderRadius: 12,
-                },
-
-                textInputContainer: {
-                  backgroundColor: '#f2f2f2',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  borderRadius: 12,
-                  paddingLeft: 5,
-                  paddingRight: 5,
-                },
-
-                textInput: {
-                  flexDirection: 'row',
-                  borderColor: '#f2f2f2',
-                  backgroundColor: '#f2f2f2',
-                  borderRadius: 10,
-                  color: '#5d5d5d',
-                  borderWidth: 1,
-                  width: 200,
-                },
-                row: {
-                  backgroundColor: '#FFFFFF',
-                  padding: 13,
-                  height: 55,
-                  flexDirection: 'row',
-                  fontFamily: 'Montserrat-SemiBold',
-                },
-                listView: {
-                  padding: 5,
-                },
-              }}
-              renderRow={results => (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <Icon name="location" size={20} />
-                  <View
-                    style={{
-                      flexDirection: 'column',
-                    }}>
-                    <Text
-                      style={{
-                        marginLeft: 10,
-                        fontFamily: 'Montserrat-Medium',
-                        color: 'black',
-                      }}>
-                      {results.structured_formatting.secondary_text}
-                    </Text>
-                    <Text
-                      style={{
-                        marginLeft: 10,
-                        fontFamily: 'Montserrat-Medium',
-                        fontSize: 12,
-                      }}>
-                      {results.description}
-                    </Text>
-                  </View>
-                </View>
-              )}
-              renderLeftButton={() => (
-                <View>
-                  <Image
-                    style={{
-                      height: 30,
-                      width: 30,
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    source={require('../../../assets/search1.png')}
-                  />
-                </View>
-              )}
-              renderRightButton={() => (
-                <TouchableOpacity onPress={() => this.adressRef.clear()}>
-                  <View>
-                    <Image
-                      style={{
-                        paddingRight: 5,
-                        height: 20,
-                        width: 30,
-                        padding: 15,
-                        alignSelf: 'center',
-                      }}
-                      source={require('../../../assets/icons8-cross-96.png')}
-                    />
-                  </View>
-                </TouchableOpacity>
-              )}
-              enablePoweredByContainer={false}
-              onPress={(data: any, details: any = null) => {
-                this.props.navigation.navigate('Map', {
-                  lat: details?.geometry?.location.lat,
-                  lng: details?.geometry?.location.lng,
-                });
-              }}
-              placeholder="Search address"
-              onFail={error => console.error(error)}
-              query={{
-                key: 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg',
-                language: 'en', // language of the results
-                components: 'country:bd',
-              }}
-              fetchDetails={true}
-            />
-
-            <TouchableOpacity onPress={() => this.handleUserLocation()}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: 10,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <Image
-                    source={require('../../../assets/target.png')}
-                    style={{
-                      height: 25,
-                      width: 25,
-                    }}
-                  />
-                  <Text
-                    style={{
-                      paddingLeft: 5,
-                      fontFamily: 'Montserrat-SemiBold',
-                      color: 'black',
-                    }}>
-                    Use Current Location
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    source={require('../../../assets/icon/arrow.png')}
-                    style={{
-                      height: 15,
-                      width: 15,
-                    }}
-                  />
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </RBSheet>
+        <MapBottomSheet
+          myRef={ref => (this.bottomSheetRef = ref)}
+          adressRef={ref => (this.adressRef = ref)}
+          onPressClear={() => this.adressRef.clear()}
+          handleUserLocation={() => this.handleUserLocation()}
+          navigation={this.props.navigation}
+          navigatePage="Home"
+        />
         <ScrollView style={[Appstyle.container]}>
           <TopImage />
           <Category navigation={this.props.navigation} />

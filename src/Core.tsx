@@ -21,10 +21,12 @@ import {
   AllBrands,
   Checkout,
   MapSearch,
+  Cart,
 } from './screens';
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
 import {State} from './store/reducers';
+import {API_URL_IMAGE} from '@env';
 
 const Stack = createStackNavigator();
 
@@ -36,6 +38,7 @@ interface CoreProps {
 class Core extends Component<CoreProps, any> {
   componentDidMount() {
     this.props.onTryAutoSignUp();
+    console.log(API_URL_IMAGE);
   }
 
   render() {
@@ -58,6 +61,7 @@ class Core extends Component<CoreProps, any> {
 
           <Stack.Screen name="Category" component={Category} />
           <Stack.Screen name="Checkout" component={Checkout} />
+          <Stack.Screen name="Cart" component={Cart} />
 
           <Stack.Screen
             name="ProductListBrands"

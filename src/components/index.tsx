@@ -31,6 +31,11 @@ import SectionHeadCategory from './Typography/SectionHeadCategories';
 import TopNavBrands from './BrandDetails/Nav';
 import SectionHeadBrands from './Typography/SectionHeadBrands';
 import BrandCard from './Brands/BrandCard';
+import TopNavCheckout from './Cehckout/TopNav';
+import Address from './Cehckout/Address';
+import DeliveryTime from './Cehckout/DeliveryTime';
+import PriceCard from './Cehckout/PriceCard';
+import SubmitButton from './Cehckout/SubmitButton';
 
 export {
   TopBar,
@@ -66,4 +71,9 @@ export {
   TopNavBrands,
   SectionHeadBrands,
   BrandCard,
+  TopNavCheckout,
+  Address,
+  DeliveryTime,
+  PriceCard,
+  SubmitButton,
 };
