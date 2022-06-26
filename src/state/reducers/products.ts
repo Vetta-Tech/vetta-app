@@ -1,29 +1,7 @@
-import {
-  HOME_PRODUCTS_FETCH_FAILD,
-  HOME_PRODUCTS_FETCH_START,
-  HOME_PRODUCTS_FETCH_SUCCESS,
-  FETCH_PRODUCTS_DETAILS_START,
-  FETCH_PRODUCTS_DETAILS_SUCCESS,
-  FETCH_PRODUCTS_DETAILS_FAILD,
-  FETCH_PRODUCTS_BRANDS_START,
-  FETCH_PRODUCTS_BRANDS_SUCCESS,
-  FETCH_PRODUCTS_BRANDS_FAILD,
-} from '../types';
+import {ActionType} from '../actionTypes/index';
 
-export interface HomeProductsType {
-  featured: [];
-  recent_products: [];
-  popular: [];
-  electronics: [];
-  footwear: [];
-  baby_care: [];
-  product: {};
-  images: {};
-  variants: [];
-  loading: boolean;
-  error: string;
-  brandProducts: [];
-}
+import {ProductsAction} from '../actions/products';
+import {HomeProductsType} from '../interfaces/products';
 
 const initialState: HomeProductsType = {
   featured: [],
@@ -40,11 +18,14 @@ const initialState: HomeProductsType = {
   brandProducts: [],
 };
 
-const reducers = (state = initialState, action: any) => {
+const reducers = (state = initialState, action: ProductsAction) => {
   switch (action.type) {
-    case HOME_PRODUCTS_FETCH_START:
-      return {...state, loading: true};
-    case HOME_PRODUCTS_FETCH_SUCCESS:
+    case ActionType.HOME_PRODUCTS_FETCH_START:
+      return {
+        ...state,
+        loading: true,
+      };
+    case ActionType.HOME_PRODUCTS_FETCH_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -55,18 +36,17 @@ const reducers = (state = initialState, action: any) => {
         footwear: action.payload.footwear,
         popular: action.payload.popular,
       };
-    case HOME_PRODUCTS_FETCH_FAILD:
+    case ActionType.HOME_PRODUCTS_FETCH_FAILD:
       return {
         ...state,
         loading: false,
-        error: action.payload,
       };
-    case FETCH_PRODUCTS_DETAILS_START:
+    case ActionType.FETCH_PRODUCTS_DETAILS_START:
       return {
         ...state,
         loading: true,
       };
-    case FETCH_PRODUCTS_DETAILS_SUCCESS:
+    case ActionType.FETCH_PRODUCTS_DETAILS_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -74,31 +54,29 @@ const reducers = (state = initialState, action: any) => {
         images: action.payload.images,
         variants: action.payload.variants,
       };
-    case FETCH_PRODUCTS_DETAILS_FAILD:
+    case ActionType.FETCH_PRODUCTS_DETAILS_FAILD:
       return {
         ...state,
         loading: false,
         error: action.payload,
       };
-    case FETCH_PRODUCTS_BRANDS_START:
+    case ActionType.FETCH_PRODUCTS_BRANDS_START:
       return {
         ...state,
         loading: true,
       };
-    case FETCH_PRODUCTS_BRANDS_SUCCESS:
+    case ActionType.FETCH_PRODUCTS_BRANDS_SUCCESS:
       return {
         ...state,
         loading: false,
         brandProducts: action.payload,
       };
-    case FETCH_PRODUCTS_BRANDS_FAILD:
+    case ActionType.FETCH_PRODUCTS_BRANDS_FAILD:
       return {
         ...state,
         loading: false,
         error: action.payload,
       };
-    default:
-      return state;
   }
 };
 

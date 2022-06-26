@@ -73,6 +73,9 @@ export default class Map extends Component<IProps, IState> {
 
     console.log('paramsparamsparamsparamsparamsparamsparamsparams', params);
 
+    // Remove the listener when you are done
+    // didFocusSubscription.remove();
+
     if (params) {
       this.setState(
         {
@@ -80,9 +83,6 @@ export default class Map extends Component<IProps, IState> {
           longitude: params.lng,
         },
         () => {
-          this.props.navigation.addListener('focus', () => {
-            this.fetchReverseAddress();
-          });
           this.fetchReverseAddress();
         },
       );
@@ -91,10 +91,16 @@ export default class Map extends Component<IProps, IState> {
 
   async componentDidMount() {
     const {navigatePage, lat, lng} = this.props.route.params;
+    console.log('triggerddddddddddddddddddddddddddddddddddddddddddddddddddd');
     if (navigatePage) {
-      this.setState({
-        navigatePage: navigatePage,
-      });
+      this.setState(
+        {
+          navigatePage: navigatePage,
+        },
+        () => {
+          this.fetchReverseAddress();
+        },
+      );
     }
 
     Geocoder.init(API_KEY);
@@ -240,13 +246,11 @@ export default class Map extends Component<IProps, IState> {
     }
     if (push === false) {
     } else {
-      this.props.navigation.push(`${this.props.route.params.navigatePage}`);
+      this.props.navigation.replace(`${this.props.route.params.navigatePage}`);
     }
   };
 
   createUserLocation = async () => {
-    console.log('creating');
-
     const token = await AsyncStorage.getItem('token');
     const config = {
       headers: {
@@ -275,7 +279,7 @@ export default class Map extends Component<IProps, IState> {
               this.state.longitude,
               false,
             );
-            this.props.navigation.push(
+            this.props.navigation.replace(
               `${this.props.route.params.navigatePage}`,
             );
           },
@@ -288,7 +292,7 @@ export default class Map extends Component<IProps, IState> {
             navigatePage: '',
           },
           () => {
-            this.props.navigation.push(
+            this.props.navigation.replace(
               `${this.props.route.params.navigatePage}`,
             );
           },
@@ -328,7 +332,7 @@ export default class Map extends Component<IProps, IState> {
               this.state.longitude,
               false,
             );
-            this.props.navigation.push(
+            this.props.navigation.replace(
               `${this.props.route.params.navigatePage}`,
             );
           },
@@ -343,7 +347,7 @@ export default class Map extends Component<IProps, IState> {
             navigatePage: '',
           },
           () => {
-            this.props.navigation.push(
+            this.props.navigation.replace(
               `${this.props.route.params.navigatePage}`,
             );
           },
@@ -370,7 +374,6 @@ export default class Map extends Component<IProps, IState> {
   };
 
   render() {
-    console.log('this.state.isAuthenticated', this.state.isAuthenticated);
     return (
       <>
         <View style={styles.container}>

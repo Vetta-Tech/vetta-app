@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import {authCheckState} from './store/actions';
+import {authCheckState} from './state/actionCreatores/auth';
 
 import BottomTab from './naviagtions/tabs';
 import {
@@ -26,7 +26,7 @@ import {
 } from './screens';
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
-import {State} from './store/reducers';
+import {RootState} from './state/store';
 import {API_URL_IMAGE} from '@env';
 import linking from './linking';
 
@@ -85,7 +85,7 @@ class Core extends Component<CoreProps, any> {
   }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: RootState) => {
   return {
     isAuthenticated: state.auth.token !== null,
     token: state.auth.token,

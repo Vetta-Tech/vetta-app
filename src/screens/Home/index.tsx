@@ -27,9 +27,9 @@ import {
   FeaturedPRoducts,
 } from '../../components';
 
-import {fetchHomeProducts, fetchBrands} from '../../store/actions';
+import {fetchHomeProducts} from '../../state/actionCreatores/products';
 import {connect} from 'react-redux';
-import {State} from '../../store/reducers';
+import {RootState} from '../../state/store';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import Icon from 'react-native-vector-icons/EvilIcons';
@@ -394,21 +394,21 @@ class Home extends Component<IPdpPageProps, IState> {
   }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: RootState) => {
   return {
-    featured: state.products.featured,
-    brands: state.brands.brands,
-    recent_products: state.products.recent_products,
-    popular: state.products.popular,
-    electronics: state.products.electronics,
-    footwear: state.products.footwear,
-    baby_care: state.products.baby_care,
-    loading: state.products.loading,
-    error: state.products.error,
+    featured: state.product.featured,
+    // brands: state.brands.brands,
+    recent_products: state.product.recent_products,
+    popular: state.product.popular,
+    electronics: state.product.electronics,
+    footwear: state.product.footwear,
+    baby_care: state.product.baby_care,
+    loading: state.product.loading,
+    error: state.product.error,
   };
 };
 
-export default connect(mapStateToProps, {fetchHomeProducts, fetchBrands})(Home);
+export default connect(mapStateToProps, {fetchHomeProducts})(Home);
 
 const styles = StyleSheet.create({
   spinnerView: {

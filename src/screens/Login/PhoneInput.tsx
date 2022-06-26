@@ -13,8 +13,8 @@ import {connect} from 'react-redux';
 
 import {LoginError, TopNav} from '../../components';
 import {bd} from '../../constants/images';
-import {sendOtp} from '../../store/actions/auth';
-import {State} from '../../store/reducers';
+import {sendOtp} from '../../state/actionCreatores/auth';
+import {RootState} from '../../state/store';
 import {API_URL} from '@env';
 
 export const OverlaySpinner = () => {
@@ -160,7 +160,7 @@ class PhoneInput extends Component<any, any> {
   }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: RootState) => {
   console.log(state);
   return {
     isAuthenticated: state.auth.token !== null,

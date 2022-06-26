@@ -29,8 +29,8 @@ import {
   TopNavDetails,
 } from '../../components';
 
-import {fetchProductByBrand} from '../../store/actions';
-import {State} from '../../store/reducers';
+import {fetchProductByBrand} from '../../state/actionCreatores';
+import {RootState} from '../../state/store';
 import {OverlaySpinner} from '../Login/PhoneInput';
 import axios from 'axios';
 import {
@@ -703,10 +703,10 @@ class Details extends Component<DetailsProps, DetailsState> {
   }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: RootState) => {
   return {
-    brandProducts: state.products.brandProducts,
-    cartLoading: state.products.loading,
+    brandProducts: state.product.brandProducts,
+    cartLoading: state.product.loading,
   };
 };
 

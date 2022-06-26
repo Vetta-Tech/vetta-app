@@ -1,25 +1,22 @@
 import axios from 'axios';
+import {Dispatch} from 'redux';
+import {AuthActionTypes} from '../actionTypes/auth';
+import {AuthAction} from '../actions/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import * as actionTypes from '../types';
-import {API_URL} from '@env';
-
-import {AppDispatch} from '../reducers/';
 
 type validateOtpProps = {
   pk: string;
   otp: number;
 };
-
 export const authStart = () => {
   return {
-    type: actionTypes.AUTH_START,
+    type: AuthActionTypes.AUTH_START,
   };
 };
 
 export const otpSent = (res: {data: {pk: string}; status: number}) => {
   return {
-    type: actionTypes.OTP_SENT,
+    type: AuthActionTypes.OTP_SENT,
     status: res.status,
     pk: res.data.pk,
     data: res.data,
@@ -28,7 +25,7 @@ export const otpSent = (res: {data: {pk: string}; status: number}) => {
 
 export const authSuccess = (data: any, token: string | null) => {
   return {
-    type: actionTypes.AUTH_SUCCESS,
+    type: AuthActionTypes.AUTH_SUCCESS,
     token: token,
     validateStatus: data.status,
   };
@@ -36,7 +33,7 @@ export const authSuccess = (data: any, token: string | null) => {
 
 export const authFail = (error: any) => {
   return {
-    type: actionTypes.AUTH_FAIL,
+    type: AuthActionTypes.AUTH_FAIL,
     error: 'Something went wrong',
   };
 };
@@ -44,16 +41,15 @@ export const authFail = (error: any) => {
 export const logout = async () => {
   await AsyncStorage.removeItem('token');
   return {
-    type: actionTypes.AUTH_LOGOUT,
+    type: AuthActionTypes.AUTH_LOGOUT,
   };
 };
 
 export const sendOtp = ({phone_number}: any) => {
-  return (dispatch: AppDispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(authStart());
-    console.log(API_URL);
     axios
-      .post(`${API_URL}auth/generate/`, {
+      .post(`auth/generate/`, {
         phone_number,
       })
       .then(res => {
@@ -66,10 +62,10 @@ export const sendOtp = ({phone_number}: any) => {
 };
 
 export const validateOtp = ({otp, pk}: validateOtpProps) => {
-  return (dispatch: AppDispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(authStart());
     axios
-      .post(`${API_URL}auth/validate/`, {
+      .post(`auth/validate/`, {
         otp,
         pk,
       })

@@ -14,8 +14,8 @@ import axios from 'axios';
 import {LoginError, TopNav} from '../../components';
 import {OverlaySpinner} from '../Login/PhoneInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {validateOtp} from '../../store/actions/auth';
-import {State} from '../../store/reducers';
+import {validateOtp} from '../../state/actionCreatores/auth';
+import {RootState} from '../../state/store';
 
 interface VerifyOtPState {}
 
@@ -83,6 +83,8 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
           navigation={this.props.navigation}
           icon="chevron-left"
           title="Verify"
+          left={false}
+          leftIcon="asd"
         />
 
         <View style={styles.phoneTop}>
@@ -140,7 +142,7 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
   }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: RootState) => {
   console.log(state);
   return {
     isAuthenticated: state.auth.token !== null,

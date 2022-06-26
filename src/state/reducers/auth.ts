@@ -1,8 +1,6 @@
-import {configureStore} from '@reduxjs/toolkit';
+import {AuthActionTypes} from '../actionTypes/auth';
 
-import * as actionTypes from '../types';
-
-import {updateObject} from './utils';
+import {updateObject} from '../utils';
 
 export interface AuthStateTypes {
   loading: boolean;
@@ -64,15 +62,15 @@ const authLogout = (state: AuthStateTypes, action: any) => {
 
 const reducer = (state = initialState, action: any) => {
   switch (action.type) {
-    case actionTypes.AUTH_START:
+    case AuthActionTypes.AUTH_START:
       return authStart(state, action);
-    case actionTypes.OTP_SENT:
+    case AuthActionTypes.OTP_SENT:
       return otpSent(state, action);
-    case actionTypes.AUTH_SUCCESS:
+    case AuthActionTypes.AUTH_SUCCESS:
       return authSuccess(state, action);
-    case actionTypes.AUTH_FAIL:
+    case AuthActionTypes.AUTH_FAIL:
       return authFail(state, action);
-    case actionTypes.AUTH_LOGOUT:
+    case AuthActionTypes.AUTH_LOGOUT:
       return authLogout(state, action);
     default:
       return state;

@@ -12,8 +12,8 @@ import {connect} from 'react-redux';
 import React, {Component} from 'react';
 import {CategoryCard, Product, TopNav} from '../../components';
 import {API_URL_IMAGE} from '@env';
-import {getchAllCategories} from '../../store/actions/category';
-import {State} from '../../store/reducers';
+import {getchAllCategories} from '../../state/actionCreatores/category';
+import {RootState} from '../../state/store';
 
 interface CategoryProps {
   navigation: any;
@@ -57,7 +57,6 @@ class Category extends Component<CategoryProps> {
           renderItem={({item}) => (
             <CategoryCard item={item} navigation={this.props.navigation} />
           )}
-          keyExtractor={item => `${item.id}`}
           contentContainerStyle={{paddingVertical: 5}}
         />
       </View>
@@ -65,7 +64,7 @@ class Category extends Component<CategoryProps> {
   }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: RootState) => {
   return {
     loading: state.categories.loading,
     cats: state.categories.categories,
