@@ -3,17 +3,41 @@ import React, {Component} from 'react';
 import axios from '../../api/axios';
 import {TopNavCheckout} from '../../components';
 
-class PaymentDone extends Component {
+interface PaymentDoneProps {
+  route: {
+    params: {
+      success: boolean;
+      payment_method: 'cash' | 'card' | 'bkash';
+    };
+  };
+  navigation: {
+    replace: any;
+  };
+}
+
+class PaymentDone extends Component<PaymentDoneProps> {
   componentDidMount() {
+    const {success, payment_method} = this.props.route.params;
+    console.log('ceasdf', success);
+    if (!success) {
+      this.props.navigation.replace('Home');
+    } else {
+      this.confirmOrder(payment_method);
+    }
+  }
+
+  confirmOrder = (payment_method: 'cash' | 'card' | 'bkash') => {
     axios
-      .post('orders/order-confirm')
+      .post('orders/order-confirm', {
+        payment_method,
+      })
       .then(res => {
         console.log(res.data);
       })
       .catch(err => {
         console.log(err.response.data.msg);
       });
-  }
+  };
 
   render() {
     return (

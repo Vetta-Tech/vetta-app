@@ -68,14 +68,35 @@ export default class Map extends Component<IProps, IState> {
     };
   }
 
+  UNSAFE_componentWillMount() {
+    const {params} = this.props.route;
+
+    console.log('paramsparamsparamsparamsparamsparamsparamsparams', params);
+
+    if (params) {
+      this.setState(
+        {
+          lattitude: params.lat,
+          longitude: params.lng,
+        },
+        () => {
+          this.props.navigation.addListener('focus', () => {
+            this.fetchReverseAddress();
+          });
+          this.fetchReverseAddress();
+        },
+      );
+    }
+  }
+
   async componentDidMount() {
     const {navigatePage, lat, lng} = this.props.route.params;
-    console.log('navigatePage', navigatePage);
     if (navigatePage) {
       this.setState({
         navigatePage: navigatePage,
       });
     }
+
     Geocoder.init(API_KEY);
     const token = await AsyncStorage.getItem('token');
     if (token !== null) {
@@ -124,22 +145,6 @@ export default class Map extends Component<IProps, IState> {
         console.log(err);
       });
   };
-
-  UNSAFE_componentWillMount() {
-    const {params} = this.props.route;
-
-    if (params) {
-      this.setState(
-        {
-          lattitude: params.lat,
-          longitude: params.lng,
-        },
-        () => {
-          this.fetchReverseAddress();
-        },
-      );
-    }
-  }
 
   handleUserLocation = () => {
     Geolocation.getCurrentPosition(
@@ -216,7 +221,7 @@ export default class Map extends Component<IProps, IState> {
         );
   };
 
-  saveUserCoorsToStorage = async (lat: number, lng: number) => {
+  saveUserCoorsToStorage = async (lat: number, lng: number, push?: boolean) => {
     try {
       await AsyncStorage.setItem(
         'USER_COORDINATES',
@@ -233,7 +238,10 @@ export default class Map extends Component<IProps, IState> {
     } catch (e) {
       console.log('cant able to store in localStorage');
     }
-    this.props.navigation.push(`${this.props.route.params.navigatePage}`);
+    if (push === false) {
+    } else {
+      this.props.navigation.push(`${this.props.route.params.navigatePage}`);
+    }
   };
 
   createUserLocation = async () => {
@@ -262,6 +270,11 @@ export default class Map extends Component<IProps, IState> {
             navigatePage: '',
           },
           () => {
+            this.saveUserCoorsToStorage(
+              this.state.lattitude,
+              this.state.longitude,
+              false,
+            );
             this.props.navigation.push(
               `${this.props.route.params.navigatePage}`,
             );
@@ -300,8 +313,6 @@ export default class Map extends Component<IProps, IState> {
       address: this.state.address,
     };
 
-    console.log('urllllllllll', API_URL);
-
     axios
       .put(`address/edit/${this.state.userAddress.id}`, data, config)
       .then(res => {
@@ -312,6 +323,11 @@ export default class Map extends Component<IProps, IState> {
             navigatePage: '',
           },
           () => {
+            this.saveUserCoorsToStorage(
+              this.state.lattitude,
+              this.state.longitude,
+              false,
+            );
             this.props.navigation.push(
               `${this.props.route.params.navigatePage}`,
             );

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/EvilIcons';
 
 interface componentNameProps {
@@ -12,7 +12,9 @@ const TopNavDetails = ({icon, shareIcon, navigation}: componentNameProps) => {
   return (
     <View style={styles.container}>
       <View>
-        <Icon name={icon} size={30} color="black" />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name={icon} size={30} color="black" />
+        </TouchableOpacity>
       </View>
       <View>
         <Icon name={shareIcon} size={30} color="black" />

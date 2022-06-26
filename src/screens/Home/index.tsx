@@ -94,11 +94,17 @@ class Home extends Component<IPdpPageProps, IState> {
     };
   }
 
-  async UNSAFE_componentWillMount() {
-    this.fetchUserAddress();
+  // async UNSAFE_componentWillMount() {
+  //   this.fetchUserAddress();
+
+  //   console.log('d');
+  // }
+
+  async componentDidMount() {
     const token = await AsyncStorage.getItem('token');
-    console.log('dassss', null);
+    console.log('dassss', token);
     if (token !== null) {
+      console.log('dassss1111111sssssssssssssssss', token);
       this.setState(
         {
           isAuthenticated: true,
@@ -106,14 +112,14 @@ class Home extends Component<IPdpPageProps, IState> {
         () => console.log('isAuth', this.state.isAuthenticated),
       );
     }
-    console.log('d');
-  }
-
-  componentDidMount() {
     this.props.fetchHomeProducts();
     this.props.fetchBrands();
     Geocoder.init(API_KEY);
 
+    this.props.navigation.addListener('focus', () => {
+      this.fetchUserAddress();
+    });
+    this.fetchUserAddress();
     this.saveLocalAddressToDb();
   }
 
@@ -128,8 +134,6 @@ class Home extends Component<IPdpPageProps, IState> {
           'Content-Type': 'application/json',
         },
       };
-
-      console.log(config);
 
       const data = {
         lat: coords.lat,
@@ -158,6 +162,7 @@ class Home extends Component<IPdpPageProps, IState> {
       axios
         .get(`${API_URL}address/user-address`, config)
         .then(res => {
+          console.log('saveLocalAddressToDb', res.data);
           this.setState({
             compLoading: false,
             userAddress: res.data.user_address.address,
@@ -175,6 +180,7 @@ class Home extends Component<IPdpPageProps, IState> {
     this.setState({
       compLoading: true,
     });
+    console.log('isAuthenticatedisAuthenticated');
     if (this.state.isAuthenticated) {
       const token = await AsyncStorage.getItem('token');
       const config = {
@@ -185,15 +191,15 @@ class Home extends Component<IPdpPageProps, IState> {
       };
 
       axios
-        .get(`${API_KEY}address/user-address`, config)
+        .get(`${API_URL}address/user-address`, config)
         .then(res => {
+          console.log('fetchUserAddress', res.data);
           this.setState({
             userAddress: res.data.user_address.address,
             compLoading: false,
           });
         })
         .catch(err => {
-          console.log(err);
           this.setState({
             compLoading: false,
           });
@@ -210,6 +216,7 @@ class Home extends Component<IPdpPageProps, IState> {
 
     const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
     const coords = JSON.parse(userCoord);
+    console.log('cooorde', coords);
 
     if (coords !== null || undefined || '') {
       fetch(
@@ -218,6 +225,7 @@ class Home extends Component<IPdpPageProps, IState> {
         .then(response => response.json())
         .catch(error => console.log(error))
         .then(response => {
+          console.log('fetchReverseAddress', response);
           this.setState({
             userAddress: response.place.address,
             compLoading: false,
@@ -225,7 +233,7 @@ class Home extends Component<IPdpPageProps, IState> {
         });
     } else {
       this.setState({
-        userAddress: 'Enter User Location',
+        userAddress: 'Enter Your Location',
         compLoading: false,
       });
     }
@@ -267,7 +275,6 @@ class Home extends Component<IPdpPageProps, IState> {
   };
 
   render() {
-    console.log('address', this.state.userAddress);
     return (
       <>
         {this.state.compLoading ? <OverlaySpinner /> : null}

@@ -37,6 +37,7 @@ export interface CartData {
 interface CartProps {
   navigation: {
     navigate: any;
+    addListener: any;
   };
 }
 
@@ -100,8 +101,11 @@ class Cart extends React.Component<CartProps, CartState> {
   };
 
   componentDidMount() {
-    this.fetchUserCart();
-    this.fectUserAddress();
+    console.log(this.props.navigation);
+    this.props.navigation.addListener('focus', () => {
+      this.fetchUserCart();
+      this.fectUserAddress();
+    });
   }
 
   fetchUserCart = async () => {
@@ -138,6 +142,7 @@ class Cart extends React.Component<CartProps, CartState> {
   };
 
   openBottomSheet = () => {
+    console.log('clickeddddddddd');
     this.bottomSheetRef.open();
   };
 
@@ -364,6 +369,7 @@ class Cart extends React.Component<CartProps, CartState> {
         <TopCart
           onclick={this.openBottomSheet}
           address={this.state.userAddress}
+          navigation={this.props.navigation}
         />
         <View style={styles.container}>
           <View

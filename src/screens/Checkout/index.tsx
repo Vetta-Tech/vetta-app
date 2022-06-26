@@ -7,6 +7,7 @@ import {
   TextInput,
   Image,
   ScrollView,
+  Modal,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import {CommonActions} from '@react-navigation/native';
@@ -60,6 +61,7 @@ class Checkout extends Component<any, IState> {
       order_create_success: false,
       order_create_error: '',
       GatewayPageURL: '',
+      moadlShow: false,
     };
   }
 
@@ -101,11 +103,11 @@ class Checkout extends Component<any, IState> {
       .then(res => {
         this.setState({
           loading: false,
+          moadlShow: true,
           GatewayPageURL: res.data.GatewayPageURL,
         });
       })
       .catch(err => {
-        console.log('errrr', err.response);
         if (err) {
           this.props.navigation.goBack();
         }
@@ -227,6 +229,40 @@ class Checkout extends Component<any, IState> {
       });
   };
 
+  confimrOrder = async () => {
+    this.setState({
+      loading: true,
+    });
+
+    const token = await AsyncStorage.getItem('token');
+    const config = {
+      headers: {
+        Authorization: 'Token '.concat(token!),
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const data = {
+      payment_method: 'cash',
+    };
+
+    axios
+      .post(`${API_URL}orders/order-confirm`, data, config)
+
+      .then(res => {
+        console.log('res', res);
+        if (res.status === 200) {
+          this.props.navigation.replace('Payment', {
+            success: true,
+            payment_method: 'cash',
+          });
+        }
+      })
+      .catch(err => {
+        console.log('assssssssssssssssss', err.response.data);
+      });
+  };
+
   validateOtp = async () => {
     console.log('ssssssssssssss');
     const token = await AsyncStorage.getItem('token');
@@ -279,9 +315,15 @@ class Checkout extends Component<any, IState> {
   _onLoad(state: any) {
     console.log('state_urllllllll', state);
     if (state.url === 'https://www.youtube.com/') {
-      this.props.navigation.replace('Payment');
+      this.props.navigation.replace('Payment', {
+        success: true,
+        payment_method: 'card',
+      });
     }
     if (state.url === 'http://192.168.0.204:8000/api/v1/orders/test') {
+      this.setState({
+        moadlShow: false,
+      });
       this.props.navigation.replace('Cart');
     }
     if (state.url === 'https://github.com/') {
@@ -292,13 +334,15 @@ class Checkout extends Component<any, IState> {
   render() {
     if (this.state.GatewayPageURL) {
       return (
-        <WebView
-          ref={this.webViewRef}
-          javaScriptEnabled={true}
-          source={{uri: this.state.GatewayPageURL}}
-          onError={err => this.props.navigation.navigate('Cart')}
-          onNavigationStateChange={state => this._onLoad(state)}
-        />
+        <Modal animationType={'slide'} visible={this.state.moadlShow}>
+          <WebView
+            ref={this.webViewRef}
+            javaScriptEnabled={true}
+            source={{uri: this.state.GatewayPageURL}}
+            onError={err => this.props.navigation.navigate('Cart')}
+            onNavigationStateChange={state => this._onLoad(state)}
+          />
+        </Modal>
       );
     }
     return (
@@ -565,7 +609,7 @@ class Checkout extends Component<any, IState> {
 
           <View>
             {this.state.payment_method === 'cash' && (
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => this.confimrOrder()}>
                 <SubmitButton
                   icon="https://cosmetica-prod.s3.ap-south-1.amazonaws.com/media/products/cash-on-delivery+(1).png"
                   title="Confirm Order"

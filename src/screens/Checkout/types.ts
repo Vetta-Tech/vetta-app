@@ -15,4 +15,5 @@ export interface IState {
   order_create_success: boolean;
   order_create_error: string;
   GatewayPageURL: string;
+  moadlShow: boolean;
 }

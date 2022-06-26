@@ -8,6 +8,10 @@ import Material from 'react-native-vector-icons/MaterialIcons';
 interface TopCartProps {
   address: string;
   onclick: any;
+  navigation: {
+    navigate: any;
+    goBack: any;
+  };
 }
 
 const TopCart = (props: TopCartProps) => {
@@ -42,7 +46,7 @@ const TopCart = (props: TopCartProps) => {
       </TouchableOpacity>
       <View style={styles.container}>
         <View style={styles.cartop}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => props.navigation.goBack()}>
             <Icon name="chevron-left" size={30} color="black" />
           </TouchableOpacity>
 
