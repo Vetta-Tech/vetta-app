@@ -9,13 +9,10 @@ import React, {Component} from 'react';
 
 import {connect} from 'react-redux';
 
-import {API_URL} from '@env';
-import axios from 'axios';
 import {LoginError, TopNav} from '../../components';
 import {OverlaySpinner} from '../Login/PhoneInput';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {validateOtp} from '../../state/actionCreatores/auth';
-import {RootState} from '../../state/store';
+import {AppState, RootState} from '../../state/store';
 
 interface VerifyOtPState {}
 
@@ -29,17 +26,13 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
     pk: '',
   };
 
-  componentDidUpdate(prevProps: any) {
-    console.log('update status in verify', this.props.validateStatus);
+  componentDidUpdate() {
     if (this.props.validateStatus === 200) {
-      this.props.navigation.navigate('Home', {
-        pk: this.props.pk,
-      });
+      this.props.navigation.replace('Home');
     }
   }
 
   componentDidMount() {
-    console.log(this.props.route.params.pk);
     if (!this.props.route.params.pk) {
       this.props.navigation.goBack();
       this.setState({
@@ -142,8 +135,7 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
   }
 }
 
-const mapStateToProps = (state: RootState) => {
-  console.log(state);
+const mapStateToProps = (state: AppState) => {
   return {
     isAuthenticated: state.auth.token !== null,
     loading: state.auth.loading,

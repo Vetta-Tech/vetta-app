@@ -24,7 +24,6 @@ interface MapBottomSheetProps {
 
 export default class MapBottomSheet extends Component<MapBottomSheetProps> {
   render() {
-    console.log('reffffff', this.props.myRef);
     return (
       <RBSheet
         ref={this.props.myRef}

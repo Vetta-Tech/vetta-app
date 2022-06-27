@@ -1,7 +1,6 @@
 import axios from 'axios';
 import {Dispatch} from 'redux';
 import {AuthActionTypes} from '../actionTypes/auth';
-import {AuthAction} from '../actions/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type validateOtpProps = {
@@ -24,6 +23,7 @@ export const otpSent = (res: {data: {pk: string}; status: number}) => {
 };
 
 export const authSuccess = (data: any, token: string | null) => {
+  console.log('validateStatus111', data);
   return {
     type: AuthActionTypes.AUTH_SUCCESS,
     token: token,

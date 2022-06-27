@@ -1,7 +1,7 @@
 import {Text, StyleSheet, View} from 'react-native';
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {State} from '../../store/reducers';
+import {AppState} from '../../state/store';
 
 const SplashScreen = (props: any) => {
   const [timePassed, setTimePassed] = React.useState(false);
@@ -31,14 +31,14 @@ const SplashScreen = (props: any) => {
   }
 
   if (props.isAuthenticated) {
-    props.navigation.navigate('Home');
+    props.navigation.replace('Home');
   } else {
     props.navigation.replace('AuthSelect');
   }
   return null;
 };
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: AppState) => {
   return {
     isAuthenticated: state.auth.token !== null,
     token: state.auth.token,

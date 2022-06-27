@@ -1,18 +1,3 @@
-export interface HomeProductsType {
-  featured: [];
-  recent_products: [];
-  popular: [];
-  electronics: [];
-  footwear: [];
-  baby_care: [];
-  product: {};
-  images: {};
-  variants: [];
-  loading: boolean;
-  error: string;
-  brandProducts: [];
-}
-
 export interface CategoryInterface {
   name: string;
   slug: string;
@@ -48,37 +33,38 @@ export interface VariantSerializer {
   price: number;
 }
 
+export interface Product {
+  id: number;
+  supplier_name: string;
+  name: string;
+  slug: string;
+  category: CategoryInterface;
+  sub_category: SubCateryInterface;
+  short_description: SubCateryInterface;
+  description: string;
+  keywords: [];
+  thumbnail: string;
+  price: number;
+  variants: string;
+  status: string;
+}
+
 export interface ProductsInterface {
-  products: {
-    id: number;
-    supplier_name: string;
-    name: string;
-    slug: string;
-    category: CategoryInterface;
-    sub_category: SubCateryInterface;
-    short_description: SubCateryInterface;
-    description: string;
-    keywords: [];
-    thumbnail: string;
-    price: number;
-    variants: string;
-    status: string;
-  };
+  products: Product;
   variants: VariantSerializer;
   images: ImageInterface;
 }
 
 export interface HomeProductsType {
-  featured: [];
-  recent_products: [];
-  popular: [];
-  electronics: [];
-  footwear: [];
-  baby_care: [];
+  featured: ProductsInterface[];
+  recent_products: ProductsInterface[];
+  popular: ProductsInterface[];
+  electronics: ProductsInterface[];
+  footwear: ProductsInterface[];
+  baby_care: ProductsInterface[];
   product: {};
   images: {};
-  variants: [];
   loading: boolean;
   error: string;
-  brandProducts: [];
+  brandProducts: ProductsInterface[];
 }

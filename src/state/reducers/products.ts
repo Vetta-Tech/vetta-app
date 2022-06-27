@@ -12,13 +12,15 @@ const initialState: HomeProductsType = {
   baby_care: [],
   product: {},
   images: {},
-  variants: [],
   loading: false,
   error: '',
   brandProducts: [],
 };
 
-const reducers = (state = initialState, action: ProductsAction) => {
+const reducers = (
+  state = initialState,
+  action: ProductsAction,
+): HomeProductsType => {
   switch (action.type) {
     case ActionType.HOME_PRODUCTS_FETCH_START:
       return {
@@ -52,7 +54,6 @@ const reducers = (state = initialState, action: ProductsAction) => {
         loading: false,
         product: action.payload.products,
         images: action.payload.images,
-        variants: action.payload.variants,
       };
     case ActionType.FETCH_PRODUCTS_DETAILS_FAILD:
       return {
@@ -77,6 +78,8 @@ const reducers = (state = initialState, action: ProductsAction) => {
         loading: false,
         error: action.payload,
       };
+    default:
+      return state;
   }
 };
 

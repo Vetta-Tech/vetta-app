@@ -1,17 +1,15 @@
 import {
   Text,
-  StyleSheet,
   View,
   ScrollView,
   ActivityIndicator,
-  Dimensions,
-  Image,
   TouchableOpacity,
-  Pressable,
   Linking,
 } from 'react-native';
 import React, {Component} from 'react';
 import Modal from 'react-native-modal';
+import {ThunkDispatch} from 'redux-thunk';
+
 import Appstyle from '../../constants/AppStyles';
 import {
   TopBar,
@@ -27,44 +25,41 @@ import {
   FeaturedPRoducts,
 } from '../../components';
 
-import {fetchHomeProducts} from '../../state/actionCreatores/products';
 import {connect} from 'react-redux';
-import {RootState} from '../../state/store';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import Icon from 'react-native-vector-icons/EvilIcons';
+import {AppState} from '../../state/store';
 import Geolocation from '@react-native-community/geolocation';
-import {API_URL} from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import Geocoder from 'react-native-geocoding';
 import MapBottomSheet from '../../components/MapBottomSheet';
+import {
+  fetchBrands,
+  fetchHomeProducts,
+  fetchUserAddress,
+  saveLocalAddressToDb,
+  fetchReverseAddress,
+} from '../../state/actionCreatores';
+import {bindActionCreators} from 'redux';
+import {AppActionType} from '../../state/actions/intex';
+import {styles} from './styles';
+import {HomeProductsType} from '../../state/interfaces/products';
+import {BrandsTypes} from '../../utils/types/brandsType';
+import {AddressInterface} from '../../state/interfaces/address';
+import {authCheckState} from '../../state/actionCreatores/auth';
+import {MapsTypes} from '../../state/interfaces/maps';
 
-interface IPdpPageProps {
+interface HomePageProps {
   navigation: {
     navigate: any;
+    addListener: any;
   };
-  fetchHomeProducts: any;
-  featured: any;
-  recent_products: any;
-  popular: any;
-  electronics: any;
-  footwear: any;
-  baby_care: any;
-  loading: any;
-  error: any;
-  fetchBrands: any;
-  brands: any;
 }
 
 interface IState {
   showAddresSheet: boolean;
-  error: string;
   showErrorModal: boolean;
-  userAddress: string;
-  isAuthenticated: boolean;
-  compLoading: boolean;
 }
+
+type Props = HomePageProps & LinkStateProps & LinkDispatchProps;
 
 export const OverlaySpinner = () => {
   return (
@@ -75,8 +70,7 @@ export const OverlaySpinner = () => {
 };
 
 const API_KEY = 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg';
-const BARIKOI_API = 'MzQ3MjpKM0JHWkI4WDc1';
-class Home extends Component<IPdpPageProps, IState> {
+class Home extends Component<Props, IState> {
   private bottomSheetRef: any;
   private adressRef: any;
 
@@ -86,156 +80,43 @@ class Home extends Component<IPdpPageProps, IState> {
     this.adressRef = React.createRef();
     this.state = {
       showAddresSheet: false,
-      error: '',
       showErrorModal: false,
-      userAddress: '',
-      isAuthenticated: false,
-      compLoading: false,
     };
   }
-
-  // async UNSAFE_componentWillMount() {
-  //   this.fetchUserAddress();
-
-  //   console.log('d');
-  // }
-
   async componentDidMount() {
-    const token = await AsyncStorage.getItem('token');
-    console.log('dassss', token);
-    if (token !== null) {
-      console.log('dassss1111111sssssssssssssssss', token);
-      this.setState(
-        {
-          isAuthenticated: true,
-        },
-        () => console.log('isAuth', this.state.isAuthenticated),
-      );
-    }
+    Geocoder.init(API_KEY);
     this.props.fetchHomeProducts();
     this.props.fetchBrands();
-    Geocoder.init(API_KEY);
-
+    this.saveLocalAddressToDb();
+    this.fetchUserAddress();
     this.props.navigation.addListener('focus', () => {
       this.fetchUserAddress();
     });
-    this.fetchUserAddress();
-    this.saveLocalAddressToDb();
+    this.bottomSheetRef.close();
   }
+
+  fetchUserAddress = async () => {
+    if (this.props.isAuthenticated) {
+      console.log('asdasfdasf');
+      this.props.fetchUserAddress();
+    } else {
+      const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
+      const coords = JSON.parse(userCoord);
+      this.props.fetchReverseAddress(coords);
+    }
+  };
 
   saveLocalAddressToDb = async () => {
     const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
     const coords = JSON.parse(userCoord);
     if (coords !== null || undefined || '') {
-      const token = await AsyncStorage.getItem('token');
-      const config = {
-        headers: {
-          Authorization: 'Token '.concat(token!),
-          'Content-Type': 'application/json',
-        },
-      };
-
       const data = {
         lat: coords.lat,
         lng: coords.lng,
       };
-
-      axios
-        .post(`${API_URL}address/save-local-address`, data, config)
-        .then(res => {
-          console.log(res.data);
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      this.props.saveLocalAddressToDb(data);
     } else {
-      this.setState({
-        compLoading: true,
-      });
-      const token = await AsyncStorage.getItem('token');
-      const config = {
-        headers: {
-          Authorization: 'Token '.concat(token!),
-          'Content-Type': 'application/json',
-        },
-      };
-      axios
-        .get(`${API_URL}address/user-address`, config)
-        .then(res => {
-          console.log('saveLocalAddressToDb', res.data);
-          this.setState({
-            compLoading: false,
-            userAddress: res.data.user_address.address,
-          });
-        })
-        .catch(err => {
-          this.setState({
-            compLoading: false,
-          });
-        });
-    }
-  };
-
-  fetchUserAddress = async () => {
-    this.setState({
-      compLoading: true,
-    });
-    console.log('isAuthenticatedisAuthenticated');
-    if (this.state.isAuthenticated) {
-      const token = await AsyncStorage.getItem('token');
-      const config = {
-        headers: {
-          Authorization: 'Token '.concat(token!),
-          'Content-Type': 'application/json',
-        },
-      };
-
-      axios
-        .get(`${API_URL}address/user-address`, config)
-        .then(res => {
-          console.log('fetchUserAddress', res.data);
-          this.setState({
-            userAddress: res.data.user_address.address,
-            compLoading: false,
-          });
-        })
-        .catch(err => {
-          this.setState({
-            compLoading: false,
-          });
-        });
-    } else {
-      this.fetchReverseAddress();
-    }
-  };
-
-  fetchReverseAddress = async () => {
-    this.setState({
-      compLoading: true,
-    });
-
-    const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
-    const coords = JSON.parse(userCoord);
-    console.log('cooorde', coords);
-
-    if (coords !== null || undefined || '') {
-      fetch(
-        `https://barikoi.xyz/v1/api/search/reverse/${BARIKOI_API}/geocode?longitude=${coords.lng}&latitude=${coords.lat}&district=true&post_code=true&country=true&sub_district=true&union=true&pauroshova=true&location_type=true&division=true&address=true&area=true`,
-      )
-        .then(response => response.json())
-        .catch(error => console.log(error))
-        .then(response => {
-          console.log('fetchReverseAddress', response);
-          this.setState({
-            userAddress: response.place.address,
-            compLoading: false,
-          });
-        });
-    } else {
-      this.setState({
-        userAddress: 'Enter Your Location',
-        compLoading: false,
-      });
+      this.props.fetchUserAddress();
     }
   };
 
@@ -259,25 +140,15 @@ class Home extends Component<IPdpPageProps, IState> {
         );
       },
       error => {
-        this.setState(
-          {
-            error: error.message,
-          },
-          () => {
-            this.bottomSheetRef.close();
-            this.setState({
-              showErrorModal: true,
-            });
-          },
-        );
+        console.log(error);
       },
     );
   };
 
   render() {
+    console.log('isAuthenticated11', this.props.isAuthenticated);
     return (
       <>
-        {this.state.compLoading ? <OverlaySpinner /> : null}
         <Modal
           onBackdropPress={() =>
             this.setState({
@@ -332,7 +203,7 @@ class Home extends Component<IPdpPageProps, IState> {
           }}>
           <TopBar
             name="Vetta Store"
-            address={this.state.userAddress}
+            address={this.props.address.userAddressText}
             onClick={this.showAddressInfo}
             navigation={this.props.navigation}
           />
@@ -340,8 +211,8 @@ class Home extends Component<IPdpPageProps, IState> {
         </View>
 
         <MapBottomSheet
-          myRef={ref => (this.bottomSheetRef = ref)}
-          adressRef={ref => (this.adressRef = ref)}
+          myRef={(ref: any) => (this.bottomSheetRef = ref)}
+          adressRef={(ref: any) => (this.adressRef = ref)}
           onPressClear={() => this.adressRef.clear()}
           handleUserLocation={() => this.handleUserLocation()}
           navigation={this.props.navigation}
@@ -352,7 +223,7 @@ class Home extends Component<IPdpPageProps, IState> {
           <Category navigation={this.props.navigation} />
           <FeaturedPRoducts
             navigation={this.props.navigation}
-            featured={this.props.featured}
+            featured={this.props.product.featured}
             name="Featured"
             supplier_name=""
             screen_name="FeaturedProducts"
@@ -360,7 +231,7 @@ class Home extends Component<IPdpPageProps, IState> {
           />
           <PopularProducts
             navigation={this.props.navigation}
-            popular={this.props.popular}
+            popular={this.props.product.popular}
             name="Popular"
             supplier_name=""
             screen_name="PopularProducts"
@@ -368,17 +239,17 @@ class Home extends Component<IPdpPageProps, IState> {
             isPopular={true}
           />
           <Collections />
-          <RecentProduct recent_products={this.props.recent_products} />
-          <RecentProduct recent_products={this.props.recent_products} />
+          <RecentProduct recent_products={this.props.product.recent_products} />
+          <RecentProduct recent_products={this.props.product.recent_products} />
           <Collections />
           <SubCatCard
             name="Electronics"
-            data={this.props.electronics}
+            data={this.props.product}
             navigation={this.props.navigation}
           />
           <SubCatCard
             name="Clothing"
-            data={this.props.footwear}
+            data={this.props.product}
             navigation={this.props.navigation}
           />
           <Brands
@@ -388,59 +259,48 @@ class Home extends Component<IPdpPageProps, IState> {
 
           <Refer />
         </ScrollView>
-        {this.props.loading && <OverlaySpinner />}
+        {this.props.product.loading && <OverlaySpinner />}
       </>
     );
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+interface LinkStateProps {
+  product: HomeProductsType;
+  brands: BrandsTypes[];
+  address: MapsTypes;
+  isAuthenticated: boolean;
+}
+
+interface LinkDispatchProps {
+  fetchHomeProducts: () => void;
+  fetchBrands: () => void;
+  fetchReverseAddress: (data: {lat: number; lng: number}) => void;
+  fetchUserAddress: () => void;
+  saveLocalAddressToDb: (data: {lat: number; lng: number}) => void;
+}
+
+const mapStateToProps = (
+  state: AppState,
+  ownProps: HomePageProps,
+): LinkStateProps => {
   return {
-    featured: state.product.featured,
-    // brands: state.brands.brands,
-    recent_products: state.product.recent_products,
-    popular: state.product.popular,
-    electronics: state.product.electronics,
-    footwear: state.product.footwear,
-    baby_care: state.product.baby_care,
-    loading: state.product.loading,
-    error: state.product.error,
+    isAuthenticated: state.auth.token !== null,
+    product: state.product,
+    brands: state.supplier,
+    address: state.address,
   };
 };
 
-export default connect(mapStateToProps, {fetchHomeProducts})(Home);
-
-const styles = StyleSheet.create({
-  spinnerView: {
-    position: 'absolute',
-    zIndex: 1,
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5FCFF88',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-    padding: 10,
-  },
-  modalView: {
-    backgroundColor: 'white',
-    alignItems: 'center',
-    padding: 8,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    width: '90%',
-    height: 120,
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<any, any, AppActionType>,
+  ownProps: HomePageProps,
+): LinkDispatchProps => ({
+  fetchHomeProducts: bindActionCreators(fetchHomeProducts, dispatch),
+  fetchBrands: bindActionCreators(fetchBrands, dispatch),
+  fetchUserAddress: bindActionCreators(fetchUserAddress, dispatch),
+  fetchReverseAddress: bindActionCreators(fetchReverseAddress, dispatch),
+  saveLocalAddressToDb: bindActionCreators(saveLocalAddressToDb, dispatch),
 });
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

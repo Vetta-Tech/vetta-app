@@ -3,32 +3,35 @@ import {Dispatch} from 'redux';
 import axios from '../../api/axios';
 import {ActionType} from '../actionTypes';
 import {ProductsAction} from '../actions/products';
+import {AppState} from '../store';
 
-const fetchHomeProducts = () => async (dispatch: Dispatch<ProductsAction>) => {
-  dispatch({
-    type: ActionType.HOME_PRODUCTS_FETCH_START,
-  });
-
-  const response = await axios.get('products/home');
-  console.log(response);
-  try {
+const fetchHomeProducts =
+  () =>
+  async (dispatch: Dispatch<ProductsAction>, getState: () => AppState) => {
     dispatch({
-      type: ActionType.HOME_PRODUCTS_FETCH_SUCCESS,
-      payload: response.data,
+      type: ActionType.HOME_PRODUCTS_FETCH_START,
     });
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.log(err);
+
+    const response = await axios.get('products/home');
+    try {
       dispatch({
-        type: ActionType.HOME_PRODUCTS_FETCH_FAILD,
-        payload: err.message,
+        type: ActionType.HOME_PRODUCTS_FETCH_SUCCESS,
+        payload: response.data,
       });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.log('err', err.message);
+        dispatch({
+          type: ActionType.HOME_PRODUCTS_FETCH_FAILD,
+          payload: err.message,
+        });
+      }
     }
-  }
-};
+  };
 
 const fetchProductDetails =
-  (slug: string) => async (dispatch: Dispatch<ProductsAction>) => {
+  (slug: string) =>
+  async (dispatch: Dispatch<ProductsAction>, getState: () => AppState) => {
     dispatch({
       type: ActionType.FETCH_PRODUCTS_DETAILS_START,
     });
@@ -51,12 +54,13 @@ const fetchProductDetails =
   };
 
 const fetchProductByBrand =
-  (brands_name: string) => async (dispatch: Dispatch<ProductsAction>) => {
+  (brands_name: string) =>
+  async (dispatch: Dispatch<ProductsAction>, getState: () => AppState) => {
     dispatch({
       type: ActionType.FETCH_PRODUCTS_BRANDS_START,
     });
 
-    const response = await axios.get('roducts/brands');
+    const response = await axios.get('products/brands');
 
     try {
       dispatch({

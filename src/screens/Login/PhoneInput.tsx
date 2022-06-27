@@ -35,7 +35,6 @@ class PhoneInput extends Component<any, any> {
   }
 
   componentDidUpdate(prevProps: any) {
-    console.log('update status', API_URL);
     if (this.props.status === 200) {
       this.props.navigation.navigate('VerifyOtp', {
         pk: this.props.pk,
@@ -68,8 +67,6 @@ class PhoneInput extends Component<any, any> {
   };
 
   render() {
-    console.log('update status', API_URL);
-
     return (
       <View
         style={{

@@ -11,8 +11,8 @@ import React, {Component} from 'react';
 
 import {auth_gb, logo} from '../../constants/images';
 import {AuthSelectModal} from '../../components';
-import {State} from '../../store/reducers';
 import {connect} from 'react-redux';
+import {AppState} from '../../state/store';
 
 class AuthSelect extends Component<any, any> {
   state = {
@@ -119,7 +119,7 @@ class AuthSelect extends Component<any, any> {
   }
 }
 
-const mapStateToProps = (state: State) => {
+const mapStateToProps = (state: AppState) => {
   return {
     isAuthenticated: state.auth.token !== null,
     loading: state.auth.loading,

@@ -1,0 +1,196 @@
+import {Dispatch} from 'redux';
+import axios from '../../api/axios';
+
+import {AddressActionTypes} from '../actionTypes/address';
+import {UserAddressActionType} from '../actions/address';
+import {AppState} from '../store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {BarikoiMapTypes, RootObject} from '../interfaces/maps';
+import {
+  CreateUserPostData,
+  SaveCoordToLocalPostType,
+  UpdateUserPostData,
+} from '../interfaces/address';
+
+const BARIKOI_API = 'MzQ3MjpKM0JHWkI4WDc1';
+
+export const fetchUserAddress =
+  () =>
+  async (
+    dispatch: Dispatch<UserAddressActionType>,
+    getState: () => AppState,
+  ) => {
+    dispatch({
+      type: AddressActionTypes.FETCH_USER_ADDRESS_START,
+    });
+
+    try {
+      const response = await axios.get('address/user-address');
+      dispatch({
+        type: AddressActionTypes.FETCH_USER_ADDRESS_SUCCESS,
+        payload: response.data.user_address.address,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch({
+          type: AddressActionTypes.FETCH_USER_ADDRESS_FAILD,
+          payload: error.message,
+        });
+      }
+    }
+  };
+
+export const fetchReverseAddress =
+  (coords: {lat: number; lng: number}) =>
+  async (
+    dispatch: Dispatch<UserAddressActionType>,
+    getState: () => AppState,
+  ) => {
+    dispatch({
+      type: AddressActionTypes.FETCH_REVERSE_ADDRESS_START,
+    });
+
+    try {
+      const response = await axios.get(
+        `https://barikoi.xyz/v1/api/search/reverse/${BARIKOI_API}/geocode?longitude=${coords.lng}&latitude=${coords.lat}&district=true&post_code=true&country=true&sub_district=true&union=true&pauroshova=true&location_type=true&division=true&address=true&area=true`,
+      );
+      const data: RootObject = response.data;
+      console.log(data.place);
+      dispatch({
+        type: AddressActionTypes.FETCH_REVERSE_ADDRESS_SUCCESS,
+        payload: data.place.address,
+        data: data,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch({
+          type: AddressActionTypes.FETCH_REVERSE_ADDRESS_FAILD,
+          payload: error.message,
+        });
+      }
+    }
+  };
+
+export const saveLocalAddressToDb =
+  (data: {lat: number; lng: number}) =>
+  async (
+    dispatch: Dispatch<UserAddressActionType>,
+    getState: () => AppState,
+  ) => {
+    dispatch({
+      type: AddressActionTypes.SAVE_LOCAL_ADDRESS_TO_DB_START,
+    });
+
+    try {
+      const response = await axios.post(`address/save-local-address`, data);
+      dispatch({
+        type: AddressActionTypes.SAVE_LOCAL_ADDRESS_TO_DB_SUCCESS,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch({
+          type: AddressActionTypes.SAVE_LOCAL_ADDRESS_TO_DB_FAILD,
+          payload: error.message,
+        });
+      }
+    }
+  };
+
+export const checkUserCanCreateOrEdit =
+  () =>
+  async (
+    dispatch: Dispatch<UserAddressActionType>,
+    getState: () => AppState,
+  ) => {
+    dispatch({
+      type: AddressActionTypes.CHECK_USER_EDIT_OR_CREATE_START,
+    });
+
+    try {
+      const response = await axios.get(`address/user-address`);
+
+      dispatch({
+        type: AddressActionTypes.CHECK_USER_EDIT_OR_CREATE_SUCCESS,
+        payload: response.data,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch({
+          type: AddressActionTypes.CHECK_USER_EDIT_OR_CREATE_FAILD,
+          payload: error.message,
+        });
+      }
+    }
+  };
+
+export const saveUserCoorsToStorage =
+  (data: SaveCoordToLocalPostType) =>
+  async (dispatch: Dispatch<UserAddressActionType>) => {
+    try {
+      await AsyncStorage.setItem(
+        'USER_COORDINATES',
+        JSON.stringify({
+          lat: data.lat,
+          lng: data.lng,
+        }),
+      );
+      dispatch({
+        type: AddressActionTypes.SAVE_COORD_TO_LOCAL_STORE,
+      });
+    } catch (error) {
+      console.log('coord cant able to store in Local Storage');
+      if (error instanceof Error) {
+        dispatch({
+          type: AddressActionTypes.SAVE_COORD_TO_LOCAL_STORE,
+          error: error.message,
+        });
+      }
+    }
+  };
+
+export const createUserLocation =
+  (data: CreateUserPostData) =>
+  async (dispatch: Dispatch<UserAddressActionType>) => {
+    dispatch({
+      type: AddressActionTypes.CREATE_USER_ADDRESS_START,
+    });
+
+    try {
+      const response = await axios.post('address/create-address', data);
+      dispatch({
+        type: AddressActionTypes.CREATE_USER_ADDRESS_SUCCESS,
+        payload: response.data,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch({
+          type: AddressActionTypes.CREATE_USER_ADDRESS_FAILD,
+          payload: error.message,
+        });
+      }
+    }
+  };
+
+export const updateUserLocation =
+  (data: UpdateUserPostData) =>
+  async (dispatch: Dispatch<UserAddressActionType>) => {
+    dispatch({
+      type: AddressActionTypes.UPDATE_USER_ADDRESS_START,
+    });
+
+    try {
+      const response = await axios.put(`address/edit/${data.id}`, data);
+
+      dispatch({
+        type: AddressActionTypes.UPDATE_USER_ADDRESS_SUCCESS,
+        payload: response.data,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        dispatch({
+          type: AddressActionTypes.UPDATE_USER_ADDRESS_FAILD,
+          payload: error.message,
+        });
+      }
+    }
+  };

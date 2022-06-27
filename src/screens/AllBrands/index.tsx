@@ -130,7 +130,6 @@ class AllBrands extends Component<AllBrandsProps, AllBrandsState> {
         },
       )
       .then(res => {
-        console.log(res.data);
         const newProducts = res.data.brands;
 
         const data = _.uniqBy(this.state.brandsData, 'id');

@@ -1,4 +1,5 @@
 import {AuthActionTypes} from '../actionTypes/auth';
+import {AppState} from '../store';
 
 import {updateObject} from '../utils';
 
@@ -60,7 +61,7 @@ const authLogout = (state: AuthStateTypes, action: any) => {
   });
 };
 
-const reducer = (state = initialState, action: any) => {
+const reducer = (state = initialState, action: any): AuthStateTypes => {
   switch (action.type) {
     case AuthActionTypes.AUTH_START:
       return authStart(state, action);

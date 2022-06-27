@@ -1,9 +1,8 @@
-import MapView, {Marker} from 'react-native-maps';
+import MapView from 'react-native-maps';
 
 import {StyleSheet, View, TouchableOpacity, Text, Image} from 'react-native';
 import React, {Component} from 'react';
 
-import Lottie from 'lottie-react-native';
 import Geocoder from 'react-native-geocoding';
 import Geolocation from '@react-native-community/geolocation';
 import {mapStyle} from './mapStyle';
@@ -11,7 +10,27 @@ import ErrorModal from './utils/ErrorModal';
 import {OverlaySpinner} from '../Home';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from '../../api/axios';
-import {API_URL} from '@env';
+import AnimatedLottieView from 'lottie-react-native';
+import {
+  updateUserLocation,
+  createUserLocation,
+  saveUserCoorsToStorage,
+  saveLocalAddressToDb,
+  checkUserCanCreateOrEdit,
+  fetchReverseAddress,
+} from '../../state/actionCreatores';
+import {styles} from './style';
+import {
+  AddressInterface,
+  CreateUserPostData,
+  UpdateUserPostData,
+} from '../../state/interfaces/address';
+import {MapsTypes} from '../../state/interfaces/maps';
+import {AppState} from '../../state/store';
+import {ThunkDispatch} from 'redux-thunk';
+import {UserAddressActionType} from '../../state/actions/address';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
 
 const API_KEY = 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg';
 const BARIKOI_API = 'MzQ3MjpKM0JHWkI4WDc1';
@@ -27,54 +46,33 @@ interface IProps {
   };
 }
 
-interface IState {
+interface State {
   lattitude: number;
   longitude: number;
   latitudeDelta: number;
-  isAuthenticated: boolean;
   longitudeDelta: number;
-  address: string;
-  sub_district: string;
-  loading: boolean;
-  isLoad: boolean;
   showErrorModal: boolean;
-  create_address: boolean;
-  userAddress: any;
-  navigatePage: string;
 }
 
-export default class Map extends Component<IProps, IState> {
-  private marker: any;
+type Props = IProps & LinkStateProps & LinkDispatchProps;
+
+class Map extends Component<Props, State> {
   private ref: any;
   constructor(props: any) {
     super(props);
     this.ref = React.createRef();
-    this.marker = null;
 
     this.state = {
       lattitude: 0,
       longitude: 0,
       latitudeDelta: 0.012,
       longitudeDelta: 0.012,
-      isAuthenticated: false,
-      address: '',
-      sub_district: '',
-      loading: true,
-      isLoad: false,
       showErrorModal: false,
-      create_address: false,
-      userAddress: {},
-      navigatePage: '',
     };
   }
 
   UNSAFE_componentWillMount() {
     const {params} = this.props.route;
-
-    console.log('paramsparamsparamsparamsparamsparamsparamsparams', params);
-
-    // Remove the listener when you are done
-    // didFocusSubscription.remove();
 
     if (params) {
       this.setState(
@@ -83,74 +81,18 @@ export default class Map extends Component<IProps, IState> {
           longitude: params.lng,
         },
         () => {
-          this.fetchReverseAddress();
+          this.props.fetchReverseAddress(params);
         },
       );
     }
   }
 
   async componentDidMount() {
-    const {navigatePage, lat, lng} = this.props.route.params;
-    console.log('triggerddddddddddddddddddddddddddddddddddddddddddddddddddd');
-    if (navigatePage) {
-      this.setState(
-        {
-          navigatePage: navigatePage,
-        },
-        () => {
-          this.fetchReverseAddress();
-        },
-      );
-    }
-
     Geocoder.init(API_KEY);
-    const token = await AsyncStorage.getItem('token');
-    if (token !== null) {
-      this.setState(
-        {
-          isAuthenticated: true,
-        },
-        () => {
-          this.checkUserCanCreateOrEdit();
-        },
-      );
+    if (this.props.isAuthenticated) {
+      this.props.checkUserCanCreateOrEdit();
     }
   }
-
-  checkUserCanCreateOrEdit = async () => {
-    this.setState({
-      loading: true,
-    });
-
-    const token = await AsyncStorage.getItem('token');
-    const config = {
-      headers: {
-        Authorization: 'Token '.concat(token!),
-        'Content-Type': 'application/json',
-      },
-    };
-
-    axios
-      .get(`address/user-address`, config)
-      .then(res => {
-        if (res.data.user_have_address) {
-          this.setState({
-            loading: false,
-            create_address: false,
-            userAddress: res.data.user_address,
-          });
-        }
-        if (res.data.user_have_address === false) {
-          this.setState({
-            loading: false,
-            create_address: true,
-          });
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
 
   handleUserLocation = () => {
     Geolocation.getCurrentPosition(
@@ -167,9 +109,12 @@ export default class Map extends Component<IProps, IState> {
         );
       },
       error => {
-        this.setState({
-          showErrorModal: true,
-        });
+        this.setState(
+          {
+            showErrorModal: true,
+          },
+          () => console.log(error),
+        );
       },
     );
   };
@@ -177,54 +122,20 @@ export default class Map extends Component<IProps, IState> {
   animateMarker = () => {
     this.ref.animateCamera({
       center: {
-        latitude: this.state.lattitude,
-        longitude: this.state.longitude,
-        latitudeDelta: this.state.latitudeDelta,
-        longitudeDelta: this.state.longitudeDelta,
+        lattitude: this.state.lattitude,
+        longtitude: this.state.longitude,
+        latitudeDelta: this.props.address.latitudeDelta,
+        longitudeDelta: this.props.address.longitudeDelta,
       },
       zoom: 16,
       heading: 80,
       useNativeDriver: true,
     });
-    this.fetchReverseAddress();
-    console.log('ssss');
-  };
-  onDragEnd = (e: any) => {
-    this.setState(
-      {
-        lattitude: e.nativeEvent.coordinate.latitude,
-        longitude: e.nativeEvent.coordinate.longitude,
-      },
-      () => {
-        this.fetchReverseAddress();
-      },
-    );
-    let point = {
-      lat: e.nativeEvent.coordinate.latitude,
-      lng: e.nativeEvent.coordinate.longitude,
+    const coords = {
+      lat: this.state.lattitude,
+      lng: this.state.longitude,
     };
-  };
-
-  fetchReverseAddress = (coords?: any) => {
-    this.setState({
-      loading: true,
-    }),
-      fetch(
-        `https://barikoi.xyz/v1/api/search/reverse/${BARIKOI_API}/geocode?longitude=${this.state.longitude}&latitude=${this.state.lattitude}&district=true&post_code=true&country=true&sub_district=true&union=true&pauroshova=true&location_type=true&division=true&address=true&area=true`,
-      )
-        .then(response => response.json())
-        .catch(error =>
-          this.setState({
-            loading: false,
-          }),
-        )
-        .then(response =>
-          this.setState({
-            address: response.place.address,
-            sub_district: `${response.place.district} ${response.place.postCode}`,
-            loading: false,
-          }),
-        );
+    this.props.fetchReverseAddress(coords);
   };
 
   saveUserCoorsToStorage = async (lat: number, lng: number, push?: boolean) => {
@@ -237,9 +148,6 @@ export default class Map extends Component<IProps, IState> {
         }),
       );
 
-      this.setState({
-        navigatePage: '',
-      });
       console.log('address saved to local storage ');
     } catch (e) {
       console.log('cant able to store in localStorage');
@@ -250,117 +158,18 @@ export default class Map extends Component<IProps, IState> {
     }
   };
 
-  createUserLocation = async () => {
-    const token = await AsyncStorage.getItem('token');
-    const config = {
-      headers: {
-        Authorization: 'Token '.concat(token!),
-        'Content-Type': 'application/json',
-      },
-    };
-
-    const data = {
-      lattitude: this.state.lattitude,
-      longtitude: this.state.longitude,
-      address: this.state.address,
-    };
-
-    axios
-      .post(`address/create-address`, data, config)
-      .then(res =>
-        this.setState(
-          {
-            loading: false,
-            navigatePage: '',
-          },
-          () => {
-            this.saveUserCoorsToStorage(
-              this.state.lattitude,
-              this.state.longitude,
-              false,
-            );
-            this.props.navigation.replace(
-              `${this.props.route.params.navigatePage}`,
-            );
-          },
-        ),
-      )
-      .catch(err => {
-        this.setState(
-          {
-            loading: false,
-            navigatePage: '',
-          },
-          () => {
-            this.props.navigation.replace(
-              `${this.props.route.params.navigatePage}`,
-            );
-          },
-        );
-      });
-  };
-
-  updateUserLocation = async () => {
-    console.log('updating');
-    const token = await AsyncStorage.getItem('token');
-
-    const config = {
-      headers: {
-        Authorization: 'Token '.concat(token!),
-        'Content-Type': 'application/json',
-      },
-    };
-
-    const data = {
-      lattitude: this.state.lattitude,
-      longtitude: this.state.longitude,
-      address: this.state.address,
-    };
-
-    axios
-      .put(`address/edit/${this.state.userAddress.id}`, data, config)
-      .then(res => {
-        console.log('ressssssssssssss', res.data);
-        this.setState(
-          {
-            loading: false,
-            navigatePage: '',
-          },
-          () => {
-            this.saveUserCoorsToStorage(
-              this.state.lattitude,
-              this.state.longitude,
-              false,
-            );
-            this.props.navigation.replace(
-              `${this.props.route.params.navigatePage}`,
-            );
-          },
-        );
-      })
-      .catch(err => {
-        console.log('errrrrrrrrrrrrrrrrrr', err);
-
-        this.setState(
-          {
-            loading: false,
-            navigatePage: '',
-          },
-          () => {
-            this.props.navigation.replace(
-              `${this.props.route.params.navigatePage}`,
-            );
-          },
-        );
-      });
-  };
-
   confirmLocation = () => {
-    if (this.state.isAuthenticated === true) {
-      if (this.state.create_address) {
-        this.createUserLocation();
+    if (this.props.isAuthenticated === true) {
+      const data = {
+        lattitude: this.state.lattitude,
+        longtitude: this.state.longitude,
+        address: this.props.address.userAddressText,
+        id: this.props.address.userAddress.id,
+      };
+      if (this.props.address.create_address) {
+        this.props.createUserLocation(data);
       } else {
-        this.updateUserLocation();
+        this.props.updateUserLocation(data);
       }
     } else {
       this.saveUserCoorsToStorage(this.state.lattitude, this.state.longitude);
@@ -373,17 +182,26 @@ export default class Map extends Component<IProps, IState> {
     });
   };
 
+  onRegionChange = (e: {latitude: number; longitude: number}) => {
+    const coords = {
+      lat: e.latitude,
+      lng: e.longitude,
+    };
+    this.props.fetchReverseAddress(coords);
+  };
+
   render() {
+    const {address} = this.props;
     return (
       <>
-        <View style={styles.container}>
+        <View style={styles.map}>
           <MapView
             ref={ref => {
               this.ref = ref;
             }}
             style={{
               ...StyleSheet.absoluteFillObject,
-              height: '82%',
+              // height: '82%',
             }}
             onPress={e =>
               this.setState(
@@ -399,39 +217,28 @@ export default class Map extends Component<IProps, IState> {
             mapType="standard"
             userLocationCalloutEnabled={true}
             userInterfaceStyle="dark"
-            customMapStyle={mapStyle}
+            // customMapStyle={mapStyle}
             userLocationPriority="high"
             userLocationAnnotationTitle="My home"
             followsUserLocation={true}
             showsMyLocationButton={true}
             minZoomLevel={10}
             maxZoomLevel={20}
+            onRegionChangeComplete={(e: any) => this.onRegionChange(e)}
             initialRegion={{
               latitude: this.state.lattitude,
               longitude: this.state.longitude,
               latitudeDelta: this.state.latitudeDelta,
               longitudeDelta: this.state.longitudeDelta,
-            }}>
-            <Marker
-              ref={(marker: any) => {
-                this.marker = marker;
-              }}
-              coordinate={{
-                latitude: this.state.lattitude,
-                longitude: this.state.longitude,
-              }}
-              draggable={true}
-              onDragEnd={e => this.onDragEnd(e)}>
-              <Image
-                source={require('../../../assets/icon/location.png')}
-                style={{
-                  height: 40,
-                  width: 40,
-                }}
-                resizeMode="contain"
-              />
-            </Marker>
-          </MapView>
+            }}
+          />
+          <View style={styles.markerFixed}>
+            <AnimatedLottieView
+              style={styles.marker}
+              autoPlay={true}
+              source={require('../../../assets/lottie/lf20_9jrydeyg.json')}
+            />
+          </View>
           <View
             style={{
               flexDirection: 'row',
@@ -497,9 +304,9 @@ export default class Map extends Component<IProps, IState> {
         </View>
         <ErrorModal
           closeErrorModal={this.closeErrorModal}
-          isVisisble={this.state.showErrorModal}
+          isVisisble={address.showErrorModal}
         />
-        {this.state.loading === false ? (
+        {address.loading === false ? (
           <View
             style={{
               position: 'absolute',
@@ -539,7 +346,7 @@ export default class Map extends Component<IProps, IState> {
                         color: 'black',
                         fontSize: 16,
                       }}>
-                      {this.state.sub_district}
+                      {this.props.address.sub_district}
                     </Text>
                     <Text
                       style={{
@@ -549,7 +356,7 @@ export default class Map extends Component<IProps, IState> {
                         width: '80%',
                       }}
                       numberOfLines={1}>
-                      {this.state.address}
+                      {this.props.address.userAddressText}
                     </Text>
                   </View>
                 </View>
@@ -596,8 +403,40 @@ export default class Map extends Component<IProps, IState> {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-  },
+interface LinkStateProps {
+  address: MapsTypes;
+  isAuthenticated: boolean;
+}
+
+interface LinkDispatchProps {
+  saveLocalAddressToDb: (data: {lat: number; lng: number}) => void;
+  checkUserCanCreateOrEdit: () => void;
+  saveUserCoorsToStorage: (data: {lat: number; lng: number}) => void;
+  createUserLocation: (data: CreateUserPostData) => void;
+  updateUserLocation: (data: UpdateUserPostData) => void;
+  fetchReverseAddress: (data: {lat: number; lng: number}) => void;
+}
+
+const mapStateToProps = (state: AppState): LinkStateProps => {
+  console.log(state.address.userAddressText);
+  return {
+    address: state.address,
+    isAuthenticated: state.auth.token !== null,
+  };
+};
+
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<any, any, UserAddressActionType>,
+): LinkDispatchProps => ({
+  saveLocalAddressToDb: bindActionCreators(saveLocalAddressToDb, dispatch),
+  checkUserCanCreateOrEdit: bindActionCreators(
+    checkUserCanCreateOrEdit,
+    dispatch,
+  ),
+  saveUserCoorsToStorage: bindActionCreators(saveUserCoorsToStorage, dispatch),
+  createUserLocation: bindActionCreators(createUserLocation, dispatch),
+  updateUserLocation: bindActionCreators(updateUserLocation, dispatch),
+  fetchReverseAddress: bindActionCreators(fetchReverseAddress, dispatch),
 });
+
+export default connect(mapStateToProps, mapDispatchToProps)(Map);
