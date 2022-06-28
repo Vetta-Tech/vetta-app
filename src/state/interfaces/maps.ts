@@ -17,11 +17,13 @@ export interface MapsTypes {
   latitudeDelta: number;
   longitudeDelta: number;
   showErrorModal: boolean;
-  create_address: boolean;
+  user_have_address: boolean;
   userAddress: UserAddress;
   navigatePage: string;
   status: number;
   userAddressText: string;
+  createStatus: number;
+  updateStatus: number;
 }
 
 export interface BarikoiMapTypes {
@@ -34,7 +36,7 @@ export interface BarikoiMapTypes {
 
 export interface UserCanEditOrCreate {
   user_have_address: boolean;
-  userAddress: UserAddress;
+  user_address: UserAddress;
 }
 
 export interface AddressComponents {

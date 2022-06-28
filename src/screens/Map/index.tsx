@@ -8,8 +8,6 @@ import Geolocation from '@react-native-community/geolocation';
 import {mapStyle} from './mapStyle';
 import ErrorModal from './utils/ErrorModal';
 import {OverlaySpinner} from '../Home';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from '../../api/axios';
 import AnimatedLottieView from 'lottie-react-native';
 import {
   updateUserLocation,
@@ -18,10 +16,12 @@ import {
   saveLocalAddressToDb,
   checkUserCanCreateOrEdit,
   fetchReverseAddress,
+  fetchUserAddress,
+  resetUpdateStateStatus,
+  resetCreateStateStatus,
 } from '../../state/actionCreatores';
 import {styles} from './style';
 import {
-  AddressInterface,
   CreateUserPostData,
   UpdateUserPostData,
 } from '../../state/interfaces/address';
@@ -33,7 +33,6 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 
 const API_KEY = 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg';
-const BARIKOI_API = 'MzQ3MjpKM0JHWkI4WDc1';
 
 interface IProps {
   navigation: any;
@@ -91,13 +90,27 @@ class Map extends Component<Props, State> {
     Geocoder.init(API_KEY);
     if (this.props.isAuthenticated) {
       this.props.checkUserCanCreateOrEdit();
+      this.props.fetchUserAddress();
     }
+  }
+
+  componentDidUpdate() {
+    if (this.props.address.createStatus === 201) {
+      this.props.navigation.navigate(`${this.props.route.params.navigatePage}`);
+    }
+    if (this.props.address.updateStatus === 200) {
+      this.props.navigation.navigate(`${this.props.route.params.navigatePage}`);
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.resetCreateStateStatus();
+    this.props.resetUpdateStateStatus();
   }
 
   handleUserLocation = () => {
     Geolocation.getCurrentPosition(
       pos => {
-        console.log(pos);
         this.setState(
           {
             lattitude: pos.coords.latitude,
@@ -113,7 +126,7 @@ class Map extends Component<Props, State> {
           {
             showErrorModal: true,
           },
-          () => console.log(error),
+          () => console.log('error', error),
         );
       },
     );
@@ -122,10 +135,10 @@ class Map extends Component<Props, State> {
   animateMarker = () => {
     this.ref.animateCamera({
       center: {
-        lattitude: this.state.lattitude,
-        longtitude: this.state.longitude,
-        latitudeDelta: this.props.address.latitudeDelta,
-        longitudeDelta: this.props.address.longitudeDelta,
+        latitude: this.state.lattitude,
+        longitude: this.state.longitude,
+        latitudeDelta: this.state.latitudeDelta,
+        longitudeDelta: this.state.longitudeDelta,
       },
       zoom: 16,
       heading: 80,
@@ -138,41 +151,28 @@ class Map extends Component<Props, State> {
     this.props.fetchReverseAddress(coords);
   };
 
-  saveUserCoorsToStorage = async (lat: number, lng: number, push?: boolean) => {
-    try {
-      await AsyncStorage.setItem(
-        'USER_COORDINATES',
-        JSON.stringify({
-          lat,
-          lng,
-        }),
-      );
-
-      console.log('address saved to local storage ');
-    } catch (e) {
-      console.log('cant able to store in localStorage');
-    }
-    if (push === false) {
-    } else {
-      this.props.navigation.replace(`${this.props.route.params.navigatePage}`);
-    }
-  };
-
   confirmLocation = () => {
     if (this.props.isAuthenticated === true) {
       const data = {
         lattitude: this.state.lattitude,
         longtitude: this.state.longitude,
         address: this.props.address.userAddressText,
-        id: this.props.address.userAddress.id,
+        id: this.props.address.userAddress?.id,
       };
-      if (this.props.address.create_address) {
-        this.props.createUserLocation(data);
-      } else {
+
+      if (this.props.address.user_have_address) {
+        console.log('can create address', this.props.address.user_have_address);
         this.props.updateUserLocation(data);
+      } else {
+        this.props.createUserLocation(data);
+        console.log('can update address', this.props.address.user_have_address);
       }
     } else {
-      this.saveUserCoorsToStorage(this.state.lattitude, this.state.longitude);
+      const data = {
+        lat: this.state.lattitude,
+        lng: this.state.longitude,
+      };
+      this.props.saveUserCoorsToStorage(data);
     }
   };
 
@@ -183,15 +183,24 @@ class Map extends Component<Props, State> {
   };
 
   onRegionChange = (e: {latitude: number; longitude: number}) => {
-    const coords = {
-      lat: e.latitude,
-      lng: e.longitude,
-    };
-    this.props.fetchReverseAddress(coords);
+    this.setState(
+      {
+        lattitude: e.latitude,
+        longitude: e.longitude,
+      },
+      () => {
+        const coords = {
+          lat: e.latitude,
+          lng: e.longitude,
+        };
+        this.props.fetchReverseAddress(coords);
+      },
+    );
   };
 
   render() {
     const {address} = this.props;
+    console.log('address...', address);
     return (
       <>
         <View style={styles.map}>
@@ -217,14 +226,13 @@ class Map extends Component<Props, State> {
             mapType="standard"
             userLocationCalloutEnabled={true}
             userInterfaceStyle="dark"
-            // customMapStyle={mapStyle}
             userLocationPriority="high"
             userLocationAnnotationTitle="My home"
             followsUserLocation={true}
             showsMyLocationButton={true}
             minZoomLevel={10}
             maxZoomLevel={20}
-            onRegionChangeComplete={(e: any) => this.onRegionChange(e)}
+            onRegionChangeComplete={e => this.onRegionChange(e)}
             initialRegion={{
               latitude: this.state.lattitude,
               longitude: this.state.longitude,
@@ -379,7 +387,9 @@ class Map extends Component<Props, State> {
                         fontFamily: 'Montserrat-SemiBold',
                         fontSize: 16,
                       }}>
-                      Confirm Location
+                      {address.user_have_address
+                        ? 'Update Location'
+                        : 'Confirm Location'}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -415,10 +425,12 @@ interface LinkDispatchProps {
   createUserLocation: (data: CreateUserPostData) => void;
   updateUserLocation: (data: UpdateUserPostData) => void;
   fetchReverseAddress: (data: {lat: number; lng: number}) => void;
+  fetchUserAddress: () => void;
+  resetUpdateStateStatus: () => void;
+  resetCreateStateStatus: () => void;
 }
 
 const mapStateToProps = (state: AppState): LinkStateProps => {
-  console.log(state.address.userAddressText);
   return {
     address: state.address,
     isAuthenticated: state.auth.token !== null,
@@ -437,6 +449,9 @@ const mapDispatchToProps = (
   createUserLocation: bindActionCreators(createUserLocation, dispatch),
   updateUserLocation: bindActionCreators(updateUserLocation, dispatch),
   fetchReverseAddress: bindActionCreators(fetchReverseAddress, dispatch),
+  fetchUserAddress: bindActionCreators(fetchUserAddress, dispatch),
+  resetUpdateStateStatus: bindActionCreators(resetUpdateStateStatus, dispatch),
+  resetCreateStateStatus: bindActionCreators(resetCreateStateStatus, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Map);

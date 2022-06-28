@@ -15,9 +15,14 @@ import {connect} from 'react-redux';
 import {AppState} from '../../state/store';
 
 class AuthSelect extends Component<any, any> {
-  state = {
-    showModal: false,
-  };
+  private bottomSheet: any;
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      showModal: false,
+    };
+  }
 
   componentDidUpdate() {
     if (this.props.isAuthenticated) {
@@ -26,9 +31,7 @@ class AuthSelect extends Component<any, any> {
   }
 
   componentWillUnmount() {
-    this.setState({
-      showModal: false,
-    });
+    this.bottomSheet.close();
   }
 
   handleShowModal = () => {
@@ -72,8 +75,7 @@ class AuthSelect extends Component<any, any> {
                 </Text>
               </View>
               <View>
-                <TouchableOpacity
-                  onPress={() => this.setState({showModal: true})}>
+                <TouchableOpacity onPress={() => this.bottomSheet.open()}>
                   <View style={[styles.btn, {backgroundColor: 'black'}]}>
                     <Text style={styles.btnText}>Get started</Text>
                   </View>
@@ -111,7 +113,7 @@ class AuthSelect extends Component<any, any> {
           <AuthSelectModal
             navigation={this.props.navigation}
             isVisible={this.state.showModal}
-            handleShowModal={this.handleShowModal}
+            myRef={(ref: any) => (this.bottomSheet = ref)}
           />
         </ImageBackground>
       </View>

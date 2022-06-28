@@ -5,7 +5,7 @@ import {AddressActionTypes} from '../actionTypes/address';
 import {UserAddressActionType} from '../actions/address';
 import {AppState} from '../store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BarikoiMapTypes, RootObject} from '../interfaces/maps';
+import {RootObject} from '../interfaces/maps';
 import {
   CreateUserPostData,
   SaveCoordToLocalPostType,
@@ -29,6 +29,7 @@ export const fetchUserAddress =
       dispatch({
         type: AddressActionTypes.FETCH_USER_ADDRESS_SUCCESS,
         payload: response.data.user_address.address,
+        user_have_address: response.data.user_have_address,
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -54,8 +55,8 @@ export const fetchReverseAddress =
       const response = await axios.get(
         `https://barikoi.xyz/v1/api/search/reverse/${BARIKOI_API}/geocode?longitude=${coords.lng}&latitude=${coords.lat}&district=true&post_code=true&country=true&sub_district=true&union=true&pauroshova=true&location_type=true&division=true&address=true&area=true`,
       );
+
       const data: RootObject = response.data;
-      console.log(data.place);
       dispatch({
         type: AddressActionTypes.FETCH_REVERSE_ADDRESS_SUCCESS,
         payload: data.place.address,
@@ -108,7 +109,6 @@ export const checkUserCanCreateOrEdit =
 
     try {
       const response = await axios.get(`address/user-address`);
-
       dispatch({
         type: AddressActionTypes.CHECK_USER_EDIT_OR_CREATE_SUCCESS,
         payload: response.data,
@@ -136,12 +136,12 @@ export const saveUserCoorsToStorage =
       );
       dispatch({
         type: AddressActionTypes.SAVE_COORD_TO_LOCAL_STORE,
+        status: 201,
       });
     } catch (error) {
-      console.log('coord cant able to store in Local Storage');
       if (error instanceof Error) {
         dispatch({
-          type: AddressActionTypes.SAVE_COORD_TO_LOCAL_STORE,
+          type: AddressActionTypes.SAVE_COORD_TO_LOCAL_FAILD,
           error: error.message,
         });
       }
@@ -157,9 +157,15 @@ export const createUserLocation =
 
     try {
       const response = await axios.post('address/create-address', data);
+      const coords = {
+        lat: data.lattitude,
+        lng: data.longtitude,
+      };
+      saveUserCoorsToStorage(coords);
       dispatch({
         type: AddressActionTypes.CREATE_USER_ADDRESS_SUCCESS,
         payload: response.data,
+        status: response.status,
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -181,9 +187,15 @@ export const updateUserLocation =
     try {
       const response = await axios.put(`address/edit/${data.id}`, data);
 
+      const coords = {
+        lat: data.lattitude,
+        lng: data.longtitude,
+      };
+      saveUserCoorsToStorage(coords);
       dispatch({
         type: AddressActionTypes.UPDATE_USER_ADDRESS_SUCCESS,
         payload: response.data,
+        status: response.status,
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -194,3 +206,15 @@ export const updateUserLocation =
       }
     }
   };
+
+export const resetUpdateStateStatus = () => (dispatch: Dispatch) => {
+  dispatch({
+    type: AddressActionTypes.RESET_UPDATE_STATE_STATUS,
+  });
+};
+
+export const resetCreateStateStatus = () => (dispatch: Dispatch) => {
+  dispatch({
+    type: AddressActionTypes.RESET_CREATE_STATE_STATUS,
+  });
+};

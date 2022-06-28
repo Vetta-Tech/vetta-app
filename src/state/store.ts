@@ -16,7 +16,6 @@ const reducers = combineReducers({
   categories: Category,
   supplier: Supplier,
   address: Address,
-  map: Map,
 });
 
 export type AppState = ReturnType<typeof reducers>;

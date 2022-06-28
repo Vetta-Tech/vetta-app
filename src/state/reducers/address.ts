@@ -14,7 +14,7 @@ const initialState: MapsTypes = {
   address: '',
   sub_district: '',
   showErrorModal: false,
-  create_address: false,
+  user_have_address: false,
   userAddress: {
     id: 0,
     lattitude: 0,
@@ -26,6 +26,8 @@ const initialState: MapsTypes = {
   userAddressText: '',
   navigatePage: '',
   status: 0,
+  createStatus: 0,
+  updateStatus: 0,
 };
 
 const reducer = (
@@ -43,6 +45,7 @@ const reducer = (
         ...state,
         loading: false,
         userAddressText: action.payload,
+        user_have_address: action.user_have_address,
       };
     case AddressActionTypes.FETCH_USER_ADDRESS_FAILD:
       return {
@@ -92,7 +95,8 @@ const reducer = (
       return {
         ...state,
         loading: false,
-        create_address: action.payload.user_have_address,
+        user_have_address: action.payload.user_have_address,
+        userAddress: action.payload.user_address,
       };
     case AddressActionTypes.CHECK_USER_EDIT_OR_CREATE_FAILD:
       return {
@@ -104,6 +108,7 @@ const reducer = (
     case AddressActionTypes.SAVE_COORD_TO_LOCAL_STORE:
       return {
         ...state,
+        createStatus: action.status,
       };
 
     case AddressActionTypes.SAVE_COORD_TO_LOCAL_FAILD:
@@ -121,8 +126,8 @@ const reducer = (
       return {
         ...state,
         loading: false,
-        userAddress: action.payload.address,
-        status: action.payload.status,
+        userAddress: action.payload,
+        createStatus: action.status,
       };
     case AddressActionTypes.CREATE_USER_ADDRESS_FAILD:
       return {
@@ -137,11 +142,12 @@ const reducer = (
         loading: true,
       };
     case AddressActionTypes.UPDATE_USER_ADDRESS_SUCCESS:
+      console.log(action);
       return {
         ...state,
         loading: false,
-        userAddress: action.payload.address,
-        status: action.payload.status,
+        userAddress: action.payload,
+        updateStatus: action.status,
       };
     case AddressActionTypes.UPDATE_USER_ADDRESS_FAILD:
       return {
@@ -150,6 +156,17 @@ const reducer = (
         error: action.payload,
       };
 
+    case AddressActionTypes.RESET_CREATE_STATE_STATUS:
+      return {
+        ...state,
+        createStatus: 0,
+      };
+
+    case AddressActionTypes.RESET_UPDATE_STATE_STATUS:
+      return {
+        ...state,
+        updateStatus: 0,
+      };
     default:
       return state;
   }

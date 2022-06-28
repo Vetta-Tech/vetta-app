@@ -20,7 +20,12 @@ export interface UpdateUserPostData {
 }
 
 export interface CreateUserPostDataResponse {
-  address: UserAddress;
+  id: number;
+  lattitude: number;
+  longtitude: number;
+  address: string;
+  special_instruction: string;
+  address_coices: string;
   status: number;
 }
 

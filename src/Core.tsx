@@ -49,7 +49,7 @@ class Core extends Component<CoreProps, any> {
     return (
       <NavigationContainer linking={linking}>
         <Stack.Navigator
-          initialRouteName={'SplashScreen'}
+          initialRouteName={'AuthSelect'}
           screenOptions={{
             headerShown: false,
           }}>

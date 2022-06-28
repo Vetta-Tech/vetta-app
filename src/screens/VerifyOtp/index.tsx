@@ -28,7 +28,7 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
 
   componentDidUpdate() {
     if (this.props.validateStatus === 200) {
-      this.props.navigation.replace('Home');
+      this.props.navigation.navigate('Home');
     }
   }
 

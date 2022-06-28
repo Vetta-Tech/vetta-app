@@ -43,8 +43,7 @@ import {AppActionType} from '../../state/actions/intex';
 import {styles} from './styles';
 import {HomeProductsType} from '../../state/interfaces/products';
 import {BrandsTypes} from '../../utils/types/brandsType';
-import {AddressInterface} from '../../state/interfaces/address';
-import {authCheckState} from '../../state/actionCreatores/auth';
+
 import {MapsTypes} from '../../state/interfaces/maps';
 
 interface HomePageProps {
@@ -83,42 +82,30 @@ class Home extends Component<Props, IState> {
       showErrorModal: false,
     };
   }
+
   async componentDidMount() {
-    Geocoder.init(API_KEY);
     this.props.fetchHomeProducts();
     this.props.fetchBrands();
-    this.saveLocalAddressToDb();
-    this.fetchUserAddress();
-    this.props.navigation.addListener('focus', () => {
-      this.fetchUserAddress();
-    });
-    this.bottomSheetRef.close();
-  }
+    Geocoder.init(API_KEY);
 
-  fetchUserAddress = async () => {
-    if (this.props.isAuthenticated) {
-      console.log('asdasfdasf');
-      this.props.fetchUserAddress();
+    this.props.fetchUserAddress();
+    if (this.props.address.user_have_address) {
     } else {
       const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
       const coords = JSON.parse(userCoord);
       this.props.fetchReverseAddress(coords);
     }
-  };
 
-  saveLocalAddressToDb = async () => {
     const userCoord: any = await AsyncStorage.getItem('USER_COORDINATES');
     const coords = JSON.parse(userCoord);
+
     if (coords !== null || undefined || '') {
-      const data = {
-        lat: coords.lat,
-        lng: coords.lng,
-      };
-      this.props.saveLocalAddressToDb(data);
-    } else {
-      this.props.fetchUserAddress();
+      this.props.saveLocalAddressToDb(coords);
     }
-  };
+    this.props.navigation.addListener('blur', () => {
+      this.bottomSheetRef?.close();
+    });
+  }
 
   showAddressInfo = () => {
     this.bottomSheetRef.open();
@@ -127,17 +114,11 @@ class Home extends Component<Props, IState> {
   handleUserLocation = () => {
     Geolocation.getCurrentPosition(
       pos => {
-        this.props.navigation.navigate(
-          'Map',
-          {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            navigatePage: 'Home',
-          },
-          () => {
-            this.bottomSheetRef.close();
-          },
-        );
+        this.props.navigation.navigate('Map', {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          navigatePage: 'Home',
+        });
       },
       error => {
         console.log(error);
@@ -146,7 +127,6 @@ class Home extends Component<Props, IState> {
   };
 
   render() {
-    console.log('isAuthenticated11', this.props.isAuthenticated);
     return (
       <>
         <Modal

@@ -9,6 +9,7 @@ interface FectUserAddressStart {
 interface FectUserAddressSuccess {
   type: AddressActionTypes.FETCH_USER_ADDRESS_SUCCESS;
   payload: string;
+  user_have_address: boolean;
 }
 
 interface FectUserAddressFaild {
@@ -64,6 +65,7 @@ interface CreateUserAddressStart {
 interface CreateUserAddressSuccess {
   type: AddressActionTypes.CREATE_USER_ADDRESS_SUCCESS;
   payload: CreateUserPostDataResponse;
+  status: number;
 }
 
 interface CreateUserAddressFaild {
@@ -73,6 +75,7 @@ interface CreateUserAddressFaild {
 
 interface SaveCoordToLocalStorageSuccess {
   type: AddressActionTypes.SAVE_COORD_TO_LOCAL_STORE;
+  status: number;
 }
 
 interface SaveCoordToLocalStorageFaild {
@@ -87,11 +90,20 @@ interface UpdateUserAddressStart {
 interface UpdateUserAddressSuccess {
   type: AddressActionTypes.UPDATE_USER_ADDRESS_SUCCESS;
   payload: CreateUserPostDataResponse;
+  status: number;
 }
 
 interface UpdateUserAddressFaild {
   type: AddressActionTypes.UPDATE_USER_ADDRESS_FAILD;
   payload: string;
+}
+
+interface UpdateResetStatus {
+  type: AddressActionTypes.RESET_UPDATE_STATE_STATUS;
+}
+
+interface CreateResetStatus {
+  type: AddressActionTypes.RESET_CREATE_STATE_STATUS;
 }
 
 export type UserAddressActionType =
@@ -114,4 +126,6 @@ export type UserAddressActionType =
   | SaveCoordToLocalStorageFaild
   | UpdateUserAddressStart
   | UpdateUserAddressSuccess
-  | UpdateUserAddressFaild;
+  | UpdateUserAddressFaild
+  | UpdateResetStatus
+  | CreateResetStatus;

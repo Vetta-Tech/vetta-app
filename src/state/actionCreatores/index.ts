@@ -16,6 +16,8 @@ import {
   saveUserCoorsToStorage,
   createUserLocation,
   updateUserLocation,
+  resetUpdateStateStatus,
+  resetCreateStateStatus,
 } from '../actionCreatores/address';
 
 export {
@@ -31,4 +33,6 @@ export {
   saveUserCoorsToStorage,
   createUserLocation,
   updateUserLocation,
+  resetUpdateStateStatus,
+  resetCreateStateStatus,
 };

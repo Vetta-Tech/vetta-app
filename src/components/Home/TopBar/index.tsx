@@ -22,14 +22,14 @@ const TopBar = ({navigation, name, address, onClick}: ProppType) => {
           <View style={styles.location}>
             <Text
               style={{
-                fontFamily: 'Montserrat-Light',
-                color: 'black',
+                fontFamily: 'Montserrat-SemiBold',
                 maxWidth: '80%',
+                fontSize: 12,
               }}
               numberOfLines={1}>
               {address}
             </Text>
-            <Icon style={{width: '10%'}} name="arrow-down-outline" size={15} />
+            <Icon style={{width: '10%'}} name="arrow-down-outline" size={12} />
           </View>
         </TouchableOpacity>
       </View>
