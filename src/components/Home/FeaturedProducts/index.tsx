@@ -23,6 +23,7 @@ class FeaturedPRoducts extends Component<FeaturedProductsProps, any> {
           supplier_name={this.props.supplier_name}
           screen_name={this.props.screen_name}
           isFeatured={this.props.isFeatured}
+          isPopular={false}
         />
         <View>
           <FlatList

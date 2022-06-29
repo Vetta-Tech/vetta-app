@@ -15,6 +15,7 @@ import GestureRecognizer from 'react-native-swipe-gestures';
 import axios from 'axios';
 import {API_URL} from '@env';
 import _ from 'lodash';
+import {SharedElement} from 'react-navigation-shared-element';
 
 interface BrandDeatilsProps {
   brand: SupplierTypes;
@@ -238,7 +239,7 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
     };
 
     const {brandData} = this.state;
-
+    console.log('idddddddddddddddd', this.props.route);
     return (
       <View
         style={{
@@ -249,6 +250,79 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
           padding: 5,
           flex: 1,
         }}>
+        <View style={{position: 'relative'}}>
+          <Image
+            source={{
+              uri: `${brandData.cover_image}`,
+            }}
+            style={{
+              width: '100%',
+              height: 160,
+              borderRadius: 12,
+            }}
+            resizeMode="cover"
+          />
+          <View
+            style={{
+              position: 'absolute',
+              padding: 5,
+              left: 0,
+              right: 0,
+            }}>
+            <TopNavBrands />
+          </View>
+
+          <View
+            style={{
+              position: 'absolute',
+              padding: 10,
+              top: 100,
+              width: '100%',
+              flex: 1,
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                backgroundColor: '#f2f2f2',
+                borderRadius: 60,
+                padding: 10,
+                width: '30%',
+              }}>
+              <SharedElement id={`item.${brandData.slug}.photo`}>
+                <Image
+                  source={{
+                    uri: `${brandData.logo}`,
+                  }}
+                  resizeMode="contain"
+                  style={{
+                    height: 80,
+                    width: 80,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: 15,
+                  }}
+                />
+              </SharedElement>
+            </View>
+          </View>
+        </View>
+        <View
+          style={{
+            marginTop: 50,
+          }}>
+          <Text
+            style={{
+              fontFamily: 'Montserrat-Light',
+              color: 'black',
+              padding: 10,
+            }}>
+            Lorem ipsum dolor sit amet consectetur adipicing elit. Recusandae
+            corrupti, laborum perferendis facilis odio aliquam minima non
+            molestiae? Voluptas consequatur non libero qui! Laborum voluptatem
+          </Text>
+        </View>
         <GestureRecognizer
           onSwipeLeft={state => this.onSwipeLeft()}
           onSwipeRight={state => this.onSwipeRight()}
@@ -265,79 +339,6 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
             ListHeaderComponent={() => {
               return (
                 <>
-                  <View style={{position: 'relative'}}>
-                    <Image
-                      source={{
-                        uri: `${brandData.cover_image}`,
-                      }}
-                      style={{
-                        width: '100%',
-                        height: 160,
-                        borderRadius: 12,
-                      }}
-                      resizeMode="cover"
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        padding: 5,
-                        left: 0,
-                        right: 0,
-                      }}>
-                      <TopNavBrands />
-                    </View>
-
-                    <View
-                      style={{
-                        position: 'absolute',
-                        padding: 10,
-                        top: 100,
-                        width: '100%',
-                        flex: 1,
-                        justifyContent: 'space-between',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                      }}>
-                      <View
-                        style={{
-                          backgroundColor: '#f2f2f2',
-                          borderRadius: 60,
-                          padding: 10,
-                          width: '30%',
-                        }}>
-                        <Image
-                          source={{
-                            uri: `${brandData.logo}`,
-                          }}
-                          resizeMode="contain"
-                          style={{
-                            height: 80,
-                            width: 80,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            padding: 15,
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginTop: 50,
-                    }}>
-                    <Text
-                      style={{
-                        fontFamily: 'Montserrat-Light',
-                        color: 'black',
-                        padding: 10,
-                      }}>
-                      Lorem ipsum dolor sit amet consectetur adipicing elit.
-                      Recusandae corrupti, laborum perferendis facilis odio
-                      aliquam minima non molestiae? Voluptas consequatur non
-                      libero qui! Laborum voluptatem
-                    </Text>
-                  </View>
-
                   <View>
                     <FlatList
                       data={this.state.data}

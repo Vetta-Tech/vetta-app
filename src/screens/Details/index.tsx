@@ -19,6 +19,7 @@ import Icon from 'react-native-vector-icons/EvilIcons';
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Toast from 'react-native-toast-message';
+import {SharedElement} from 'react-navigation-shared-element';
 
 import {
   Description,
@@ -39,7 +40,6 @@ import {
 } from '../../utils/types/productTypes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {toastConfig} from '../../components/CsutomToast';
-import {CartData} from '../Cart';
 
 interface DetailsProps {
   navigation: any;
@@ -47,6 +47,7 @@ interface DetailsProps {
     params: {
       slug: string;
       brand: string;
+      img_url: string;
     };
   };
   fetchProductDetails: any;
@@ -66,7 +67,7 @@ interface DetailsState {
   activeVariant: number;
   product_name_variant: string;
   images: [];
-  productDetails: ProductsInterface[];
+  productDetails: any;
   variants: VariantSerializer[];
   price: number;
   loading: boolean;
@@ -150,7 +151,7 @@ class Details extends Component<DetailsProps, DetailsState> {
           () => {
             if (this.state.variants.length > 0) {
               for (let i = 0; i < this.state.variants.length; i++) {
-                if (this.state.variants[i].quantity > 0) {
+                if (this.state.variants[i].quantity! > 0) {
                   this.setState(
                     {
                       product_name_variant: `${this.state.variants[i].title}`,
@@ -427,8 +428,7 @@ class Details extends Component<DetailsProps, DetailsState> {
 
   render() {
     const {productDetails, variants, cartData} = this.state;
-    console.log('idddddddddddd', this.state.cartData);
-    // console.log('cart data', Object.values(cartData.quantity));
+
     return (
       <View style={styles.container}>
         {this.state.addToCartSuccess &&
@@ -491,7 +491,7 @@ class Details extends Component<DetailsProps, DetailsState> {
                       <Text style={styles.variantSelectText}>
                         {item.item.title}
                       </Text>
-                      {item.item.quantity > 0 ? (
+                      {item.item.quantity! > 0 ? (
                         <Text
                           style={{
                             fontFamily: 'Montserrat-SemiBold',
@@ -528,17 +528,20 @@ class Details extends Component<DetailsProps, DetailsState> {
               style={{
                 position: 'relative',
               }}>
-              <Carousel
-                data={this.state.images}
-                renderItem={this._renderItem}
-                sliderWidth={windowWidth / 1.1}
-                itemWidth={windowWidth / 1.2}
-                layout={'default'}
-                onSnapToItem={(index: number) =>
-                  this.setState({activeSlide: index})
-                }
-              />
-              {this.pagination}
+              <SharedElement id={`item.${productDetails.slug}.photo`}>
+                <View>
+                  <Image
+                    source={{
+                      uri: `${API_URL_IMAGE}${this.props.route.params.img_url}`,
+                    }}
+                    style={{
+                      height: 400,
+                      width: '100%',
+                    }}
+                    resizeMode="contain"
+                  />
+                </View>
+              </SharedElement>
             </View>
 
             <View>
@@ -697,7 +700,7 @@ class Details extends Component<DetailsProps, DetailsState> {
         </ScrollView>
         <Toast config={toastConfig} ref={(ref: any) => Toast.setRef(ref)} />
 
-        {this.state.loading && <OverlaySpinner />}
+        {/* {this.state.loading && <OverlaySpinner />} */}
       </View>
     );
   }

@@ -233,7 +233,7 @@ class Home extends Component<Props, IState> {
             navigation={this.props.navigation}
           />
           <Brands
-            brands={this.props.brands}
+            brands={this.props.brands.brands}
             navigation={this.props.navigation}
           />
 

@@ -64,7 +64,7 @@ const reducers = (
     case ActionType.FETCH_PRODUCTS_BRANDS_START:
       return {
         ...state,
-        loading: true,
+        // loading: true,
       };
     case ActionType.FETCH_PRODUCTS_BRANDS_SUCCESS:
       return {
@@ -73,6 +73,8 @@ const reducers = (
         brandProducts: action.payload,
       };
     case ActionType.FETCH_PRODUCTS_BRANDS_FAILD:
+      console.log('brandProductsError', action.payload);
+
       return {
         ...state,
         loading: false,

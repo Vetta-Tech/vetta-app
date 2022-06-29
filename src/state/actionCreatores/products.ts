@@ -60,15 +60,21 @@ const fetchProductByBrand =
       type: ActionType.FETCH_PRODUCTS_BRANDS_START,
     });
 
-    const response = await axios.get('products/brands');
-
     try {
+      const response = await axios.get('products/brands', {
+        params: {
+          brand_name: 'Apple',
+        },
+      });
+      console.log('resposeeeeeee.................................', response);
       dispatch({
         type: ActionType.FETCH_PRODUCTS_BRANDS_SUCCESS,
         payload: response.data.products,
       });
     } catch (err) {
       if (err instanceof Error) {
+        console.log('resposeeeeeee.................................', err);
+
         dispatch({
           type: ActionType.FETCH_PRODUCTS_BRANDS_FAILD,
           payload: err.message,

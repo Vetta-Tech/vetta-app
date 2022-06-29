@@ -18,12 +18,15 @@ export interface SubCateryInterface {
 }
 
 export interface ImageInterface {
-  product: ProductsInterface;
+  product: {
+    slug: string;
+  };
   image: string;
   alt_text: string;
 }
 
 export interface VariantSerializer {
+  id: number;
   title: string;
   size: {
     name: string;
@@ -40,7 +43,7 @@ export interface Product {
   slug: string;
   category: CategoryInterface;
   sub_category: SubCateryInterface;
-  short_description: SubCateryInterface;
+  short_description: string;
   description: string;
   keywords: [];
   thumbnail: string;
@@ -51,8 +54,8 @@ export interface Product {
 
 export interface ProductsInterface {
   products: Product;
-  variants: VariantSerializer;
-  images: ImageInterface;
+  variants: VariantSerializer[];
+  images: ImageInterface[];
 }
 
 export interface HomeProductsType {
@@ -67,4 +70,13 @@ export interface HomeProductsType {
   loading: boolean;
   error: string;
   brandProducts: ProductsInterface[];
+}
+
+export interface ProductDetailsInterface {
+  products: Product;
+  variants: VariantSerializer[];
+  images: ImageInterface[];
+  loading: boolean;
+  error: string;
+  canAddToCart: boolean;
 }

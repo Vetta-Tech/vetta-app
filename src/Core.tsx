@@ -4,6 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import {authCheckState} from './state/actionCreatores/auth';
+import {createSharedElementStackNavigator} from 'react-navigation-shared-element';
 
 import BottomTab from './naviagtions/tabs';
 import {
@@ -29,8 +30,10 @@ import VerifyOtp from './screens/VerifyOtp';
 import {RootState} from './state/store';
 import {API_URL_IMAGE} from '@env';
 import linking from './linking';
+import Test2 from './screens/Test/Test2';
+import Test1 from './screens/Test/Test1';
 
-const Stack = createStackNavigator();
+const Stack = createSharedElementStackNavigator();
 
 interface CoreProps {
   onTryAutoSignUp: any;
@@ -40,16 +43,13 @@ interface CoreProps {
 class Core extends Component<CoreProps, any> {
   componentDidMount() {
     this.props.onTryAutoSignUp();
-    console.log(API_URL_IMAGE);
   }
 
   render() {
-    console.log('token is core', this.props.token);
-
     return (
       <NavigationContainer linking={linking}>
         <Stack.Navigator
-          initialRouteName={'AuthSelect'}
+          initialRouteName={'Home'}
           screenOptions={{
             headerShown: false,
           }}>
@@ -59,9 +59,19 @@ class Core extends Component<CoreProps, any> {
 
           <Stack.Screen name="FeaturedProducts" component={FeaturedProducts} />
           <Stack.Screen name="PopularProducts" component={PopularProducts} />
-          <Stack.Screen name="BrandDeatils" component={BrandDeatils} />
+          <Stack.Screen
+            name="BrandDeatils"
+            component={BrandDeatils}
+            sharedElements={(route, otherRoute, showing) => {
+              const item = route.params;
+              return [`item.${item.slug}.photo`];
+            }}
+          />
+
+          <Stack.Screen name="Test1" component={Test1} />
 
           <Stack.Screen name="Category" component={Category} />
+
           <Stack.Screen name="Checkout" component={Checkout} />
           <Stack.Screen name="Cart" component={Cart} />
           <Stack.Screen name="Payment" component={PaymentDone} />
@@ -70,7 +80,25 @@ class Core extends Component<CoreProps, any> {
             name="ProductListBrands"
             component={ProductListBrands}
           />
-          <Stack.Screen name="Details" component={Details} />
+          <Stack.Screen
+            name="Details"
+            component={Details}
+            options={() => ({
+              gestureEnabled: false,
+
+              cardStyleInterpolator: ({current: {progress}}) => {
+                return {
+                  cardStyle: {
+                    opacity: progress,
+                  },
+                };
+              },
+            })}
+            sharedElements={(route, otherRoute, showing) => {
+              const item = route.params;
+              return [`item.${item.slug}.photo`];
+            }}
+          />
           <Stack.Screen name="Home" component={BottomTab} />
           <Stack.Screen name="AuthSelect" component={AuthSelect} />
           <Stack.Screen name="Map" component={Map} />

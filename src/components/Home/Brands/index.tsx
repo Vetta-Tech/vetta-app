@@ -11,6 +11,7 @@ import React from 'react';
 import {BrandsTypes} from '../../../utils/types/brandsType';
 import {API_URL_IMAGE} from '@env';
 import SectionHeadBrands from '../../Typography/SectionHeadBrands';
+import {SharedElement} from 'react-navigation-shared-element';
 
 interface BrandsProps {
   brands: BrandsTypes[];
@@ -21,6 +22,8 @@ interface BrandsProps {
 interface Item {
   item: {
     logo: string;
+    name: string;
+    slug: string;
   };
 }
 
@@ -36,14 +39,16 @@ const Brands = ({brands, navigation}: BrandsProps) => {
                 slug: item.slug,
               });
             }}>
-            <Image
-              source={{uri: `${item.logo}`}}
-              style={{
-                width: 120,
-                height: 120,
-              }}
-              resizeMode="contain"
-            />
+            <SharedElement id={`item.${item.slug}.photo`}>
+              <Image
+                source={{uri: `${item.logo}`}}
+                style={{
+                  width: 120,
+                  height: 120,
+                }}
+                resizeMode="contain"
+              />
+            </SharedElement>
           </TouchableOpacity>
         </View>
       </View>
@@ -68,5 +73,3 @@ const Brands = ({brands, navigation}: BrandsProps) => {
 };
 
 export default Brands;
-
-const styles = StyleSheet.create({});

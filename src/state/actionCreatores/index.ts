@@ -19,6 +19,7 @@ import {
   resetUpdateStateStatus,
   resetCreateStateStatus,
 } from '../actionCreatores/address';
+import {productDetailsFetch, checkCanAddToCart} from './productDetails';
 
 export {
   fetchHomeProducts,
@@ -35,4 +36,6 @@ export {
   updateUserLocation,
   resetUpdateStateStatus,
   resetCreateStateStatus,
+  productDetailsFetch,
+  checkCanAddToCart,
 };

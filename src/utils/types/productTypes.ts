@@ -24,6 +24,7 @@ export interface ImageInterface {
 }
 
 export interface VariantSerializer {
+  id: number;
   title: string;
   size: {
     name: string;

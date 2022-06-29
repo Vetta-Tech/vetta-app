@@ -1,6 +1,7 @@
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 import React, {Component} from 'react';
 import {API_URL_IMAGE} from '@env';
+import {SharedElement} from 'react-navigation-shared-element';
 
 interface ProductHorozontalCardProps {
   supplier_name: string;
@@ -20,22 +21,25 @@ export class ProductHorozontalCard extends Component<
     return (
       <TouchableOpacity
         onPress={() =>
-          this.props.navigation.push('Details', {
+          this.props.navigation.navigate('Details', {
             slug: slug,
             brand: supplier_name,
+            img_url: img_url,
           })
         }>
         <View style={{paddingRight: 15, paddingTop: 10}}>
           <View style={{backgroundColor: '#f2f2f2', borderRadius: 20}}>
-            <Image
-              source={{uri: `${API_URL_IMAGE}${img_url}`}}
-              style={{
-                width: 150,
-                height: 150,
-                resizeMode: 'cover',
-                borderRadius: 15,
-              }}
-            />
+            <SharedElement id={`item.${slug}.photo`}>
+              <Image
+                source={{uri: `${API_URL_IMAGE}${img_url}`}}
+                style={{
+                  width: 150,
+                  height: 150,
+                  resizeMode: 'cover',
+                  borderRadius: 15,
+                }}
+              />
+            </SharedElement>
           </View>
           <View style={{width: 120, padding: 5}}>
             <Text
