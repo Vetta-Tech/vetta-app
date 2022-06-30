@@ -11,10 +11,21 @@ const Initial_State: MapsTypes = {
   sub_district: '',
   loading: true,
   showErrorModal: false,
-  create_address: false,
-  userAddress: [],
+  userAddress: {
+    id: 0,
+    lattitude: 0,
+    longtitude: 0,
+    address: '',
+    special_instruction: '',
+    address_coices: '',
+  },
   navigatePage: '',
   error: '',
+  user_have_address: false,
+  status: 0,
+  userAddressText: '',
+  createStatus: 0,
+  updateStatus: 0,
 };
 
 const reducer = (

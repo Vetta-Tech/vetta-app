@@ -8,6 +8,7 @@ type Props = {
   screen_name: string;
   isFeatured?: boolean;
   isPopular: boolean;
+  supplier_slug?: string;
 };
 
 const SectionHeadDetails = ({
@@ -17,8 +18,9 @@ const SectionHeadDetails = ({
   screen_name,
   isFeatured,
   isPopular,
+  supplier_slug,
 }: Props) => {
-  console.log(isFeatured);
+  console.log('supplier_slugsupplier_slug', supplier_slug);
   return (
     <View style={styles.heading_container}>
       <Text
@@ -35,6 +37,7 @@ const SectionHeadDetails = ({
             supplier_name: supplier_name,
             isFeatured: isFeatured,
             isPopular: isPopular,
+            slug: supplier_slug,
           })
         }>
         <Text

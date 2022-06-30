@@ -320,7 +320,7 @@ class Checkout extends Component<any, IState> {
         payment_method: 'card',
       });
     }
-    if (state.url === 'http://192.168.1.110:8000/api/v1/orders/test') {
+    if (state.url === 'http://192.168.0.204:8000/api/v1/orders/test') {
       this.setState({
         moadlShow: false,
       });

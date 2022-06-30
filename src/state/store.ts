@@ -5,6 +5,7 @@ import Auth from './reducers/auth';
 import Product from './reducers/products';
 import Category from './reducers/category';
 import Supplier from './reducers/supplier';
+import Cart from './reducers/cart';
 import ProductDetails from './reducers/productDetails';
 import Address from './reducers/address';
 import {configureStore} from '@reduxjs/toolkit';
@@ -17,6 +18,7 @@ const reducers = combineReducers({
   supplier: Supplier,
   address: Address,
   productDetails: ProductDetails,
+  cart: Cart,
 });
 
 export type AppState = ReturnType<typeof reducers>;

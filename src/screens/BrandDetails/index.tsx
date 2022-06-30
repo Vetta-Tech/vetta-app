@@ -24,6 +24,7 @@ interface BrandDeatilsProps {
     params: {
       supplier: string;
       slug: string;
+      supplier_slug: string;
     };
   };
   navigation: any;
@@ -54,13 +55,14 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
   }
 
   fetchBrandsDetails = () => {
-    const {supplier, slug} = this.props.route.params;
+    const {slug} = this.props.route.params;
+    console.log('suppliersupplier', slug);
     if (!slug) {
       this.props.navigation.navigate('Home');
     } else {
       this.setState(
         {
-          supplier,
+          supplier: slug,
           activeCat: 'All Products',
           offset: 0,
           limit: 10,
@@ -239,7 +241,6 @@ class BrandDeatils extends Component<BrandDeatilsProps> {
     };
 
     const {brandData} = this.state;
-    console.log('idddddddddddddddd', this.props.route);
     return (
       <View
         style={{

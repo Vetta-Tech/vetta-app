@@ -1,8 +1,7 @@
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 import React, {Component} from 'react';
 import {API_URL_IMAGE} from '@env';
-import {SharedElement} from 'react-navigation-shared-element';
-
+import {Transition} from 'react-navigation-fluid-transitions';
 interface ProductHorozontalCardProps {
   supplier_name: string;
   img_url: string;
@@ -21,7 +20,7 @@ export class ProductHorozontalCard extends Component<
     return (
       <TouchableOpacity
         onPress={() =>
-          this.props.navigation.navigate('Details', {
+          this.props.navigation.push('Details', {
             slug: slug,
             brand: supplier_name,
             img_url: img_url,
@@ -29,7 +28,7 @@ export class ProductHorozontalCard extends Component<
         }>
         <View style={{paddingRight: 15, paddingTop: 10}}>
           <View style={{backgroundColor: '#f2f2f2', borderRadius: 20}}>
-            <SharedElement id={`item.${slug}.photo`}>
+            <Transition shared="circle">
               <Image
                 source={{uri: `${API_URL_IMAGE}${img_url}`}}
                 style={{
@@ -39,7 +38,7 @@ export class ProductHorozontalCard extends Component<
                   borderRadius: 15,
                 }}
               />
-            </SharedElement>
+            </Transition>
           </View>
           <View style={{width: 120, padding: 5}}>
             <Text

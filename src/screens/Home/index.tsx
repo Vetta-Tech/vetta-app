@@ -127,6 +127,7 @@ class Home extends Component<Props, IState> {
   };
 
   render() {
+    console.log('brands home........................', this.props.brands);
     return (
       <>
         <Modal
@@ -233,7 +234,7 @@ class Home extends Component<Props, IState> {
             navigation={this.props.navigation}
           />
           <Brands
-            brands={this.props.brands.brands}
+            brands={this.props.brands}
             navigation={this.props.navigation}
           />
 

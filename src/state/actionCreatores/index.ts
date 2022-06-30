@@ -20,6 +20,12 @@ import {
   resetCreateStateStatus,
 } from '../actionCreatores/address';
 import {productDetailsFetch, checkCanAddToCart} from './productDetails';
+import {
+  fetchUserCart,
+  handleIncreaseQuantity,
+  handleDecreaseQuantity,
+  handleCouponAdded,
+} from './cart';
 
 export {
   fetchHomeProducts,
@@ -38,4 +44,8 @@ export {
   resetCreateStateStatus,
   productDetailsFetch,
   checkCanAddToCart,
+  fetchUserCart,
+  handleIncreaseQuantity,
+  handleDecreaseQuantity,
+  handleCouponAdded,
 };

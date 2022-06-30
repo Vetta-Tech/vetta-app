@@ -17,6 +17,7 @@ interface BrandCardProps {
   item: {
     logo: string;
     name: string;
+    slug: string;
   };
 }
 
@@ -24,7 +25,13 @@ export default class BrandCard extends Component<BrandCardProps> {
   render() {
     const {navigation, item} = this.props;
     return (
-      <TouchableOpacity onPress={() => navigation.push('Details')}>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('BrandDeatils', {
+            supplier: item.name,
+            slug: item.slug,
+          });
+        }}>
         <View
           style={{
             paddingTop: 5,

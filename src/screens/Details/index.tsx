@@ -13,13 +13,16 @@ import {
   FlatList,
   Vibration,
   Pressable,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/EvilIcons';
+import {Transition} from 'react-navigation-fluid-transitions';
 
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Toast from 'react-native-toast-message';
-import {SharedElement} from 'react-navigation-shared-element';
+
+import {MotiView, MotiText} from 'moti';
 
 import {
   Description,
@@ -85,6 +88,7 @@ interface DetailsState {
   };
   error: string;
   cart_id: number;
+  supplier_slug: string;
 }
 
 const windowHeight = Dimensions.get('window').height;
@@ -119,6 +123,7 @@ class Details extends Component<DetailsProps, DetailsState> {
       },
       error: '',
       cart_id: 0,
+      supplier_slug: '',
     };
   }
 
@@ -141,12 +146,14 @@ class Details extends Component<DetailsProps, DetailsState> {
     axios
       .get(`http://192.168.0.204:8000/api/v1/products/details/${slug}`)
       .then(res => {
+        console.log('active.............', res.data.products.supplier.slug);
         this.setState(
           {
             productDetails: res.data.products,
             images: res.data.images,
             variants: res.data.variants,
             loading: false,
+            supplier_slug: res.data.products.supplier.slug,
           },
           () => {
             if (this.state.variants.length > 0) {
@@ -429,8 +436,11 @@ class Details extends Component<DetailsProps, DetailsState> {
   render() {
     const {productDetails, variants, cartData} = this.state;
 
+    console.log('productDetails', productDetails.supplier);
+
     return (
       <View style={styles.container}>
+        <StatusBar animated={true} />
         {this.state.addToCartSuccess &&
           Toast.show({
             type: 'customSuccess',
@@ -528,20 +538,24 @@ class Details extends Component<DetailsProps, DetailsState> {
               style={{
                 position: 'relative',
               }}>
-              <SharedElement id={`item.${productDetails.slug}.photo`}>
-                <View>
-                  <Image
-                    source={{
-                      uri: `${API_URL_IMAGE}${this.props.route.params.img_url}`,
-                    }}
-                    style={{
-                      height: 400,
-                      width: '100%',
-                    }}
-                    resizeMode="contain"
+              <Transition shared="circle">
+                <View
+                  style={{
+                    position: 'relative',
+                  }}>
+                  <Carousel
+                    data={this.state.images}
+                    renderItem={this._renderItem}
+                    sliderWidth={windowWidth / 1.1}
+                    itemWidth={windowWidth / 1.2}
+                    layout={'default'}
+                    onSnapToItem={(index: number) =>
+                      this.setState({activeSlide: index})
+                    }
                   />
+                  {this.pagination}
                 </View>
-              </SharedElement>
+              </Transition>
             </View>
 
             <View>
@@ -694,13 +708,14 @@ class Details extends Component<DetailsProps, DetailsState> {
               navigation={this.props.navigation}
               featured={this.props.brandProducts}
               name={`More Form ${this.props.route.params.brand}`}
-              screen_name="ProductListBrands"
+              screen_name="BrandDeatils"
+              supplier_slug={this.state.supplier_slug}
             />
           </View>
         </ScrollView>
         <Toast config={toastConfig} ref={(ref: any) => Toast.setRef(ref)} />
 
-        {/* {this.state.loading && <OverlaySpinner />} */}
+        {this.state.loading && <OverlaySpinner />}
       </View>
     );
   }

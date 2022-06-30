@@ -1,7 +1,6 @@
 import {CategoryInterface} from './productTypes';
 
 export interface BrandsTypes {
-  brands: {};
   id: number;
   name: string;
   slug: string;

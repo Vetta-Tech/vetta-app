@@ -8,13 +8,13 @@ import {
 } from 'react-native';
 import React from 'react';
 
-import {BrandsTypes} from '../../../utils/types/brandsType';
-import {API_URL_IMAGE} from '@env';
 import SectionHeadBrands from '../../Typography/SectionHeadBrands';
 import {SharedElement} from 'react-navigation-shared-element';
 
+interface BrandsTypes {}
+
 interface BrandsProps {
-  brands: BrandsTypes[];
+  brands: any;
 
   navigation: any;
 }
@@ -60,7 +60,7 @@ const Brands = ({brands, navigation}: BrandsProps) => {
       <SectionHeadBrands navigation={navigation} name="Brands" />
       <View>
         <FlatList
-          data={brands}
+          data={brands.brands}
           horizontal
           showsHorizontalScrollIndicator={false}
           renderItem={item => renderItem(item)}
