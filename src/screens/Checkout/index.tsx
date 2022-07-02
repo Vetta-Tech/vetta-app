@@ -327,7 +327,7 @@ class Checkout extends Component<Props, IState> {
 
             // height: '100%',
           }}>
-          <TopNavCheckout name="Checkout" />
+          <TopNavCheckout naviagtion={this.props.navigation} name="Checkout" />
           <View
             style={{
               paddingTop: 15,

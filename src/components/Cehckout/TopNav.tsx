@@ -4,9 +4,10 @@ import Icon from 'react-native-vector-icons/EvilIcons';
 
 interface IProps {
   name: string;
+  naviagtion: any;
 }
 
-const TopNavCheckout = ({name}: IProps) => {
+const TopNavCheckout = ({name, naviagtion}: IProps) => {
   return (
     <View
       style={{
@@ -22,7 +23,7 @@ const TopNavCheckout = ({name}: IProps) => {
           alignItems: 'center',
         }}>
         <View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => naviagtion.goBack()}>
             <Icon name="chevron-left" size={30} color="black" />
           </TouchableOpacity>
         </View>

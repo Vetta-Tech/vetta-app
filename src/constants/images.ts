@@ -18,6 +18,21 @@ const detailsImg = require('../../assets/details/details-img.png');
 const cash = require('../../assets/icon/cash-on-delivery.png');
 const radio = require('../../assets/icon/radio-on-button.png');
 
+const heart = require('../../assets/profile/heart.png');
+const notification = require('../../assets/profile/notification.png');
+const settings = require('../../assets/profile/settings.png');
+const payment = require('../../assets/profile/payment.png');
+
+const bag = require('../../assets/profile/bag.png');
+const address = require('../../assets/profile/address.png');
+const help = require('../../assets/profile/help.png');
+const arrow = require('../../assets/profile/arrow.png');
+const info = require('../../assets/profile/info.png');
+
+const writemail = require('../../assets/profile/write-mail.png');
+const report = require('../../assets/profile/report.png');
+const logout = require('../../assets/profile/logout.png');
+
 export {
   topbarimage,
   searchCatimage,
@@ -35,4 +50,16 @@ export {
   detailsImg,
   cash,
   radio,
+  heart,
+  notification,
+  settings,
+  payment,
+  bag,
+  address,
+  help,
+  arrow,
+  info,
+  writemail,
+  report,
+  logout,
 };

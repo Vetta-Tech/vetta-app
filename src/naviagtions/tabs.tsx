@@ -11,7 +11,7 @@ const Tab = createBottomTabNavigator();
 const BottomTab = () => {
   return (
     <Tab.Navigator
-      initialRouteName="HomeTab"
+      initialRouteName="Profile"
       screenOptions={{
         headerShown: false,
         tabBarLabelStyle: {

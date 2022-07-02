@@ -37,6 +37,12 @@ import DeliveryTime from './Cehckout/DeliveryTime';
 import PriceCard from './Cehckout/PriceCard';
 import SubmitButton from './Cehckout/SubmitButton';
 
+import TopProfileSection from './Profile/TopProfile';
+import ActionContainer from './Profile/ActionSegment/ActionContainer';
+import ProfileSectionContainer from './Profile/ProfileSection/ProfileSectionContainer';
+import SettingsItemIndivisal from './Profile/SettingsItemIndivisal';
+import AboutList from './Profile/AboutList';
+
 export {
   TopBar,
   Search,
@@ -76,4 +82,9 @@ export {
   DeliveryTime,
   PriceCard,
   SubmitButton,
+  TopProfileSection,
+  ActionContainer,
+  ProfileSectionContainer,
+  SettingsItemIndivisal,
+  AboutList,
 };

@@ -16,6 +16,8 @@ import PopularProducts from './PopularProducts';
 import ProductList from './ProductList';
 import ProductListBrands from './ProductListBrands';
 import Profile from './Profile';
+import AboutUs from './Profile/About';
+import FeedBack from './Profile/FeedBack';
 import Search from './Search';
 import SplashScreen from './Splash';
 
@@ -40,4 +42,6 @@ export {
   MapSearch,
   PaymentMethodSelect,
   PaymentDone,
+  AboutUs,
+  FeedBack,
 };

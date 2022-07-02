@@ -27,7 +27,10 @@ import {
   MapSearch,
   Cart,
   PaymentDone,
+  AboutUs,
+  FeedBack,
 } from './screens';
+
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
 import {RootState} from './state/store';
@@ -66,7 +69,7 @@ class Core extends Component<CoreProps, any> {
     return (
       <NavigationContainer linking={linking}>
         <Stack.Navigator
-          initialRouteName={'SplashScreen'}
+          initialRouteName={'Home'}
           screenOptions={{
             headerShown: false,
           }}>
@@ -160,6 +163,9 @@ class Core extends Component<CoreProps, any> {
             options={leftToRightAnimation}
             component={VerifyOtp}
           />
+
+          <Stack.Screen name="AboutUs" component={AboutUs} />
+          <Stack.Screen name="FeedBack" component={FeedBack} />
         </Stack.Navigator>
       </NavigationContainer>
     );
