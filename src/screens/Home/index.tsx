@@ -45,6 +45,7 @@ import {HomeProductsType} from '../../state/interfaces/products';
 import {BrandsTypes} from '../../utils/types/brandsType';
 
 import {MapsTypes} from '../../state/interfaces/maps';
+import AnimatedLottieView from 'lottie-react-native';
 
 interface HomePageProps {
   navigation: {
@@ -240,7 +241,16 @@ class Home extends Component<Props, IState> {
 
           <Refer />
         </ScrollView>
-        {this.props.product.loading && <OverlaySpinner />}
+        {this.props.product.loading && (
+          <AnimatedLottieView
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(230, 228, 228, 0.5)',
+            }}
+            autoPlay={true}
+            source={require('../../../assets/lottie/24663-loading-logo.json')}
+          />
+        )}
       </>
     );
   }

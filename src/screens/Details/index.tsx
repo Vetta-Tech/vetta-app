@@ -15,34 +15,28 @@ import {
   Pressable,
   StatusBar,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/EvilIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Transition} from 'react-navigation-fluid-transitions';
 
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Toast from 'react-native-toast-message';
 
-import {MotiView, MotiText} from 'moti';
-
 import {
   Description,
   FeaturedPRoducts,
   HoriLine,
-  NameSection,
   ReviewSummery,
   TopNavDetails,
 } from '../../components';
 
 import {fetchProductByBrand} from '../../state/actionCreatores';
 import {RootState} from '../../state/store';
-import {OverlaySpinner} from '../Login/PhoneInput';
 import axios from 'axios';
-import {
-  ProductsInterface,
-  VariantSerializer,
-} from '../../utils/types/productTypes';
+import {VariantSerializer} from '../../utils/types/productTypes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {toastConfig} from '../../components/CsutomToast';
+import AnimatedLottieView from 'lottie-react-native';
 
 interface DetailsProps {
   navigation: any;
@@ -89,6 +83,7 @@ interface DetailsState {
   error: string;
   cart_id: number;
   supplier_slug: string;
+  isAuthenticated: boolean;
 }
 
 const windowHeight = Dimensions.get('window').height;
@@ -101,6 +96,7 @@ class Details extends Component<DetailsProps, DetailsState> {
     this.bottomSheetRef = React.createRef();
     this.state = {
       showDescription: false,
+      isAuthenticated: false,
       activeSlide: 0,
       activeVariant: 0,
       product_name_variant: '',
@@ -127,11 +123,19 @@ class Details extends Component<DetailsProps, DetailsState> {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    const token = await AsyncStorage.getItem('token');
+    if (token !== undefined) {
+      this.setState({
+        isAuthenticated: true,
+      });
+    }
+
     const {slug, brand} = this.props.route.params;
     if (!slug) {
       this.props.navigation.goBack();
     }
+
     if (brand) {
       const brands_name = brand;
       this.props.fetchProductByBrand(brands_name);
@@ -146,7 +150,6 @@ class Details extends Component<DetailsProps, DetailsState> {
     axios
       .get(`http://192.168.0.204:8000/api/v1/products/details/${slug}`)
       .then(res => {
-        console.log('active.............', res.data.products.supplier.slug);
         this.setState(
           {
             productDetails: res.data.products,
@@ -276,6 +279,13 @@ class Details extends Component<DetailsProps, DetailsState> {
       () => {
         this.bottomSheetRef.close();
         this.checkCanAddToCart();
+
+        Toast.show({
+          type: 'customSuccess',
+          text1: 'Added To Cart Successfully',
+
+          position: 'bottom',
+        });
       },
     );
   };
@@ -321,6 +331,12 @@ class Details extends Component<DetailsProps, DetailsState> {
             },
             () => {
               this.checkCanAddToCart();
+              Toast.show({
+                type: 'customSuccess',
+                text1: 'Added To Cart Successfully',
+
+                position: 'bottom',
+              });
             },
           );
         } else {
@@ -374,6 +390,11 @@ class Details extends Component<DetailsProps, DetailsState> {
           },
           () => {
             this.checkCanAddToCart();
+            Toast.show({
+              type: 'customSuccess',
+              text1: 'Cart updated Successfully',
+              position: 'bottom',
+            });
           },
         );
       })
@@ -396,7 +417,7 @@ class Details extends Component<DetailsProps, DetailsState> {
       const data = {
         id,
       };
-      this.handleIncreaseQuantity(data);
+      this.handleDecreaseQuantity(data);
     }
   };
 
@@ -422,6 +443,11 @@ class Details extends Component<DetailsProps, DetailsState> {
           },
           () => {
             this.checkCanAddToCart();
+            Toast.show({
+              type: 'customSuccess',
+              text1: 'Cart updated Successfully',
+              position: 'bottom',
+            });
           },
         );
       })
@@ -436,31 +462,11 @@ class Details extends Component<DetailsProps, DetailsState> {
   render() {
     const {productDetails, variants, cartData} = this.state;
 
-    console.log('productDetails', productDetails.supplier);
+    console.log('productDetails', this.state.isAuthenticated);
 
     return (
       <View style={styles.container}>
         <StatusBar animated={true} />
-        {this.state.addToCartSuccess &&
-          Toast.show({
-            type: 'customSuccess',
-            text1: 'Added To Cart Successfully',
-
-            position: 'bottom',
-          })}
-        {this.state.increaseQuantitySuccess &&
-          Toast.show({
-            type: 'customSuccess',
-            text1: 'Cart updated Successfully',
-            position: 'bottom',
-          })}
-        {this.state.decreaseQuantitySuccess &&
-          Toast.show({
-            type: 'customSuccess',
-            text1: 'Cart updated Successfully',
-            position: 'bottom',
-          })}
-
         <RBSheet
           ref={ref => {
             this.bottomSheetRef = ref;
@@ -628,59 +634,114 @@ class Details extends Component<DetailsProps, DetailsState> {
                   ₹{this.state.price}
                 </Text>
               </View>
-              <View>
-                {this.state.canAddToCart ? (
-                  <Pressable
-                    onPress={() =>
-                      this.onSubmitCart(
-                        productDetails.slug,
-                        this.state.activeVariant,
-                      )
-                    }>
-                    <View style={styles.addToCartBtn}>
+              {this.state.isAuthenticated ? (
+                <View>
+                  {this.state.canAddToCart ? (
+                    <Pressable
+                      onPress={() =>
+                        this.onSubmitCart(
+                          productDetails.slug,
+                          this.state.activeVariant,
+                        )
+                      }>
+                      <View style={styles.addToCartBtn}>
+                        <Text
+                          style={{
+                            fontFamily: 'Montserrat-SemiBold',
+                            color: 'white',
+                          }}>
+                          Add to cart
+                        </Text>
+                      </View>
+                    </Pressable>
+                  ) : (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          this.decreaseQuantity(
+                            this.state.cartData.id,
+                            this.state.activeVariant,
+                          )
+                        }>
+                        <View
+                          style={{
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            padding: 8,
+                            backgroundColor: '#f2f2f2',
+                            borderRadius: 12,
+                          }}>
+                          <AntDesign
+                            name="minus"
+                            color="blue"
+                            style={{
+                              shadowColor: 'blue',
+                            }}
+                            size={20}
+                          />
+                        </View>
+                      </TouchableOpacity>
                       <Text
                         style={{
-                          fontFamily: 'Montserrat-SemiBold',
-                          color: 'white',
+                          fontFamily: 'Montserrat-Bold',
+                          padding: 4,
+                          fontSize: 18,
+                          paddingLeft: 10,
+                          paddingRight: 10,
                         }}>
-                        Add to cart
+                        {this.state.cartData.quantity}
                       </Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          this.increaseQuantity(
+                            this.state.cartData.id,
+                            this.state.activeVariant,
+                          )
+                        }>
+                        <View
+                          style={{
+                            paddingLeft: 10,
+                            paddingRight: 10,
+                            padding: 8,
+                            backgroundColor: '#f2f2f2',
+                            borderRadius: 12,
+                          }}>
+                          <AntDesign
+                            name="plus"
+                            color="blue"
+                            style={{
+                              shadowColor: 'blue',
+                            }}
+                            size={20}
+                          />
+                        </View>
+                      </TouchableOpacity>
                     </View>
-                  </Pressable>
-                ) : (
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.decreaseQuantity(
-                          this.state.cartData.id,
-                          this.state.activeVariant,
-                        )
-                      }>
-                      <Icon name="minus" size={30} />
-                    </TouchableOpacity>
+                  )}
+                </View>
+              ) : (
+                <Pressable
+                  onPress={() =>
+                    this.onSubmitCart(
+                      productDetails.slug,
+                      this.state.activeVariant,
+                    )
+                  }>
+                  <View style={styles.addToCartBtn}>
                     <Text
                       style={{
-                        fontFamily: 'Montserrat-Bold',
-                        padding: 4,
+                        fontFamily: 'Montserrat-SemiBold',
+                        color: 'white',
                       }}>
-                      {this.state.cartData.quantity}
+                      Sign In
                     </Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.increaseQuantity(
-                          this.state.cartData.id,
-                          this.state.activeVariant,
-                        )
-                      }>
-                      <Icon name="plus" size={30} />
-                    </TouchableOpacity>
                   </View>
-                )}
-              </View>
+                </Pressable>
+              )}
             </View>
           </View>
           <HoriLine />
@@ -715,7 +776,16 @@ class Details extends Component<DetailsProps, DetailsState> {
         </ScrollView>
         <Toast config={toastConfig} ref={(ref: any) => Toast.setRef(ref)} />
 
-        {this.state.loading && <OverlaySpinner />}
+        {this.state.loading && (
+          <AnimatedLottieView
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(230, 228, 228, 0.5)',
+            }}
+            autoPlay={true}
+            source={require('../../../assets/lottie/24663-loading-logo.json')}
+          />
+        )}
       </View>
     );
   }
@@ -786,6 +856,7 @@ const styles = StyleSheet.create({
   nameContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   addToCartBtn: {
     padding: 14,

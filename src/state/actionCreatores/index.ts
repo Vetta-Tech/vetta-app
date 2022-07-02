@@ -26,6 +26,13 @@ import {
   handleDecreaseQuantity,
   handleCouponAdded,
 } from './cart';
+import {
+  createNewOrder,
+  checkPhoneValidOrNot,
+  checkoutPhoneVerificationOtpSent,
+  checkoutPhoneVerificationValidateOtp,
+  changeStateToDefault,
+} from './checkout';
 
 export {
   fetchHomeProducts,
@@ -48,4 +55,9 @@ export {
   handleIncreaseQuantity,
   handleDecreaseQuantity,
   handleCouponAdded,
+  createNewOrder,
+  checkPhoneValidOrNot,
+  checkoutPhoneVerificationOtpSent,
+  checkoutPhoneVerificationValidateOtp,
+  changeStateToDefault,
 };

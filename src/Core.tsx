@@ -31,10 +31,7 @@ import {
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
 import {RootState} from './state/store';
-import {API_URL_IMAGE} from '@env';
 import linking from './linking';
-import Test2 from './screens/Test/Test2';
-import Test1 from './screens/Test/Test1';
 
 const Stack = createSharedElementStackNavigator();
 

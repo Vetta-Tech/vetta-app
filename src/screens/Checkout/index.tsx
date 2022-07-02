@@ -1,6 +1,5 @@
 import {
   Text,
-  StyleSheet,
   View,
   Dimensions,
   TouchableOpacity,
@@ -10,14 +9,10 @@ import {
   Modal,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
-import {CommonActions} from '@react-navigation/native';
 
 import React, {Component} from 'react';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {IState} from './types';
-import axios from 'axios';
-import {API_URL} from '@env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axios';
 import {styles} from './styles';
 import {bd} from '../../constants/images';
@@ -31,8 +26,25 @@ import {
   TopNavCheckout,
 } from '../../components';
 import PaymentMethodSelect from './PaymentMethodSelect';
+import {CheckouState} from '../../state/interfaces/checkout';
+import {CheckoutProps} from './types';
+import {
+  createNewOrder,
+  checkPhoneValidOrNot,
+  checkoutPhoneVerificationOtpSent,
+  checkoutPhoneVerificationValidateOtp,
+  changeStateToDefault,
+} from '../../state/actionCreatores';
 
-class Checkout extends Component<any, IState> {
+import {AppState} from '../../state/store';
+import {ThunkDispatch} from 'redux-thunk';
+import {CheckoutAction} from '../../state/actions/checkout';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+
+type Props = CheckoutProps & LinkStateProps & LinkDispatchProps;
+
+class Checkout extends Component<Props, IState> {
   private bottomSheetRef: any;
   private maxLength: number;
   private webViewRef: any;
@@ -66,36 +78,18 @@ class Checkout extends Component<any, IState> {
   }
 
   componentDidMount() {
-    this.checkPhoneValidOrNot();
-    this.createNewOrder();
+    this.props.checkPhoneValidOrNot(this.bottomSheetRef);
+    this.props.createNewOrder();
     if (this.props.route.params.userAddress) {
       this.setState({
         userAddress: this.props.route.params.userAddress,
       });
     }
-  }
 
-  createNewOrder = () => {
-    this.setState({
-      loading: true,
+    this.props.navigation.addListener('blur', () => {
+      this.props.changeStateToDefault();
     });
-
-    axiosInstance
-      .post('orders/create-order')
-      .then(res => {
-        this.setState({
-          order_create_success: true,
-          loading: false,
-        });
-      })
-      .catch(err => {
-        this.setState({
-          order_create_success: false,
-          loading: false,
-          order_create_error: err.response.msg,
-        });
-      });
-  };
+  }
 
   handleSSLPayment = () => {
     axiosInstance
@@ -116,46 +110,6 @@ class Checkout extends Component<any, IState> {
 
   goback = () => {
     this.webViewRef.current.goBack();
-  };
-
-  checkPhoneValidOrNot = async () => {
-    this.setState({
-      loading: true,
-    });
-
-    const token = await AsyncStorage.getItem('token');
-    const config = {
-      headers: {
-        Authorization: 'Token '.concat(token!),
-        'Content-Type': 'application/json',
-      },
-    };
-
-    axios
-      .get(`${API_URL}user/is-phone-number-valid`, config)
-
-      .then(res => {
-        if (res.status === 200) {
-          this.setState(
-            {
-              loading: false,
-              is_phone_verified: res.data.is_phone_verified,
-            },
-            () => {
-              if (this.state.is_phone_verified === false) {
-                this.bottomSheetRef.open();
-              }
-            },
-          );
-        }
-      })
-      .catch(err => {
-        this.setState({
-          loading: false,
-          is_phone_verified: false,
-          error: err.response.data.error,
-        });
-      });
   };
 
   handleChange = (text: any) => {
@@ -192,128 +146,29 @@ class Checkout extends Component<any, IState> {
     }
   };
 
-  sendOtp = async () => {
-    console.log('aaaaaaaaaaaaaa');
-
-    this.setState({
-      loading: true,
-    });
-    const token = await AsyncStorage.getItem('token');
-    const config = {
-      headers: {
-        Authorization: 'Token '.concat(token!),
-        'Content-Type': 'application/json',
-      },
-    };
-
-    const data = {
-      phone_number: '+880' + this.state.phone_number,
-    };
-    axios
-      .post(`${API_URL}user/generate-otp`, data, config)
-      .then(res => {
-        console.log(res.data);
-        this.setState({
-          loading: false,
-          sentOtpSuccess: true,
-          pk: res.data.pk,
-          error: '',
-        });
-      })
-      .catch(err => {
-        console.log(err.response.data);
-        this.setState({
-          error: err.response.data.reason,
-          loading: false,
-        });
-      });
-  };
-
   confimrOrder = async () => {
-    this.setState({
-      loading: true,
-    });
-
-    const token = await AsyncStorage.getItem('token');
-    const config = {
-      headers: {
-        Authorization: 'Token '.concat(token!),
-        'Content-Type': 'application/json',
-      },
-    };
-
-    const data = {
+    this.props.navigation.replace('Payment', {
+      success: true,
       payment_method: 'cash',
-    };
-
-    axios
-      .post(`${API_URL}orders/order-confirm`, data, config)
-
-      .then(res => {
-        console.log('res', res);
-        if (res.status === 200) {
-          this.props.navigation.replace('Payment', {
-            success: true,
-            payment_method: 'cash',
-          });
-        }
-      })
-      .catch(err => {
-        console.log('assssssssssssssssss', err.response.data);
-      });
-  };
-
-  validateOtp = async () => {
-    console.log('ssssssssssssss');
-    const token = await AsyncStorage.getItem('token');
-    const config = {
-      headers: {
-        Authorization: 'Token '.concat(token!),
-        'Content-Type': 'application/json',
-      },
-    };
-
-    console.log(API_URL);
-
-    const data = {
-      otp: this.state.otp,
-      pk: this.state.pk,
-      phone_number: this.state.phone_number,
-    };
-    this.setState({
-      loading: true,
     });
-
-    axios
-      .post(`${API_URL}user/validate-otp`, data, config)
-      .then(res => {
-        this.setState(
-          {
-            loading: false,
-          },
-          () => this.bottomSheetRef.close(),
-        );
-      })
-      .catch(err => {
-        console.log('errrrrrr', err.response);
-        this.setState({
-          loading: false,
-        });
-      });
   };
 
   checkUserPhoneNumber = () => {};
 
   handleSubmit = () => {
-    if (this.state.sentOtpSuccess) {
-      this.validateOtp();
+    if (this.props.checkout.sentOtpSuccess) {
+      this.props.checkoutPhoneVerificationValidateOtp(
+        this.bottomSheetRef,
+        this.state.otp,
+        this.props.checkout.pk,
+        this.state.phone_number,
+      );
     } else {
-      this.sendOtp();
+      this.props.checkoutPhoneVerificationOtpSent(this.state.phone_number);
     }
   };
 
   _onLoad(state: any) {
-    console.log('state_urllllllll', state);
     if (state.url === 'https://www.youtube.com/') {
       this.props.navigation.replace('Payment', {
         success: true,
@@ -355,8 +210,6 @@ class Checkout extends Component<any, IState> {
           ref={ref => {
             this.bottomSheetRef = ref;
           }}
-          // closeOnDragDown={true}
-          dragFromTopOnly={true}
           closeOnPressBack={false}
           height={Dimensions.get('window').height - 50}
           openDuration={250}
@@ -413,7 +266,7 @@ class Checkout extends Component<any, IState> {
                   onChangeText={text => this.handleChange(text)}
                 />
               </View>
-              {this.state.sentOtpSuccess && (
+              {this.props.checkout.sentOtpSuccess && (
                 <View
                   style={[
                     styles.searchBar__unclicked,
@@ -431,12 +284,12 @@ class Checkout extends Component<any, IState> {
               )}
 
               <View>
-                {this.state.error !== '' ? (
+                {this.props.checkout.error !== '' ? (
                   <View
                     style={{
                       marginTop: 5,
                     }}>
-                    <LoginError msg={this.state.error} />
+                    <LoginError msg="Something went wrong" />
                   </View>
                 ) : null}
                 <TouchableOpacity
@@ -454,14 +307,17 @@ class Checkout extends Component<any, IState> {
                     <Text
                       style={{
                         color: 'white',
+                        textAlign: 'center',
                       }}>
-                      {this.state.sentOtpSuccess ? 'Verify' : 'Send Otp'}
+                      {this.props.checkout.sentOtpSuccess
+                        ? 'Verify'
+                        : 'Send Otp'}
                     </Text>
                   </View>
                 </TouchableOpacity>
               </View>
             </View>
-            {this.props.loading && <OverlaySpinner />}
+            {this.props.checkout.loading && <OverlaySpinner />}
           </View>
         </RBSheet>
 
@@ -642,4 +498,45 @@ class Checkout extends Component<any, IState> {
   }
 }
 
-export default Checkout;
+interface LinkStateProps {
+  checkout: CheckouState;
+}
+
+interface LinkDispatchProps {
+  createNewOrder: () => void;
+  checkPhoneValidOrNot: (bottomSheetRef: any) => void;
+  checkoutPhoneVerificationOtpSent: (phone_number: number | string) => void;
+  checkoutPhoneVerificationValidateOtp: (
+    bottomSheetRef: any,
+    otp: number | string,
+    pk: number,
+    phone_number: number | string,
+  ) => void;
+  changeStateToDefault: () => void;
+}
+
+const mapStateToProps = (state: AppState): LinkStateProps => {
+  return {
+    checkout: state.checkout,
+  };
+};
+
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<any, any, CheckoutAction>,
+): LinkDispatchProps => {
+  return {
+    createNewOrder: bindActionCreators(createNewOrder, dispatch),
+    checkPhoneValidOrNot: bindActionCreators(checkPhoneValidOrNot, dispatch),
+    checkoutPhoneVerificationOtpSent: bindActionCreators(
+      checkoutPhoneVerificationOtpSent,
+      dispatch,
+    ),
+    checkoutPhoneVerificationValidateOtp: bindActionCreators(
+      checkoutPhoneVerificationValidateOtp,
+      dispatch,
+    ),
+    changeStateToDefault: bindActionCreators(changeStateToDefault, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Checkout);

@@ -31,12 +31,8 @@ class PaymentDone extends Component<PaymentDoneProps> {
       .post('orders/order-confirm', {
         payment_method,
       })
-      .then(res => {
-        console.log(res.data);
-      })
-      .catch(err => {
-        console.log(err.response.data.msg);
-      });
+      .then(res => {})
+      .catch(err => {});
   };
 
   render() {

@@ -1,4 +1,4 @@
-export interface IState {
+export interface CheckouState {
   loading: boolean;
   error: string;
   is_phone_verified: null | boolean;
@@ -16,13 +16,4 @@ export interface IState {
   order_create_error: string;
   GatewayPageURL: string;
   moadlShow: boolean;
-}
-
-export interface CheckoutProps {
-  route: {
-    params: {
-      userAddress: string;
-    };
-  };
-  navigation: any;
 }

@@ -13,6 +13,7 @@ import {LoginError, TopNav} from '../../components';
 import {OverlaySpinner} from '../Login/PhoneInput';
 import {validateOtp} from '../../state/actionCreatores/auth';
 import {AppState, RootState} from '../../state/store';
+import AnimatedLottieView from 'lottie-react-native';
 
 interface VerifyOtPState {}
 
@@ -129,7 +130,16 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
             </TouchableOpacity>
           </View>
         </View>
-        {this.props.loading && <OverlaySpinner />}
+        {this.props.loading && (
+          <AnimatedLottieView
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(230, 228, 228, 0.5)',
+            }}
+            autoPlay={true}
+            source={require('../../../assets/lottie/24663-loading-logo.json')}
+          />
+        )}
       </View>
     );
   }

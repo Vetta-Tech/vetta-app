@@ -16,6 +16,7 @@ import {bd} from '../../constants/images';
 import {sendOtp} from '../../state/actionCreatores/auth';
 import {RootState} from '../../state/store';
 import {API_URL} from '@env';
+import AnimatedLottieView from 'lottie-react-native';
 
 export const OverlaySpinner = () => {
   return (
@@ -151,7 +152,16 @@ class PhoneInput extends Component<any, any> {
             </TouchableOpacity>
           </View>
         </View>
-        {this.props.loading && <OverlaySpinner />}
+        {this.props.loading && (
+          <AnimatedLottieView
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(230, 228, 228, 0.5)',
+            }}
+            autoPlay={true}
+            source={require('../../../assets/lottie/24663-loading-logo.json')}
+          />
+        )}
       </View>
     );
   }
