@@ -5,16 +5,39 @@ import {styles} from './styles';
 import ItemList from './ItemList';
 import {bag, address, help, heart} from '../../../constants/images';
 
-export default class ProfileSectionContainer extends Component {
+interface Props {
+  navigation: any;
+}
+export default class ProfileSectionContainer extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.headerTxt}>Accounts</Text>
         <View style={styles.listcontainer}>
-          <ItemList img={bag} txt="Your Orders" />
-          <ItemList img={heart} txt="Favourite Orders" />
-          <ItemList img={address} txt="Your address" />
-          <ItemList img={help} txt="online ordering help" />
+          <ItemList
+            navigation={this.props.navigation}
+            screen_name="OrdersList"
+            img={bag}
+            txt="Your Orders"
+          />
+          <ItemList
+            navigation={this.props.navigation}
+            screen_name="OrdersList"
+            img={heart}
+            txt="Favourite Orders"
+          />
+          <ItemList
+            navigation={this.props.navigation}
+            screen_name="ProfileAddress"
+            img={address}
+            txt="Your address"
+          />
+          <ItemList
+            navigation={this.props.navigation}
+            screen_name="OrdersList"
+            img={help}
+            txt="online ordering help"
+          />
         </View>
       </View>
     );

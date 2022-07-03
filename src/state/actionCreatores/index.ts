@@ -33,6 +33,7 @@ import {
   checkoutPhoneVerificationValidateOtp,
   changeStateToDefault,
 } from './checkout';
+import {createFeedBack} from './profile';
 
 export {
   fetchHomeProducts,
@@ -60,4 +61,5 @@ export {
   checkoutPhoneVerificationOtpSent,
   checkoutPhoneVerificationValidateOtp,
   changeStateToDefault,
+  createFeedBack,
 };

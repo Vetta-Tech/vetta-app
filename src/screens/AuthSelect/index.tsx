@@ -21,6 +21,7 @@ class AuthSelect extends Component<any, any> {
 
     this.state = {
       showModal: false,
+      redirectScreen: '',
     };
   }
 
@@ -30,8 +31,20 @@ class AuthSelect extends Component<any, any> {
     }
   }
 
-  componentWillUnmount() {
-    this.bottomSheet.close();
+  componentDidMount() {
+    const {params} = this.props.route;
+    if (params) {
+      this.setState({
+        redirectScreen: params.redirectScreen,
+      });
+    }
+
+    this.props.navigation.addListener('blur', () => {
+      this.bottomSheet?.close();
+      this.setState({
+        redirectScreen: '',
+      });
+    });
   }
 
   handleShowModal = () => {
@@ -41,6 +54,8 @@ class AuthSelect extends Component<any, any> {
   };
 
   render() {
+    console.log('rediresctScreen111', this.state.redirectScreen);
+
     return (
       <View>
         <ImageBackground
@@ -99,7 +114,11 @@ class AuthSelect extends Component<any, any> {
               </View>
               <View>
                 <TouchableOpacity
-                  onPress={() => this.props.navigation.navigate('Home')}>
+                  onPress={() =>
+                    this.props.navigation.navigate('Home', {
+                      screen: 'HomeTab',
+                    })
+                  }>
                   <View style={[styles.btn, {backgroundColor: '#f2f2f2'}]}>
                     <Text style={[styles.btnText, {color: 'black'}]}>
                       Continue as guest
@@ -114,6 +133,7 @@ class AuthSelect extends Component<any, any> {
             navigation={this.props.navigation}
             isVisible={this.state.showModal}
             myRef={(ref: any) => (this.bottomSheet = ref)}
+            redirectScreen={this.state.redirectScreen}
           />
         </ImageBackground>
       </View>

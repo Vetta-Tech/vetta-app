@@ -46,6 +46,7 @@ interface CartProps {
 }
 
 interface ItemTypes {
+  index: any;
   item: {
     product: {
       id: number;
@@ -114,7 +115,7 @@ class Cart extends React.Component<Props, State> {
           {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
-            navigatePage: 'Cart',
+            navigatePage: 'CartNew',
           },
           () => {
             this.bottomSheetRef.close();
@@ -137,10 +138,6 @@ class Cart extends React.Component<Props, State> {
   render() {
     const {cart, address} = this.props;
     const {coupon_code} = this.state;
-    console.log(
-      'coupon_code................',
-      this.props.cart?.final_cart?.total_saved,
-    );
 
     return (
       <>
@@ -183,8 +180,8 @@ class Cart extends React.Component<Props, State> {
                   <FlatList
                     data={cart.cartData}
                     showsVerticalScrollIndicator={false}
-                    renderItem={({item}: ItemTypes) => (
-                      <View style={styles.containerBody}>
+                    renderItem={({item, index}: ItemTypes) => (
+                      <View key={item.id} style={styles.containerBody}>
                         <View style={styles.cartInside}>
                           <View style={{flexDirection: 'row'}}>
                             <View
@@ -309,7 +306,7 @@ class Cart extends React.Component<Props, State> {
                         </View>
                       </View>
                     )}
-                    keyExtractor={(item: {id: number}) => `${item.id}`}
+                    keyExtractor={item => `${item.id}`}
                     contentContainerStyle={{paddingVertical: 5}}
                   />
                 </View>

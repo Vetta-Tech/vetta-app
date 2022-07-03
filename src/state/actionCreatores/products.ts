@@ -66,15 +66,12 @@ const fetchProductByBrand =
           brand_name: 'Apple',
         },
       });
-      console.log('resposeeeeeee.................................', response);
       dispatch({
         type: ActionType.FETCH_PRODUCTS_BRANDS_SUCCESS,
         payload: response.data.products,
       });
     } catch (err) {
       if (err instanceof Error) {
-        console.log('resposeeeeeee.................................', err);
-
         dispatch({
           type: ActionType.FETCH_PRODUCTS_BRANDS_FAILD,
           payload: err.message,

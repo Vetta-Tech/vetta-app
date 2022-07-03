@@ -1,3 +1,4 @@
+import React, {Component} from 'react';
 import {
   Text,
   StyleSheet,
@@ -5,18 +6,33 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React, {Component} from 'react';
-import {TopNavCheckout} from '../../components';
+import Toast from 'react-native-toast-message';
+
+import {createFeedBack} from '../../state/actionCreatores/';
+
+import {LogoLoading, TopNavCheckout} from '../../components';
 
 import {styles} from '../Checkout/styles';
+import {connect} from 'react-redux';
+import {ProfileState} from '../../state/interfaces/profile';
+import {AppState} from '../../state/store';
+import {ThunkDispatch} from 'redux-thunk';
+import {ProfileAction} from '../../state/actions/profile';
+import {bindActionCreators} from 'redux';
+import {toastConfig} from '../../components/CsutomToast';
 
 interface State {
   showPlacholderTopText: boolean;
   textLength: number;
-  specialInstruction: any;
+  feedback: string;
 }
 
-export default class FeedBack extends Component<any, State> {
+interface FeedBackProps {
+  naviagtion: any;
+}
+
+type Props = LinkStateProps & LinkDispatchProps & FeedBackProps;
+class FeedBack extends Component<Props, State> {
   private maxLength: number;
   constructor(props: any) {
     super(props);
@@ -25,13 +41,13 @@ export default class FeedBack extends Component<any, State> {
     this.state = {
       showPlacholderTopText: false,
       textLength: 0,
-      specialInstruction: '',
+      feedback: '',
     };
   }
 
   handleChangeSpecialIntructionText = (text: string) => {
     this.setState({
-      specialInstruction: text,
+      feedback: text,
       textLength: this.maxLength - text.length,
     });
   };
@@ -140,7 +156,9 @@ export default class FeedBack extends Component<any, State> {
             </View>
           </View>
 
-          <TouchableOpacity disabled={this.state.textLength === 0}>
+          <TouchableOpacity
+            onPress={() => this.props.createFeedBack(this.state.feedback)}
+            disabled={this.state.textLength === 0}>
             <View
               style={{
                 backgroundColor: this.state.textLength === 0 ? 'gray' : 'black',
@@ -158,7 +176,33 @@ export default class FeedBack extends Component<any, State> {
             </View>
           </TouchableOpacity>
         </View>
+        {this.props.profile.loading && <LogoLoading />}
+        <Toast config={toastConfig} ref={(ref: any) => Toast.setRef(ref)} />
       </View>
     );
   }
 }
+
+interface LinkStateProps {
+  profile: ProfileState;
+}
+
+interface LinkDispatchProps {
+  createFeedBack: (feedback: string) => void;
+}
+
+const mapStateToProps = (state: AppState): LinkStateProps => {
+  return {
+    profile: state.profile,
+  };
+};
+
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<any, any, ProfileAction>,
+): LinkDispatchProps => {
+  return {
+    createFeedBack: bindActionCreators(createFeedBack, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(FeedBack);

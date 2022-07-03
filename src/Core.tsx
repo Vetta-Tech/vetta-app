@@ -29,12 +29,14 @@ import {
   PaymentDone,
   AboutUs,
   FeedBack,
+  Profile,
 } from './screens';
 
 import Search from './screens/Search';
 import VerifyOtp from './screens/VerifyOtp';
 import {RootState} from './state/store';
 import linking from './linking';
+import Address from './screens/Profile/Address';
 
 const Stack = createSharedElementStackNavigator();
 
@@ -69,7 +71,7 @@ class Core extends Component<CoreProps, any> {
     return (
       <NavigationContainer linking={linking}>
         <Stack.Navigator
-          initialRouteName={'Home'}
+          initialRouteName={'SplashScreen'}
           screenOptions={{
             headerShown: false,
           }}>
@@ -166,6 +168,8 @@ class Core extends Component<CoreProps, any> {
 
           <Stack.Screen name="AboutUs" component={AboutUs} />
           <Stack.Screen name="FeedBack" component={FeedBack} />
+          <Stack.Screen name="ProfileAddress" component={Address} />
+          <Stack.Screen name="ProfileUser" component={Profile} />
         </Stack.Navigator>
       </NavigationContainer>
     );

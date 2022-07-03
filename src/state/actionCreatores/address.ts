@@ -26,10 +26,12 @@ export const fetchUserAddress =
 
     try {
       const response = await axios.get('address/user-address');
+      console.log(response.data);
       dispatch({
         type: AddressActionTypes.FETCH_USER_ADDRESS_SUCCESS,
         payload: response.data.user_address.address,
         user_have_address: response.data.user_have_address,
+        address: response.data.user_address,
       });
     } catch (error) {
       if (error instanceof Error) {

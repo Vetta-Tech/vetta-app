@@ -1,6 +1,7 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Image, Vibration} from 'react-native';
+import {StackActions, NavigationActions} from 'react-navigation';
 
 import {Home, Search, Cart, Profile} from '../screens';
 
@@ -11,9 +12,10 @@ const Tab = createBottomTabNavigator();
 const BottomTab = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Profile"
+      initialRouteName="HomeTab"
       screenOptions={{
         headerShown: false,
+
         tabBarLabelStyle: {
           fontFamily: 'Montserrat-Medium',
         },
@@ -25,6 +27,10 @@ const BottomTab = () => {
         listeners={{
           tabPress: e => {
             Vibration.vibrate(20);
+            StackActions.reset({
+              index: 0,
+              actions: [NavigationActions.navigate({routeName: 'HomeTab'})],
+            });
           },
         }}
         options={{
@@ -48,6 +54,10 @@ const BottomTab = () => {
         listeners={{
           tabPress: e => {
             Vibration.vibrate(20);
+            StackActions.reset({
+              index: 0,
+              actions: [NavigationActions.navigate({routeName: 'HomeTab'})],
+            });
           },
         }}
         options={{
@@ -70,9 +80,14 @@ const BottomTab = () => {
         listeners={{
           tabPress: e => {
             Vibration.vibrate(20);
+            StackActions.reset({
+              index: 0,
+              actions: [NavigationActions.navigate({routeName: 'HomeTab'})],
+            });
           },
         }}
         options={{
+          unmountOnBlur: true,
           tabBarIcon: ({focused}) => (
             <Image
               source={explore}
@@ -85,19 +100,24 @@ const BottomTab = () => {
             />
           ),
         }}
-        name="Cart"
+        name="CartNew"
         component={Cart}
       />
       <Tab.Screen
         listeners={{
           tabPress: e => {
             Vibration.vibrate(20);
+            StackActions.reset({
+              index: 0,
+              actions: [NavigationActions.navigate({routeName: 'HomeTab'})],
+            });
           },
         }}
         options={{
+          unmountOnBlur: true,
           tabBarIcon: ({focused}) => (
             <Image
-              source={cat}
+              source={user}
               resizeMode="contain"
               style={{
                 width: 25,
@@ -107,7 +127,7 @@ const BottomTab = () => {
             />
           ),
         }}
-        name="Profile"
+        name="ProfileNew"
         component={Profile}
       />
     </Tab.Navigator>

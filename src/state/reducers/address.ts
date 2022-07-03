@@ -46,6 +46,7 @@ const reducer = (
         loading: false,
         userAddressText: action.payload,
         user_have_address: action.user_have_address,
+        userAddress: action.address,
       };
     case AddressActionTypes.FETCH_USER_ADDRESS_FAILD:
       return {

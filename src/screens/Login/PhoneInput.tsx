@@ -15,7 +15,6 @@ import {LoginError, TopNav} from '../../components';
 import {bd} from '../../constants/images';
 import {sendOtp} from '../../state/actionCreatores/auth';
 import {RootState} from '../../state/store';
-import {API_URL} from '@env';
 import AnimatedLottieView from 'lottie-react-native';
 
 export const OverlaySpinner = () => {
@@ -39,6 +38,7 @@ class PhoneInput extends Component<any, any> {
     if (this.props.status === 200) {
       this.props.navigation.navigate('VerifyOtp', {
         pk: this.props.pk,
+        redirectScreen: this.props.route?.params?.redirectScreen,
       });
     }
   }
@@ -68,6 +68,8 @@ class PhoneInput extends Component<any, any> {
   };
 
   render() {
+    console.log('redirectScreen', this.props.route?.params?.redirectScreen);
+
     return (
       <View
         style={{

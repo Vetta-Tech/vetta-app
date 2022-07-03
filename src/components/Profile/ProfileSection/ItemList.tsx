@@ -8,11 +8,13 @@ import {arrow} from '../../../constants/images';
 interface Props {
   img: any;
   txt: string;
+  screen_name: string;
+  navigation: any;
 }
 
-const ItemList = ({img, txt}: Props) => {
+const ItemList = ({img, txt, screen_name, navigation}: Props) => {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => navigation.navigate(screen_name)}>
       <View style={styles.itemListContainer}>
         <View style={styles.leftContainer}>
           <View style={styles.imgContainer}>

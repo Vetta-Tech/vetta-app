@@ -23,6 +23,7 @@ interface AuthSelectModalProps {
   navigation: any;
   isVisible: boolean;
   myRef: any;
+  redirectScreen?: string;
 }
 
 export default class AuthSelectModal extends Component<
@@ -51,7 +52,11 @@ export default class AuthSelectModal extends Component<
             .then(async res => {
               if (res.status === 200) {
                 await AsyncStorage.setItem('token', res.data.token);
-                this.props.navigation.replace('Home');
+                this.props.navigation.navigate(
+                  this.props.redirectScreen
+                    ? this.props.redirectScreen
+                    : 'Home',
+                );
               }
             })
             .catch(err => {
@@ -91,7 +96,13 @@ export default class AuthSelectModal extends Component<
           }}>
           <View>
             <TouchableOpacity
-              onPress={() => this.props.navigation.replace('PhoneInputComp')}>
+              onPress={() =>
+                this.props.navigation.navigate('PhoneInputComp', {
+                  redirectScreen: this.props.redirectScreen
+                    ? this.props.redirectScreen
+                    : 'Home',
+                })
+              }>
               <View
                 style={[
                   styles.btn,

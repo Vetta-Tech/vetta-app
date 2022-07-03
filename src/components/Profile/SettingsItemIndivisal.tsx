@@ -1,4 +1,11 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
 import {styles} from './ProfileSection/styles';
 import {arrow} from '../../constants/images';
@@ -9,6 +16,7 @@ interface Props {
   title: string;
   screen_name: string;
   onPress?: any;
+  rate_url?: string;
 }
 
 const SettingsItemIndivisal = ({
@@ -17,9 +25,15 @@ const SettingsItemIndivisal = ({
   title,
   screen_name,
   onPress,
+  rate_url,
 }: Props) => {
   return (
-    <TouchableOpacity onPress={() => navigation.navigate(screen_name)}>
+    <TouchableOpacity
+      onPress={
+        rate_url
+          ? () => Linking.openURL(`${rate_url}`)
+          : () => navigation.navigate(screen_name)
+      }>
       <View
         style={[
           styles.itemListContainer,

@@ -32,6 +32,9 @@ const info = require('../../assets/profile/info.png');
 const writemail = require('../../assets/profile/write-mail.png');
 const report = require('../../assets/profile/report.png');
 const logout = require('../../assets/profile/logout.png');
+const homeaddress = require('../../assets/profile/home.png');
+const menu = require('../../assets/profile/menu.png');
+const share = require('../../assets/profile/share.png');
 
 export {
   topbarimage,
@@ -62,4 +65,7 @@ export {
   writemail,
   report,
   logout,
+  homeaddress,
+  menu,
+  share,
 };

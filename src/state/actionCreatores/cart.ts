@@ -21,6 +21,11 @@ export const fetchUserCart = () => async (dispatch: Dispatch<CartActions>) => {
     });
   } catch (error) {
     if (error instanceof Error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Something went wrong',
+        position: 'top',
+      });
       dispatch({
         type: CartActionTypes.FETCH_CART_FAILD,
         error: error.message,

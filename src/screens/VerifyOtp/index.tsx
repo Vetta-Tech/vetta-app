@@ -29,12 +29,13 @@ class VerifyOtp extends Component<any, VerifyOtPState> {
 
   componentDidUpdate() {
     if (this.props.validateStatus === 200) {
-      this.props.navigation.navigate('Home');
+      this.props.navigation.navigate(this.props.route?.params?.redirectScreen);
     }
   }
 
   componentDidMount() {
     if (!this.props.route.params.pk) {
+      console.log('redirectScreen', this.props.route?.params?.redirectScreen);
       this.props.navigation.goBack();
       this.setState({
         error: 'Submite went wrong',

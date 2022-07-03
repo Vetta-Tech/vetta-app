@@ -128,7 +128,6 @@ class Home extends Component<Props, IState> {
   };
 
   render() {
-    console.log('brands home........................', this.props.brands);
     return (
       <>
         <Modal

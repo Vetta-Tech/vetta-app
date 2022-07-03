@@ -38,7 +38,7 @@ export const authFail = (error: any) => {
   };
 };
 
-export const logout = async () => {
+export const logout = async (navigation?: any) => {
   await AsyncStorage.removeItem('token');
   return {
     type: AuthActionTypes.AUTH_LOGOUT,
@@ -86,5 +86,13 @@ export const authCheckState = () => {
     } else {
       dispatch(authSuccess('', token));
     }
+  };
+};
+
+export const resetStatus = () => {
+  return (dispatch: any) => {
+    dispatch({
+      type: AuthActionTypes.AUTH_LOGOUT,
+    });
   };
 };

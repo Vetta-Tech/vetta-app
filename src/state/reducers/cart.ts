@@ -41,6 +41,13 @@ const reducer = (state = InitialState, action: CartActions): CartState => {
         ...state,
         loading: false,
         error: 'Something went wrong',
+        cartData: [],
+        final_cart: {
+          id: 0,
+          total: 0,
+          sub_total: 0,
+          total_saved: 0,
+        },
       };
     case CartActionTypes.INCREASE_QUANTITY_START:
       return {

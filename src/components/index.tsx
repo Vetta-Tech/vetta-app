@@ -42,6 +42,8 @@ import ActionContainer from './Profile/ActionSegment/ActionContainer';
 import ProfileSectionContainer from './Profile/ProfileSection/ProfileSectionContainer';
 import SettingsItemIndivisal from './Profile/SettingsItemIndivisal';
 import AboutList from './Profile/AboutList';
+import LogoLoading from './Loading/LogoLoading';
+import LogoutModal from './Profile/LogoutModal';
 
 export {
   TopBar,
@@ -87,4 +89,6 @@ export {
   ProfileSectionContainer,
   SettingsItemIndivisal,
   AboutList,
+  LogoLoading,
+  LogoutModal,
 };

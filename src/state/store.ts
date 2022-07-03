@@ -9,6 +9,8 @@ import Cart from './reducers/cart';
 import ProductDetails from './reducers/productDetails';
 import Checkout from './reducers/checkout';
 import Address from './reducers/address';
+import Profile from './reducers/profile';
+
 import {configureStore} from '@reduxjs/toolkit';
 import {AppActionType} from './actions/intex';
 
@@ -21,6 +23,7 @@ const reducers = combineReducers({
   productDetails: ProductDetails,
   cart: Cart,
   checkout: Checkout,
+  profile: Profile,
 });
 
 export type AppState = ReturnType<typeof reducers>;

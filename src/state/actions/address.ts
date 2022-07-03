@@ -10,6 +10,7 @@ interface FectUserAddressSuccess {
   type: AddressActionTypes.FETCH_USER_ADDRESS_SUCCESS;
   payload: string;
   user_have_address: boolean;
+  address: any;
 }
 
 interface FectUserAddressFaild {
