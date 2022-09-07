@@ -159,7 +159,7 @@ export default class MapBottomSheet extends Component<MapBottomSheetProps> {
             placeholder="Search address"
             onFail={error => console.error(error)}
             query={{
-              key: 'AIzaSyAU0NABrARW4CkWHoItDHuNtARlRoiRalg',
+              key: 'api_key',
               language: 'en', // language of the results
               components: 'country:bd',
             }}
